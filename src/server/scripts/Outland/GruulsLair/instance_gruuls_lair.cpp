@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -54,7 +54,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 MaulgarGUID = 0;
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -72,7 +72,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 }
             }
 
-            void OnCreatureRemove(Creature* creature) OVERRIDE
+            void OnCreatureRemove(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -88,7 +88,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -101,7 +101,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -114,7 +114,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -126,7 +126,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -137,7 +137,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(char const* str) OVERRIDE
+            void Load(char const* str) override
             {
                 if (!str)
                 {
@@ -173,7 +173,7 @@ class instance_gruuls_lair : public InstanceMapScript
             uint64 MaulgarGUID;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_gruuls_lair_InstanceMapScript(map);
         }

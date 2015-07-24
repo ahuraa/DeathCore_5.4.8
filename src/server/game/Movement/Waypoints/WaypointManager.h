@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,6 +37,17 @@ struct WaypointData
 typedef std::vector<WaypointData*> WaypointPath;
 typedef UNORDERED_MAP<uint32, WaypointPath> WaypointPathContainer;
 
+
+struct SplineWaypointData
+{
+	uint8 wp_id;
+	float x, y, z;
+};
+
+typedef std::vector<SplineWaypointData> SplineWaypointPath;
+typedef std::unordered_map<uint8, SplineWaypointPath> SplineWaypointPathContainer;
+typedef std::unordered_map<uint32, SplineWaypointPathContainer> CreatureSplineWaypointPathContainer;
+
 class WaypointMgr
 {
         friend class ACE_Singleton<WaypointMgr, ACE_Null_Mutex>;
@@ -58,12 +69,29 @@ class WaypointMgr
             return NULL;
         }
 
+
+		SplineWaypointPath const* GetSplinePath(uint32 c_entry, uint8 path_id) const
+		{
+			CreatureSplineWaypointPathContainer::const_iterator itr = m_splineWaypointStore.find(c_entry);
+
+			if (itr != m_splineWaypointStore.end())
+			{
+				SplineWaypointPathContainer::const_iterator jitr = (*itr).second.find(path_id);
+
+				if (jitr != (*itr).second.end())
+					return &jitr->second;
+			}
+
+			return NULL;
+		}
+
     private:
         // Only allow instantiation from ACE_Singleton
         WaypointMgr();
         ~WaypointMgr();
 
         WaypointPathContainer _waypointStore;
+		CreatureSplineWaypointPathContainer m_splineWaypointStore;
 };
 
 #define sWaypointMgr ACE_Singleton<WaypointMgr, ACE_Null_Mutex>::instance()

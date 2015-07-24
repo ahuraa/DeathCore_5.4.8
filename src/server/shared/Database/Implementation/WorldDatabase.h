@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -113,7 +113,7 @@ enum WorldDatabaseStatements
     WORLD_INS_DISABLES,
     WORLD_DEL_DISABLES,
     WORLD_SEL_REQ_XP,
-    WORLD_SEL_BLACK_MARKET_TEMPLATE,
+    WORLD_SEL_BLACKMARKET_TEMPLATE,
 
     MAX_WORLDDATABASE_STATEMENTS
 };

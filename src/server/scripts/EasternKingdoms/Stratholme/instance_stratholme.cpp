@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,13 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: instance_stratholme
-SD%Complete: 50
-SDComment: In progress. Undead side 75% implemented. Save/load not implemented.
-SDCategory: Stratholme
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -74,7 +64,7 @@ class instance_stratholme : public InstanceMapScript
             std::set<uint64> abomnationGUID;
             EventMap events;
 
-            void Initialize() OVERRIDE
+            void Initialize() override
             {
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     EncounterState[i] = NOT_STARTED;
@@ -128,7 +118,7 @@ class instance_stratholme : public InstanceMapScript
                 }
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -148,7 +138,7 @@ class instance_stratholme : public InstanceMapScript
                 }
             }
 
-            void OnCreatureRemove(Creature* creature) OVERRIDE
+            void OnCreatureRemove(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -162,7 +152,7 @@ class instance_stratholme : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -215,7 +205,7 @@ class instance_stratholme : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 type, uint32 data) OVERRIDE
+            void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {
@@ -355,7 +345,7 @@ class instance_stratholme : public InstanceMapScript
                     SaveToDB();
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -367,7 +357,7 @@ class instance_stratholme : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* in) OVERRIDE
+            void Load(const char* in) override
             {
                 if (!in)
                 {
@@ -392,7 +382,7 @@ class instance_stratholme : public InstanceMapScript
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
-            uint32 GetData(uint32 type) const OVERRIDE
+            uint32 GetData(uint32 type) const override
             {
                   switch (type)
                   {
@@ -416,7 +406,7 @@ class instance_stratholme : public InstanceMapScript
                   return 0;
             }
 
-            uint64 GetData64(uint32 data) const OVERRIDE
+            uint64 GetData64(uint32 data) const override
             {
                 switch (data)
                 {
@@ -428,7 +418,7 @@ class instance_stratholme : public InstanceMapScript
                 return 0;
             }
 
-            void Update(uint32 diff) OVERRIDE
+            void Update(uint32 diff) override
             {
                 events.Update(diff);
 
@@ -459,7 +449,7 @@ class instance_stratholme : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_stratholme_InstanceMapScript(map);
         }

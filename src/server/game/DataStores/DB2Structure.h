@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,6 @@
 
 #include "Common.h"
 #include "ItemPrototype.h"
-#include "NPCHandler.h"
 
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)
@@ -32,6 +31,167 @@
 #endif
 
 // Structures used to access raw DB2 data and required packing to portability
+
+struct BattlePetAbilityEffectEntry
+{
+    uint32 ID;                                              // 0
+    //uint32 Unk1;                                          // 1
+    //uint32 Unk2;                                          // 2
+    //uint32 Unk3;                                          // 3
+    //uint32 Unk4;                                          // 4
+    //uint32 Unk5;                                          // 5
+    //uint32 Unk6;                                          // 6
+    //uint32 Unk7;                                          // 7
+    //uint32 Unk8;                                          // 8
+    //uint32 Unk9;                                          // 9
+    //uint32 Unk10;                                         // 10
+    //uint32 Unk11;                                         // 11
+};
+
+struct BattlePetAbilityTurnEntry
+{
+    uint32 ID;                                              // 0
+    //uint32 Unk1;                                          // 1
+    //uint32 Unk2;                                          // 2
+    //uint32 Unk3;                                          // 3
+    //uint32 Unk4;                                          // 4
+    //uint32 Unk5;                                          // 5
+};
+
+struct BattlePetBreedQualityEntry
+{
+    uint32 ID;                                              // 0
+    //uint32 Unk1;                                          // 1
+    //uint32 Unk2;                                          // 2
+    //uint32 Unk3;                                          // 3
+};
+
+struct BattlePetEffectPropertiesEntry
+{
+    uint32 ID;                                              // 0
+    //uint32 Unk1;                                          // 1
+    //uint32 Unk2;                                          // 2
+    //uint32 Unk3;                                          // 3
+    //uint32 Unk4;                                          // 4
+    //uint32 Unk5;                                          // 5
+    //uint32 Unk6;                                          // 6
+    //uint32 Unk7;                                          // 7
+    //uint32 Unk8;                                          // 8
+    //uint32 Unk9;                                          // 9
+    //uint32 Unk10;                                         // 10
+    //uint32 Unk11;                                         // 11
+    //uint32 Unk12;                                         // 12
+    //uint32 Unk13;                                         // 13
+};
+
+struct BattlePetVisualEntry
+{
+    uint32 ID;                                              // 0
+    //uint32 Unk1;                                          // 1
+    //uint32 Unk2;                                          // 2
+    //uint32 Unk3;                                          // 3
+    //uint32 Unk4;                                          // 4
+    //uint32 Unk5;                                          // 5
+    //uint32 Unk6;                                          // 6
+    //uint32 Unk7;                                          // 7
+};
+
+struct CreatureDifficultyEntry
+{
+    uint32 ID;                                              // 0
+    //uint32 Unk1;                                          // 1
+    //uint32 Unk2;                                          // 2
+    //uint32 Unk3;                                          // 3
+    //uint32 Unk4;                                          // 4
+    //uint32 Unk5;                                          // 5
+    //uint32 Unk6;                                          // 6
+    //uint32 Unk7;                                          // 7
+    //uint32 Unk8;                                          // 8
+    //uint32 Unk9;                                          // 9
+    //uint32 Unk10;                                         // 10
+};
+
+struct CreatureEntry
+{
+    uint32 ID;                                              // 0
+    //uint32 Unk1;                                          // 1
+    //uint32 Unk2;                                          // 2
+    //uint32 Unk3;                                          // 3
+    //uint32 Unk4;                                          // 4
+    //uint32 Unk5;                                          // 5
+    //uint32 Unk6;                                          // 6
+    //uint32 Unk7;                                          // 7
+    //uint32 Unk8;                                          // 8
+    //uint32 Unk9;                                          // 9
+    //uint32 Unk10;                                         // 10
+    //uint32 Unk11;                                         // 11
+    //uint32 Unk12;                                         // 12
+    //uint32 Unk13;                                         // 13
+    //uint32 Unk14;                                         // 14
+    //uint32 Unk15;                                         // 15
+    //uint32 Unk16;                                         // 16
+    //uint32 Unk17;                                         // 17
+};
+
+struct GameObjectsEntry
+{
+    uint32 ID;                                              // 0
+    //uint32 Unk1;                                          // 1
+    //uint32 Unk2;                                          // 2
+    //uint32 Unk3;                                          // 3
+    //uint32 Unk4;                                          // 4
+    //uint32 Unk5;                                          // 5
+    //uint32 Unk6;                                          // 6
+    //uint32 Unk7;                                          // 7
+    //uint32 Unk8;                                          // 8
+    //uint32 Unk9;                                          // 9
+    //uint32 Unk10;                                         // 10
+    //uint32 Unk11;                                         // 11
+    //uint32 Unk12;                                         // 12
+    //uint32 Unk13;                                         // 13
+    //uint32 Unk14;                                         // 14
+    //uint32 Unk15;                                         // 15
+    //uint32 Unk16;                                         // 16
+};
+
+struct ItemToMountSpellEntry
+{
+    uint32 ID;                                              // 0
+    uint32 SpellId;                                         // 1
+};
+
+struct RulesetItemUpgradeEntry
+{
+    uint32 ID;                                              // 0
+    //uint32 Unk1;                                          // 1
+    uint32 UpgradeID;                                       // 2
+    uint32 ItemEntry;                                       // 3
+};
+
+struct RulesetRaidLootUpgradeEntry
+{
+    uint32 ID;                                              // 0
+    //uint32 Unk1;                                          // 1
+    //uint32 Unk2;                                          // 2
+    //uint32 Unk3;                                          // 3
+    //uint32 Unk4;                                          // 4
+};
+
+struct SceneScriptPackageEntry
+{
+    uint32 ID;                                              // 0
+    //LocalizedString* Nane;                                // 1
+};
+
+struct SceneScriptPackageMemberEntry
+{
+    uint32 ID;                                              // 0
+    //uint32 Unk1;                                          // 1
+    //uint32 Unk2;                                          // 2
+    //uint32 Unk3;                                          // 3
+    //uint32 Unk4;                                          // 4
+};
+
 struct BattlePetAbilityEntry
 {
     uint32 AbilityId;                                       // 0 - battle pet ability id
@@ -110,15 +270,19 @@ struct ItemToBattlePetEntry
 
 struct BroadcastTextEntry
 {
-    uint32   Id;                                             // 0
-    uint32   Language;                                       // 1
-    LocalizedString* MaleText;                               // 2
-    LocalizedString* FemaleText;                             // 3
-    uint32   Emote[MAX_GOSSIP_TEXT_EMOTES];                  // 4-6
-    uint32   EmoteDelay[MAX_GOSSIP_TEXT_EMOTES];             // 7-9
-    uint32   SoundId;                                        // 10
-    uint32   EndEmoteId;                                     // 11
-    uint32   Type;                                           // 12
+    uint32   ID;                                             // 0
+    //uint32   Unk0;                                         // 1
+    LocalizedString* text_0;                                 // 2
+    LocalizedString* text_1;                                 // 3
+    //uint32   Unk1;                                         // 4
+    //uint32   Unk2;                                         // 5
+    //uint32   Unk3;                                         // 6
+    //uint32   Unk4;                                         // 7
+    //uint32   Unk5;                                         // 8
+    //uint32   Unk6;                                         // 9
+    uint32   SoundID;                                        // 10
+    //uint32   Unk7;                                         // 11
+    //uint32   Unk8;                                         // 12
 };
 
 struct ItemEntry
@@ -213,6 +377,16 @@ struct ItemSparseEntry
     int32      CurrencySubstitutionCount;                    // 133
 };
 
+struct ItemUpgradeEntry
+{
+    uint32     UpgradeID;                                    // 0
+    uint32     UpgradeGroupId;                               // 1 groupid from ItemUpgradePath.dbc
+    uint32     IlvlStep;                                     // 2
+    uint32     ItemLvl;                                      // 3 required ilvl
+    uint32     CurrencyType;                                 // 4 CurrencyType cost
+    uint32     CurrencyCost;                                 // 5 CurrencyCost amount
+};
+
 #define MAX_ITEM_EXT_COST_ITEMS         5
 #define MAX_ITEM_EXT_COST_CURRENCIES    5
 
@@ -251,14 +425,6 @@ struct QuestPackageItemEntry
     uint32      ItemID;                                     // 2
     uint32      Unk1;                                       // 3
     uint32      Unk2;                                       // 4
-};
-
-struct RulesetItemUpgradeEntry
-{
-    uint32      Id;
-    uint32      ItemUpgradeLevel;
-    uint32      ItemUpgradeId;
-    uint32      ItemEntry;
 };
 
 // SceneScript.db2

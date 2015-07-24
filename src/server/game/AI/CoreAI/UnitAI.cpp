@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -77,14 +77,14 @@ bool UnitAI::DoSpellAttackIfReady(uint32 spell)
     return false;
 }
 
-Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float dist, bool playerOnly, int32 aura)
+Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float dist, bool playerOnly, int32 aura, bool checkObscuredVision)
 {
-    return SelectTarget(targetType, position, DefaultTargetSelector(me, dist, playerOnly, aura));
+    return SelectTarget(targetType, position, DefaultTargetSelector(me, dist, playerOnly, aura, checkObscuredVision));
 }
 
-void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura)
+void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura, bool checkObscuredVision)
 {
-    SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura), num, targetType);
+    SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura, checkObscuredVision), num, targetType);
 }
 
 float UnitAI::DoGetSpellMaxRange(uint32 spellId, bool positive)
@@ -121,7 +121,7 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
     }
 }
 
-void UnitAI::DoCast(uint32 spellId)
+void UnitAI::DoCast(uint32 spellId, bool checkObscuredVision)
 {
     Unit* target = NULL;
 
@@ -156,7 +156,7 @@ void UnitAI::DoCast(uint32 spellId)
                 bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 float range = spellInfo->GetMaxRange(false);
 
-                DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId);
+                DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId, checkObscuredVision);
                 if (!(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
                     && targetSelector(me->GetVictim()))
                     target = me->GetVictim();

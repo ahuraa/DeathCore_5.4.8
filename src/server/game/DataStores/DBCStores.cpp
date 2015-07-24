@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -122,6 +122,7 @@ DBCStorage <GtSpellScalingEntry>          sGtSpellScalingStore(GtSpellScalingfmt
 DBCStorage <GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore(GtOCTBaseHPByClassfmt);
 DBCStorage <GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore(GtOCTBaseMPByClassfmt);
 DBCStorage <GuildPerkSpellsEntry>         sGuildPerkSpellsStore(GuildPerkSpellsfmt);
+DBCStorage <GtResilienceDREntry>          sGtResilienceDRStore(GtResilienceDRfmt);
 
 DBCStorage <HolidaysEntry>                sHolidaysStore(Holidaysfmt);
 
@@ -170,6 +171,7 @@ DBCStorage <MountTypeEntry> sMountTypeStore(MountTypefmt);
 DBCStorage <NameGenEntry> sNameGenStore(NameGenfmt);
 NameGenVectorArraysMap sGenNameVectoArraysMap;
 
+DBCStorage <PowerDisplayEntry> sPowerDisplayStore(PowerDisplayfmt);
 DBCStorage <OverrideSpellDataEntry> sOverrideSpellDataStore(OverrideSpellDatafmt);
 
 DBCStorage <PvPDifficultyEntry> sPvPDifficultyStore(PvPDifficultyfmt);
@@ -177,7 +179,14 @@ DBCStorage <PvPDifficultyEntry> sPvPDifficultyStore(PvPDifficultyfmt);
 DBCStorage <QuestSortEntry> sQuestSortStore(QuestSortEntryfmt);
 DBCStorage <QuestXPEntry>   sQuestXPStore(QuestXPfmt);
 DBCStorage <QuestFactionRewEntry>  sQuestFactionRewardStore(QuestFactionRewardfmt);
+DBCStorage <QuestPOIPointEntry> sQuestPOIPointStore(QuestPOIPointfmt);
 DBCStorage <RandomPropertiesPointsEntry> sRandomPropertiesPointsStore(RandomPropertiesPointsfmt);
+
+DBCStorage <ResearchBranchEntry>  sResearchBranchStore(ResearchBranchfmt);
+DBCStorage <ResearchProjectEntry> sResearchProjectStore(ResearchProjectfmt);
+DBCStorage <ResearchSiteEntry>    sResearchSiteStore(ResearchSitefmt);
+static DigsitePOIPolygonContainer sDigsitePOIPolygons;
+
 DBCStorage <ScalingStatDistributionEntry> sScalingStatDistributionStore(ScalingStatDistributionfmt);
 DBCStorage <ScalingStatValuesEntry> sScalingStatValuesStore(ScalingStatValuesfmt);
 
@@ -230,10 +239,9 @@ TalentSpellPosMap sTalentSpellPosMap;
 typedef std::map<uint32, std::vector<uint32> > SpecializationSpellsMap;
 
 SpecializationSpellsMap sSpecializationSpellsMap;
-SpecializationOverrideSpellsMap sSpecializationOverrideSpellMap;
 
 // store absolute bit position for first rank for talent inspect
-static uint32 sSpecializationClassStore[MAX_CLASSES][4];
+static uint32 sSpecializationClassStore[MAX_CLASSES][MAX_SPECIALIZATIONS];
 
 DBCStorage <TaxiNodesEntry> sTaxiNodesStore(TaxiNodesEntryfmt);
 TaxiMask sTaxiNodesMask;
@@ -443,6 +451,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTBaseHPByClassStore,        dbcPath, "gtOCTBaseHPByClass.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTBaseMPByClassStore,        dbcPath, "gtOCTBaseMPByClass.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sGuildPerkSpellsStore,        dbcPath, "GuildPerkSpells.dbc");//15595
+	LoadDBC(availableDbcLocales, bad_dbc_files, sGtResilienceDRStore,		  dbcPath, "gtResilienceDR.dbc");//18414
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sHolidaysStore,               dbcPath, "Holidays.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sImportPriceArmorStore,       dbcPath, "ImportPriceArmor.dbc"); // 15595
@@ -500,6 +509,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sMovieStore,                  dbcPath, "Movie.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sOverrideSpellDataStore,      dbcPath, "OverrideSpellData.dbc");//15595
 
+    LoadDBC(availableDbcLocales, bad_dbc_files, sPowerDisplayStore,           dbcPath, "PowerDisplay.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sPvPDifficultyStore,          dbcPath, "PvpDifficulty.dbc");//15595
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
@@ -509,8 +519,25 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestXPStore,                dbcPath, "QuestXP.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestFactionRewardStore,     dbcPath, "QuestFactionReward.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestSortStore,              dbcPath, "QuestSort.dbc");//15595
+    LoadDBC(availableDbcLocales, bad_dbc_files, sQuestPOIPointStore,          dbcPath, "QuestPOIPoint.dbc");//15595
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sRandomPropertiesPointsStore, dbcPath, "RandPropPoints.dbc");//15595
+
+    LoadDBC(availableDbcLocales, bad_dbc_files, sResearchBranchStore, dbcPath, "ResearchBranch.dbc");//15595
+    LoadDBC(availableDbcLocales, bad_dbc_files, sResearchProjectStore, dbcPath, "ResearchProject.dbc");//15595
+    LoadDBC(availableDbcLocales, bad_dbc_files, sResearchSiteStore, dbcPath, "ResearchSite.dbc");//15595
+
+    // must be after sQuestPOIPointStore and sResearchSiteStore loading
+    for (uint32 i = 0; i < sResearchSiteStore.GetNumRows(); ++i)
+    {
+        if (ResearchSiteEntry const* siteEntry = sResearchSiteStore.LookupEntry(i))
+        {
+            for (uint32 j = 0; j < sQuestPOIPointStore.GetNumRows(); ++j)
+            if (QuestPOIPointEntry const* pointEntry = sQuestPOIPointStore.LookupEntry(j))
+            if (siteEntry->QuestPOIBlobId == pointEntry->BlobId)
+                sDigsitePOIPolygons[siteEntry->Id].push_back(std::make_pair(pointEntry->X, pointEntry->Y));
+        }
+    }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sScalingStatDistributionStore, dbcPath, "ScalingStatDistribution.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sScalingStatValuesStore,      dbcPath, "ScalingStatValues.dbc");//15595
@@ -547,8 +574,7 @@ void LoadDBCStores(const std::string& dataPath)
     // LoadDBC(availableDbcLocales, bad_dbc_files, sSpellDifficultyStore,        dbcPath, "SpellDifficulty.dbc", &CustomSpellDifficultyfmt, &CustomSpellDifficultyIndex);//15595 -- DBC gone, wtf blizzard ...
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellDurationStore,          dbcPath, "SpellDuration.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellFocusObjectStore,       dbcPath, "SpellFocusObject.dbc");//15595
-    // DISABLED - needs more research
-    //LoadDBC(availableDbcLocales, bad_dbc_files, sSpellItemEnchantmentStore,   dbcPath, "SpellItemEnchantment.dbc");//15595
+    LoadDBC(availableDbcLocales, bad_dbc_files, sSpellItemEnchantmentStore,   dbcPath, "SpellItemEnchantment.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellMiscStore,              dbcPath, "SpellMisc.dbc");//17538
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellEffectScalingStore,     dbcPath, "SpellEffectScaling.dbc");//17538
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellItemEnchantmentConditionStore, dbcPath, "SpellItemEnchantmentCondition.dbc");//15595
@@ -660,8 +686,9 @@ void LoadDBCStores(const std::string& dataPath)
         }
     }
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sTalentStore,                 dbcPath, "Talent.dbc");//15595
+    LoadDBC(availableDbcLocales, bad_dbc_files, sTalentStore,                 dbcPath, "Talent.dbc"); //15595
 
+    /* TODO: Find a way to how to handle them now, cos dbc was delete =.=
     // Create Spelldifficulty searcher
     for (uint32 i = 0; i < sSpellDifficultyStore.GetNumRows(); ++i)
     {
@@ -688,24 +715,14 @@ void LoadDBCStores(const std::string& dataPath)
 
         for (uint32 x = 0; x < MAX_DIFFICULTY; ++x)
             sSpellMgr->SetSpellDifficultyId(uint32(newEntry.SpellID[x]), spellDiff->ID);
-    }
-
-    // create talent spells set
-    for (unsigned int i = 0; i < sTalentStore.GetNumRows(); ++i)
-    {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
-        if (!talentInfo)
-            continue;
-
-        for (int j = 0; j < MAX_TALENT_RANK; j++)
-            if (talentInfo->SpellId)
-                sTalentSpellPosMap[talentInfo->SpellId] = TalentSpellPos(i, j);
-    }
+    } */
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sChrSpecializationStore,              dbcPath, "ChrSpecialization.dbc");
 
     // prepare fast data access to bit pos of talent ranks for use at inspecting
     {
+        // initialize because all classes but druid have only 3 specs
+        memset(sSpecializationClassStore, 0, MAX_SPECIALIZATIONS * sizeof(uint32));
         // now have all max ranks (and then bit amount used for store talent ranks in inspect)
         for (uint32 j = 0; j < sChrSpecializationStore.GetNumRows(); j++)
         {
@@ -722,16 +739,6 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpecializationSpellsStore, dbcPath, "SpecializationSpells.dbc");
-    for (uint32 j = 0; j < sSpecializationSpellsStore.GetNumRows(); j++)
-    {
-        if (SpecializationSpellsEntry const* specializationSpells = sSpecializationSpellsStore.LookupEntry(j))
-        {
-            sSpecializationSpellsMap[specializationSpells->SpecializationId].push_back(specializationSpells->SpellId);
-
-            if (specializationSpells->RemovesSpellId)
-                sSpecializationOverrideSpellMap[specializationSpells->RemovesSpellId] = specializationSpells->SpellId;
-        }
-    }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sTaxiNodesStore,              dbcPath, "TaxiNodes.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sTaxiPathStore,               dbcPath, "TaxiPath.dbc");//15595
@@ -1161,28 +1168,40 @@ std::list<uint32> GetSpellsForLevels(uint32 classId, uint32 raceMask, uint32 spe
     return spellList;
 }
 
+std::vector<uint32> const* GetSpecializationSpells(uint32 specializationId)
+{
+    SpecializationSpellsMap::const_iterator specIter = sSpecializationSpellsMap.find(specializationId);
+    if (specIter != sSpecializationSpellsMap.end())
+        return &specIter->second;
+
+    return NULL;
+}
+
 MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
 {
     MapDifficultyMap::const_iterator itr = sMapDifficultyMap.find(MAKE_PAIR32(mapId, difficulty));
     return itr != sMapDifficultyMap.end() ? &itr->second : NULL;
 }
 
+// @todo: add support for the new difficulty SCENARIO_HEROIC_DIFFICULTY, SCENARIO_DIFFICULTY, and DYNAMIC_DIFFICULTY
 MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty)
 {
     uint32 tmpDiff = difficulty;
     MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
     if (!mapDiff)
     {
-        if (tmpDiff > RAID_DIFFICULTY_25MAN_NORMAL) // heroic, downscale to normal
-            tmpDiff -= 2;
+        if (tmpDiff == RAID_DIFFICULTY_25MAN_HEROIC)
+            tmpDiff = RAID_DIFFICULTY_25MAN_NORMAL;
+        else if (tmpDiff == RAID_DIFFICULTY_10MAN_HEROIC)
+            tmpDiff = RAID_DIFFICULTY_10MAN_NORMAL;
         else
-            tmpDiff -= 1;   // any non-normal mode for raids like tbc (only one mode)
+            tmpDiff = REGULAR_DIFFICULTY;
 
         // pull new data
         mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // we are 10 normal or 25 normal
         if (!mapDiff)
         {
-            tmpDiff -= 1;
+            tmpDiff = RAID_DIFFICULTY_10MAN_NORMAL;
             mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // 10 normal
         }
     }
@@ -1230,12 +1249,6 @@ uint32 const* GetClassSpecializations(uint8 classId)
     return sSpecializationClassStore[classId];
 }
 
-uint32 const* GetPetSpecializations()
-{
-    // Pet specializations have 0 as Class Id value
-    return sSpecializationClassStore[0];
-}
-
 uint32 GetLiquidFlags(uint32 liquidType)
 {
     if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquidType))
@@ -1251,11 +1264,6 @@ CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, ui
         return NULL;
 
     return itr->second;
-}
-
-uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId)
-{
-    return PowersByClass[classId][powerType];
 }
 
 uint32 ScalingStatValuesEntry::GetStatMultiplier(uint32 inventoryType) const
@@ -1408,6 +1416,15 @@ uint32 ScalingStatValuesEntry::GetDPSAndDamageMultiplier(uint32 subClass, bool i
         return dpsMod[2];
     }
     return 0;
+}
+
+DigsitePOIPolygon const* GetDigsitePOIPolygon(uint32 digsiteId)
+{
+    DigsitePOIPolygonContainer::const_iterator itr = sDigsitePOIPolygons.find(digsiteId);
+    if (itr != sDigsitePOIPolygons.end())
+        return &itr->second;
+
+    return NULL;
 }
 
 /// Returns LFGDungeonEntry for a specific map and difficulty. Will return first found entry if multiple dungeons use the same map (such as Scarlet Monastery)

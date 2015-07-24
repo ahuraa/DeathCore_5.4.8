@@ -1,7 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,13 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-Name: reset_commandscript
-%Complete: 100
-Comment: All reset related commands
-Category: commandscripts
-EndScriptData */
-
 #include "AchievementMgr.h"
 #include "Chat.h"
 #include "Language.h"
@@ -37,7 +28,7 @@ class reset_commandscript : public CommandScript
 public:
     reset_commandscript() : CommandScript("reset_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand resetCommandTable[] =
         {
@@ -47,6 +38,7 @@ public:
             { "spells",       rbac::RBAC_PERM_COMMAND_RESET_SPELLS,       true, &HandleResetSpellsCommand,       "", NULL },
             { "stats",        rbac::RBAC_PERM_COMMAND_RESET_STATS,        true, &HandleResetStatsCommand,        "", NULL },
             { "talents",      rbac::RBAC_PERM_COMMAND_RESET_TALENTS,      true, &HandleResetTalentsCommand,      "", NULL },
+            { "spec",         rbac::RBAC_PERM_COMMAND_RESET_SPEC,         true, &HandleResetSpecCommand,         "", NULL },
             { "all",          rbac::RBAC_PERM_COMMAND_RESET_ALL,          true, &HandleResetAllCommand,          "", NULL },
             { NULL,           0,                                   false, NULL,                            "", NULL }
         };
@@ -225,6 +217,9 @@ public:
             if (!handler->GetSession() || handler->GetSession()->GetPlayer() != target)
                 handler->PSendSysMessage(LANG_RESET_TALENTS_ONLINE, handler->GetNameLink(target).c_str());
 
+            if (Pet* pet = target->GetPet())
+                target->SendTalentsInfoData(true);
+
             return true;
         }
         else if (targetGuid)
@@ -239,6 +234,29 @@ public:
             return true;
         }
 
+        handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+
+    static bool HandleResetSpecCommand(ChatHandler* handler, char const* args)
+    {
+        Player* target;
+        uint64 targetGuid;
+        std::string targetName;
+        if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
+        {
+            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (target)
+        {
+            target->ResetSpec();
+            target->SendTalentsInfoData();
+            return true;
+        }
         handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
         handler->SetSentErrorMessage(true);
         return false;

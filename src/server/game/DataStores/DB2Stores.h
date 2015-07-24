@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,27 +24,28 @@
 #include "DB2Structure.h"
 #include <string>
 
-extern DB2Storage<BattlePetAbilityEntry> sBattlePetAbilityStore;
-extern DB2Storage<BattlePetAbilityStateEntry> sBattlePetAbilityStateStore;
-extern DB2Storage<BattlePetBreedStateEntry> sBattlePetBreedStateStore;
-extern DB2Storage<BattlePetSpeciesEntry> sBattlePetSpeciesStore;
-extern DB2Storage<BattlePetSpeciesStateEntry> sBattlePetSpeciesStateStore;
-extern DB2Storage<BattlePetSpeciesXAbilityEntry> sBattlePetSpeciesXAbilityStore;
-extern DB2Storage<BattlePetStateEntry> sBattlePetStateStore;
-extern DB2Storage<ItemToBattlePetEntry> sItemToBattlePetStore;
+extern DB2Storage<BattlePetAbilityEntry>            sBattlePetAbilityStore;
+extern DB2Storage<BattlePetAbilityStateEntry>       sBattlePetAbilityStateStore;
+extern DB2Storage<BattlePetBreedStateEntry>         sBattlePetBreedStateStore;
+extern DB2Storage<BattlePetSpeciesEntry>            sBattlePetSpeciesStore;
+extern DB2Storage<BattlePetSpeciesStateEntry>       sBattlePetSpeciesStateStore;
+extern DB2Storage<BattlePetSpeciesXAbilityEntry>    sBattlePetSpeciesXAbilityStore;
+extern DB2Storage<BattlePetStateEntry>              sBattlePetStateStore;
+extern DB2Storage<ItemToBattlePetEntry>             sItemToBattlePetStore;
+extern DB2Storage<BroadcastTextEntry>               sBroadcastTextStore;
+extern DB2Storage<ItemEntry>                        sItemStore;
+extern DB2Storage<ItemCurrencyCostEntry>            sItemCurrencyCostStore;
+extern DB2Storage<ItemExtendedCostEntry>            sItemExtendedCostStore;
+extern DB2Storage<ItemSparseEntry>                  sItemSparseStore;
+extern DB2Storage<ItemUpgradeEntry>                 sItemUpgradeStore;
+extern DB2Storage<KeyChainEntry>                    sKeyChainStore;
+extern DB2Storage<SceneScriptEntry>                 sSceneScriptStore;
+extern DB2Storage<SpellReagentsEntry>               sSpellReagentsStore;
+extern DB2Storage<RulesetItemUpgradeEntry>          sRulesetItemUpgradeStore;
 
-extern BattlePetBreedSet sBattlePetBreedSet;
-extern BattlePetItemXSpeciesStore sBattlePetItemXSpeciesStore;
 
-extern DB2Storage<BroadcastTextEntry> sBroadcastTextStore;
-extern DB2Storage<ItemEntry> sItemStore;
-extern DB2Storage<ItemCurrencyCostEntry> sItemCurrencyCostStore;
-extern DB2Storage<ItemExtendedCostEntry> sItemExtendedCostStore;
-extern DB2Storage<ItemSparseEntry> sItemSparseStore;
-extern DB2Storage<KeyChainEntry> sKeyChainStore;
-extern DB2Storage<RulesetItemUpgradeEntry> sRulesetItemUpgradeStore;
-extern DB2Storage<SceneScriptEntry> sSceneScriptStore;
-extern DB2Storage<SpellReagentsEntry> sSpellReagentsStore;
+extern BattlePetBreedSet                            sBattlePetBreedSet;
+extern BattlePetItemXSpeciesStore                   sBattlePetItemXSpeciesStore;
 
 void LoadDB2Stores(std::string const& dataPath);
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -79,22 +79,22 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
             static MovementStatusElements const accessoryGuid[] =
             {
                 MSEExtraInt8,
+                MSEHasGuidByte2,
+                MSEHasGuidByte4,
                 MSEHasGuidByte7,
-                MSEHasGuidByte3,
+                MSEHasGuidByte6,
+                MSEHasGuidByte5,
                 MSEHasGuidByte0,
                 MSEHasGuidByte1,
-                MSEHasGuidByte6,
-                MSEHasGuidByte4,
-                MSEHasGuidByte5,
-                MSEHasGuidByte2,
-                MSEGuidByte5,
-                MSEGuidByte0,
-                MSEGuidByte2,
-                MSEGuidByte3,
-                MSEGuidByte7,
-                MSEGuidByte4,
+                MSEHasGuidByte3,
                 MSEGuidByte6,
                 MSEGuidByte1,
+                MSEGuidByte2,
+                MSEGuidByte5,
+                MSEGuidByte3,
+                MSEGuidByte0,
+                MSEGuidByte4,
+                MSEGuidByte7,
             };
 
             Movement::ExtraMovementStatusElement extra(accessoryGuid);
@@ -139,11 +139,14 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleEnterPlayerVehicle(WorldPacket& data)
+void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
 {
-    // Read guid
-    uint64 guid;
-    data >> guid;
+    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_PLAYER_VEHICLE_ENTER");
+
+    ObjectGuid guid;
+    recvData.ReadGuidMask(guid, 5, 7, 3, 0, 2, 4, 6, 1);
+
+    recvData.ReadGuidBytes(guid, 5, 3, 1, 2, 7, 0, 6, 4);
 
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {

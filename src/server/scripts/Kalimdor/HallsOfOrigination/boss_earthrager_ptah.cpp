@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -135,7 +135,7 @@ public:
                             player->GetSession()->SendPacket(data);
         }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _summonDeaths = 0;
             _hasDispersed = false;
@@ -147,7 +147,7 @@ public:
             events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) OVERRIDE
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_MASK_NORMAL) && !_hasDispersed)
             {
@@ -181,7 +181,7 @@ public:
             }
         }
 
-        void SetData(uint32 index, uint32 /*value*/) OVERRIDE
+        void SetData(uint32 index, uint32 /*value*/) override
         {
             if (index == DATA_SUMMON_DEATHS)
             {
@@ -198,14 +198,14 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
             Talk(SAY_AGGRO);
             _EnterCombat();
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             Talk(SAY_DEATH);
@@ -213,14 +213,14 @@ public:
             Cleanup();
         }
 
-        void JustReachedHome() OVERRIDE
+        void JustReachedHome() override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             _JustReachedHome();
             instance->SetBossState(DATA_EARTHRAGER_PTAH, FAIL);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
@@ -269,7 +269,7 @@ public:
         bool _hasDispersed;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetHallsOfOriginationAI<boss_earthrager_ptahAI>(creature);
     }
@@ -289,13 +289,13 @@ class spell_earthrager_ptah_flame_bolt : public SpellScriptLoader
                 Trinity::Containers::RandomResizeList(targets, GetCaster()->GetMap()->IsHeroic() ? 3 : 2);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_earthrager_ptah_flame_bolt_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_earthrager_ptah_flame_bolt_SpellScript();
         }
@@ -314,7 +314,7 @@ public:
         {
             if (Unit* ptah = GetCaster())
             {
-                ptah->SetFlag(UNIT_FIELD_FLAGS, uint32(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_31));
+                ptah->SetFlag(UNIT_FIELD_FLAGS, uint32(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PREVENT_EMOTES | UNIT_FLAG_UNK_31));
                 ptah->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
             }
         }
@@ -323,7 +323,7 @@ public:
         {
             if (Unit* ptah = GetCaster())
             {
-                ptah->RemoveFlag(UNIT_FIELD_FLAGS, uint32(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_31));
+                ptah->RemoveFlag(UNIT_FIELD_FLAGS, uint32(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PREVENT_EMOTES | UNIT_FLAG_UNK_31));
                 ptah->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
             }
         }

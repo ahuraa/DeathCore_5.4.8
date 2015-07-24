@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,13 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Boss_Garr
-SD%Complete: 50
-SDComment: Adds NYI
-SDCategory: Molten Core
-EndScriptData */
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -59,14 +49,14 @@ class boss_garr : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim) OVERRIDE
+            void EnterCombat(Unit* victim) override
             {
                 BossAI::EnterCombat(victim);
                 events.ScheduleEvent(EVENT_ANTIMAGIC_PULSE, 25000);
                 events.ScheduleEvent(EVENT_MAGMA_SHACKLES, 15000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -97,7 +87,7 @@ class boss_garr : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_garrAI(creature);
         }
@@ -114,12 +104,12 @@ class npc_firesworn : public CreatureScript
 
             uint32 immolateTimer;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 immolateTimer = 4000;                              //These times are probably wrong
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) OVERRIDE
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 uint32 const health10pct = me->CountPctFromMaxHealth(10);
                 uint32 health = me->GetHealth();
@@ -131,7 +121,7 @@ class npc_firesworn : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -149,7 +139,7 @@ class npc_firesworn : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_fireswornAI(creature);
         }

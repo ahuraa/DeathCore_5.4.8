@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,6 +40,9 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
         path_id = creature->GetWaypointPath();
 
     i_path = sWaypointMgr->GetPath(path_id);
+    
+    if (const CreatureData* cd = creature->GetCreatureData())
+        i_currentNode = cd->currentwaypoint;
 
     if (!i_path)
     {
@@ -260,10 +263,14 @@ void FlightPathMovementGenerator::DoFinalize(Player* player)
     player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK);
 }
 
-#define PLAYER_FLIGHT_SPEED 32.0f
-
 void FlightPathMovementGenerator::DoReset(Player* player)
 {
+    float playerFlightSpeed = 32.0f;
+
+    Unit::AuraEffectList const& mIncreaseTaxiFlightSpeed = player->GetAuraEffectsByType(SPELL_AURA_MOD_TAXI_FLIGHT_SPEED);
+    for (Unit::AuraEffectList::const_iterator i = mIncreaseTaxiFlightSpeed.begin(); i != mIncreaseTaxiFlightSpeed.end(); ++i)
+         AddPct(playerFlightSpeed, (*i)->GetAmount());
+
     player->getHostileRefManager().setOnlineOfflineState(false);
     player->AddUnitState(UNIT_STATE_IN_FLIGHT);
     player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
@@ -280,7 +287,7 @@ void FlightPathMovementGenerator::DoReset(Player* player)
     init.SetSmooth();
     init.SetUncompressed();
     init.SetWalk(true);
-    init.SetVelocity(PLAYER_FLIGHT_SPEED);
+    init.SetVelocity(playerFlightSpeed);
     init.Launch();
 }
 

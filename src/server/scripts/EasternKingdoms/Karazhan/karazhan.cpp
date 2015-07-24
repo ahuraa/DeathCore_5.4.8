@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,19 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Karazhan
-SD%Complete: 100
-SDComment: Support for Barnes (Opera controller) and Berthold (Doorman), Support for Quest 9645.
-SDCategory: Karazhan
-EndScriptData */
-
-/* ContentData
-npc_barnes
-npc_berthold
-npc_image_of_medivh
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -150,7 +134,7 @@ public:
         bool PerformanceReady;
         bool RaidWiped;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             m_uiSpotlightGUID = 0;
 
@@ -178,9 +162,9 @@ public:
             Start(false, false);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void WaypointReached(uint32 waypointId) OVERRIDE
+        void WaypointReached(uint32 waypointId) override
         {
             if (!instance)
                 return;
@@ -285,7 +269,7 @@ public:
             RaidWiped = false;
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
 
@@ -345,7 +329,7 @@ public:
         }
     };
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         npc_barnesAI* pBarnesAI = CAST_AI(npc_barnes::npc_barnesAI, creature->AI());
@@ -380,7 +364,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (InstanceScript* instance = creature->GetInstanceScript())
         {
@@ -412,7 +396,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_barnesAI(creature);
     }
@@ -429,7 +413,7 @@ class npc_berthold : public CreatureScript
 public:
     npc_berthold() : CreatureScript("npc_berthold") { }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) OVERRIDE
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -439,7 +423,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (InstanceScript* instance = creature->GetInstanceScript())
         {
@@ -476,7 +460,7 @@ class npc_image_of_medivh : public CreatureScript
 public:
     npc_image_of_medivh() : CreatureScript("npc_image_of_medivh") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_image_of_medivhAI(creature);
     }
@@ -499,7 +483,7 @@ public:
 
         bool EventStarted;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             ArcanagosGUID = 0;
 
@@ -514,9 +498,9 @@ public:
                 me->RemoveCorpse();
             }
         }
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -622,7 +606,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (YellTimer <= diff)
             {

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -84,7 +84,7 @@ class boss_mother_shahraz : public CreatureScript
 public:
     boss_mother_shahraz() : CreatureScript("boss_mother_shahraz") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_shahrazAI(creature);
     }
@@ -113,7 +113,7 @@ public:
 
         bool Enraged;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             if (instance)
                 instance->SetBossState(DATA_MOTHER_SHAHRAZ, NOT_STARTED);
@@ -136,7 +136,7 @@ public:
             Enraged = false;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             if (instance)
                 instance->SetBossState(DATA_MOTHER_SHAHRAZ, IN_PROGRESS);
@@ -145,12 +145,12 @@ public:
             Talk(SAY_AGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (instance)
                 instance->SetBossState(DATA_MOTHER_SHAHRAZ, DONE);
@@ -176,7 +176,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

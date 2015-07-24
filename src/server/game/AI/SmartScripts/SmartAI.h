@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -57,6 +57,7 @@ class SmartAI : public CreatureAI
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
         void EndPath(bool fail = false);
         void ResumePath();
+        void UpdatePath(const uint32 diff);
         WayPoint* GetNextWayPoint();
         bool HasEscortState(uint32 uiEscortState) { return (mEscortState & uiEscortState); }
         void AddEscortState(uint32 uiEscortState) { mEscortState |= uiEscortState; }
@@ -211,7 +212,6 @@ class SmartAI : public CreatureAI
         float mFollowAngle;
 
         void ReturnToLastOOCPos();
-        void UpdatePath(const uint32 diff);
         SmartScript mScript;
         WPPath* mWayPoints;
         uint32 mEscortState;

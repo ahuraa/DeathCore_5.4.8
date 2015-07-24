@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,7 @@
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
+#include "Group.h"
 
 DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
     _aura(NULL), _removedAura(NULL), _caster(NULL), _duration(0), _isViewpoint(false)
@@ -55,6 +56,7 @@ void DynamicObject::AddToWorld()
     {
         sObjectAccessor->AddObject(this);
         WorldObject::AddToWorld();
+
         BindToCaster();
     }
 }
@@ -75,6 +77,7 @@ void DynamicObject::RemoveFromWorld()
             return;
 
         UnbindFromCaster();
+
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
     }
@@ -95,10 +98,16 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo 
     SetEntry(spell->Id);
     SetObjectScale(1);
     SetUInt64Value(DYNAMICOBJECT_FIELD_CASTER, caster->GetGUID());
-    SetUInt32Value(DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID, spell->SpellVisual[0] | (type << 28));
     SetUInt32Value(DYNAMICOBJECT_FIELD_SPELL_ID, spell->Id);
     SetFloatValue(DYNAMICOBJECT_FIELD_RADIUS, radius);
     SetUInt32Value(DYNAMICOBJECT_FIELD_CAST_TIME, getMSTime());
+
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell->Id);
+    if (spellInfo)
+    {
+        uint32 visual = spellInfo->SpellVisual[0] ? spellInfo->SpellVisual[0] : spellInfo->SpellVisual[1];
+        SetUInt32Value(DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID, 0x10000000 | visual);
+    }
 
     if (IsWorldObject())
         setActive(true);    //must before add to map to be put in world container
@@ -213,9 +222,13 @@ void DynamicObject::BindToCaster()
     _caster->_RegisterDynObject(this);
 }
 
+
 void DynamicObject::UnbindFromCaster()
 {
+    // Caster must exist
     ASSERT(_caster);
+
+    // Clean up
     _caster->_UnregisterDynObject(this);
     _caster = NULL;
 }

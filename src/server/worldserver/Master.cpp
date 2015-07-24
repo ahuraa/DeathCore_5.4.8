@@ -1,7 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -91,7 +89,7 @@ public:
 
     void SetDelayTime(uint32 t) { _delaytime = t; }
 
-    void run() OVERRIDE
+    void run() override
     {
         if (!_delaytime)
             return;
@@ -129,7 +127,23 @@ int Master::Run()
     seed1.SetRand(16 * 8);
 
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon)", _FULLVERSION);
+    TC_LOG_INFO("server.worldserver", " ");
+    TC_LOG_INFO("server.worldserver", " ");
     TC_LOG_INFO("server.worldserver", "<Ctrl-C> to stop.\n");
+	TC_LOG_INFO("server.worldserver", "██████╗ ███████╗ █████╗ ████████╗██╗  ██╗");
+	TC_LOG_INFO("server.worldserver", "██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║  ██║");
+	TC_LOG_INFO("server.worldserver", "██║  ██║█████╗  ███████║   ██║   ███████║");
+	TC_LOG_INFO("server.worldserver", "██║  ██║██╔══╝  ██╔══██║   ██║   ██╔══██║");
+	TC_LOG_INFO("server.worldserver", "██████╔╝███████╗██║  ██║   ██║   ██║  ██║");
+	TC_LOG_INFO("server.worldserver", "╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝");
+	TC_LOG_INFO("server.worldserver", "		  ██████╗ ██████╗ ██████╗ ███████╗");
+	TC_LOG_INFO("server.worldserver", "		 ██╔════╝██╔═══██╗██╔══██╗██╔════╝");
+	TC_LOG_INFO("server.worldserver", "		 ██║     ██║   ██║██████╔╝█████╗");  
+	TC_LOG_INFO("server.worldserver", "		 ██║     ██║   ██║██╔══██╗██╔══╝");  
+	TC_LOG_INFO("server.worldserver", "		   ╚██████╗╚██████╔╝██║  ██║███████╗");
+	TC_LOG_INFO("server.worldserver", "  	            ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝");
+	TC_LOG_INFO("server.worldserver", "  Noffearr Death ProjecT 2015(c) Open-Sourced Game Emulation ");
+	TC_LOG_INFO("server.worldserver", "            http://www.noffearrdeathproject.net \n");
 
 
     /// worldserver PID file creation

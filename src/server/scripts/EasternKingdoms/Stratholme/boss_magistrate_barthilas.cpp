@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,13 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Boss_Magistrate_Barthilas
-SD%Complete: 70
-SDComment:
-SDCategory: Stratholme
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -48,7 +38,7 @@ class boss_magistrate_barthilas : public CreatureScript
 public:
     boss_magistrate_barthilas() : CreatureScript("boss_magistrate_barthilas") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_magistrate_barthilasAI(creature);
     }
@@ -63,7 +53,7 @@ public:
         uint32 FuriousAnger_Timer;
         uint32 AngerCount;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             DrainingBlow_Timer = 20000;
             CrowdPummel_Timer = 15000;
@@ -77,7 +67,7 @@ public:
                 me->SetDisplayId(MODEL_HUMAN);
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             //nothing to see here yet
@@ -85,16 +75,16 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             me->SetDisplayId(MODEL_HUMAN);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())

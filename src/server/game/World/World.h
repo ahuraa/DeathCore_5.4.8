@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -78,6 +78,7 @@ enum ShutdownExitCode
 enum WorldTimers
 {
     WUPDATE_AUCTIONS,
+    WUPDATE_BLACKMARKET,
     WUPDATE_WEATHERS,
     WUPDATE_UPTIME,
     WUPDATE_CORPSES,
@@ -88,7 +89,6 @@ enum WorldTimers
     WUPDATE_DELETECHARS,
     WUPDATE_PINGDB,
     WUPDATE_GUILDSAVE,
-    WUPDATE_BLACK_MARKET,
     WUPDATE_COUNT
 };
 
@@ -139,6 +139,7 @@ enum WorldBoolConfigs
     CONFIG_ARENA_LOG_EXTENDED_INFO,
     CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN,
     CONFIG_VMAP_INDOOR_CHECK,
+	BATTLEGROUND_CROSSFACTION_ENABLED,
     CONFIG_START_ALL_SPELLS,
     CONFIG_START_ALL_EXPLORED,
     CONFIG_START_ALL_REP,
@@ -359,10 +360,7 @@ enum WorldIntConfigs
     CONFIG_BG_REWARD_WINNER_CONQUEST_LAST,
     CONFIG_BATTLE_PET_LOADOUT_UNLOCK_COUNT,
     CONFIG_BATTLE_PET_INITIAL_LEVEL,
-    CONFIG_BLACK_MARKET_OPEN,
-    CONFIG_BLACK_MARKET_MAX_AUCTIONS,
-    CONFIG_BLACK_MARKET_AUCTION_DELAY,
-    CONFIG_BLACK_MARKET_AUCTION_DELAY_MOD,
+    CONFIG_BLACKMARKET_MAX_AUCTIONS,
     INT_CONFIG_VALUE_COUNT
 };
 

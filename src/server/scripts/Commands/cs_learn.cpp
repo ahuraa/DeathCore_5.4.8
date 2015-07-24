@@ -1,7 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,13 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-Name: learn_commandscript
-%Complete: 100
-Comment: All learn related commands
-Category: commandscripts
-EndScriptData */
-
 #include "Chat.h"
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
@@ -38,11 +29,12 @@ class learn_commandscript : public CommandScript
 public:
     learn_commandscript() : CommandScript("learn_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand learnAllMyCommandTable[] =
         {
             { "class",      rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_CLASS,      false, &HandleLearnAllMyClassCommand,      "", NULL },
+            { "pettalents", rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_PETTALENTS, false, &HandleLearnAllMyPetTalentsCommand, "", NULL },
             { "spells",     rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_SPELLS,     false, &HandleLearnAllMySpellsCommand,     "", NULL },
             { "talents",    rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_TALENTS,    false, &HandleLearnAllMyTalentsCommand,    "", NULL },
             { NULL,         0,                                         false, NULL,                               "", NULL }
@@ -56,6 +48,7 @@ public:
             { "default", rbac::RBAC_PERM_COMMAND_LEARN_ALL_DEFAULT, false, &HandleLearnAllDefaultCommand, "", NULL },
             { "lang",    rbac::RBAC_PERM_COMMAND_LEARN_ALL_LANG,    false, &HandleLearnAllLangCommand,    "", NULL },
             { "recipes", rbac::RBAC_PERM_COMMAND_LEARN_ALL_RECIPES, false, &HandleLearnAllRecipesCommand, "", NULL },
+            { "mount", rbac::RBAC_PERM_COMMAND_LEARN_ALL_DEFAULT,   false, &HandleLearnAllMountsCommand,  "", NULL },
             { NULL,      0,                                   false, NULL,                          "", NULL }
         };
 
@@ -224,7 +217,78 @@ public:
         handler->SendSysMessage(LANG_COMMAND_LEARN_CLASS_TALENTS);
         return true;
     }
-    
+
+    static bool HandleLearnAllMyPetTalentsCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        Pet* pet = player->GetPet();
+        if (!pet)
+        {
+            handler->SendSysMessage(LANG_NO_PET_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        CreatureTemplate const* creatureInfo = pet->GetCreatureTemplate();
+        if (!creatureInfo)
+        {
+            handler->SendSysMessage(LANG_WRONG_PET_TYPE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        CreatureFamilyEntry const* petFamily = sCreatureFamilyStore.LookupEntry(creatureInfo->family);
+        if (!petFamily)
+        {
+            handler->SendSysMessage(LANG_WRONG_PET_TYPE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (petFamily->petTalentType < 0)                       // not hunter pet
+        {
+            handler->SendSysMessage(LANG_WRONG_PET_TYPE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
+        {
+            TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
+            if (!talentInfo)
+                continue;
+
+            /*TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+            if (!talentTabInfo)
+                continue;
+
+            // prevent learn talent for different family (cheating)
+            if (((1 << petFamily->petTalentType) & talentTabInfo->petTalentMask) == 0)
+                continue;*/
+
+            // search highest talent rank
+            uint32 spellId = 0;
+
+            if (!spellId)                                        // ??? none spells in talent
+                continue;
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+            if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
+                continue;
+
+            // learn highest rank of talent and learn all non-talent spell ranks (recursive by tree)
+            pet->learnSpellHighRank(spellId);
+        }
+
+        pet->SetFreeTalentPoints(0);
+
+        handler->SendSysMessage(LANG_COMMAND_LEARN_PET_TALENTS);
+        return true;
+    }
+
     static bool HandleLearnAllLangCommand(ChatHandler* handler, char const* /*args*/)
     {
         // skipping UNIVERSAL language (0)
@@ -265,6 +329,30 @@ public:
             {
                 HandleLearnSkillRecipesHelper(target, skillInfo->id);
             }
+        }
+
+        handler->SendSysMessage(LANG_COMMAND_LEARN_ALL_CRAFT);
+        return true;
+    }
+
+    static bool HandleLearnAllMountsCommand(ChatHandler* handler, char const* args)
+    {
+        Player* target;
+        if (!handler->extractPlayerTarget((char*)args, &target))
+            return false;
+
+        for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
+        {
+            SpellEntry const* spell = sSpellStore.LookupEntry(i);
+            if (!spell)
+                continue;
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell->Id);
+            if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
+                continue;
+
+            if (spellInfo->Effects[0].ApplyAuraName == SPELL_AURA_MOUNTED || spellInfo->Effects[1].ApplyAuraName == SPELL_AURA_MOUNTED || spellInfo->Effects[2].ApplyAuraName == SPELL_AURA_MOUNTED)
+                target->learnSpell(spell->Id, false);
         }
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_ALL_CRAFT);
@@ -394,7 +482,7 @@ public:
 
         if (GetTalentSpellCost(spellId))
             target->SendTalentsInfoData();
-
+       
         return true;
     }
 };

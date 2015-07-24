@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -131,17 +131,33 @@ Object::~Object()
     }
 }
 
+void Object::InitializeDynamicUpdateFields()
+{
+    m_dynamicTab.resize(OBJECT_DYNAMIC_END);
+    m_dynamicChange.resize(OBJECT_DYNAMIC_END);
+
+    for (int i = 0; i < OBJECT_DYNAMIC_END; i++)
+    {
+        m_dynamicTab[i] = new uint32[32];
+        m_dynamicChange[i] = new bool[32];
+    }
+}
+
 void Object::_InitValues()
 {
     m_uint32Values = new uint32[m_valuesCount];
-    memset(m_uint32Values, 0, m_valuesCount*sizeof(uint32));
+    memset(m_uint32Values, 0, m_valuesCount * sizeof(uint32));
 
     _changesMask.SetCount(m_valuesCount);
 
+    // Every object using dynamic update fields need to have this function overriden
+    InitializeDynamicUpdateFields();
+
+    // Initialize all dynamic update fields to 0s
     for (size_t i = 0; i < m_dynamicTab.size(); ++i)
     {
         memset(m_dynamicTab[i], 0, 32 * sizeof(uint32));
-        memset(m_dynamicChange[i], 0, 32 * sizeof(bool));
+        memset(m_dynamicChange[i], false, 32 * sizeof(bool));
     }
 
     m_objectUpdated = false;
@@ -163,6 +179,7 @@ std::string Object::_ConcatFields(uint16 startIndex, uint16 size) const
     std::ostringstream ss;
     for (uint16 index = 0; index < size; ++index)
         ss << GetUInt32Value(index + startIndex) << ' ';
+
     return ss.str();
 }
 
@@ -250,14 +267,19 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     }
 
     if (Unit const* unit = ToUnit())
+    {
         if (unit->GetVictim())
             flags |= UPDATEFLAG_HAS_TARGET;
+
+        if (unit->GetAIAnimKitId() || unit->GetMovementAnimKitId() || unit->GetMeleeAnimKitId())
+            flags |= UPDATEFLAG_ANIMKITS;
+    }
 
     ByteBuffer buf(500);
     buf << uint8(updateType);
     buf.append(GetPackGUID());
     buf << uint8(m_objectTypeId);
-
+    
     BuildMovementUpdate(&buf, flags);
     BuildValuesUpdate(updateType, &buf, target);
     data->AddUpdateBlock(buf);
@@ -277,7 +299,6 @@ void Object::SendUpdateToPlayer(Player* player)
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) const
 {
     ByteBuffer buf(500);
-
     buf << uint8(UPDATETYPE_VALUES);
     buf.append(GetPackGUID());
 
@@ -299,7 +320,7 @@ void Object::DestroyForPlayer(Player* target, bool onDeath) const
     {
         if (Battleground* bg = target->GetBattleground())
         {
-            if (bg->isArena())
+            if (bg->IsArena())
             {
                 WorldPacket data(SMSG_ARENA_UNIT_DESTROYED, 8);
                 data << uint64(GetGUID());
@@ -310,30 +331,18 @@ void Object::DestroyForPlayer(Player* target, bool onDeath) const
 
     WorldPacket data(SMSG_DESTROY_OBJECT, 2 + 8);
     ObjectGuid guid(GetGUID());
-
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[1]);
+    
+    // BuildOutOfRangeUpdateBlock(GetGUID());
+    data.WriteGuidMask(guid, 3, 2, 4, 1);
 
     //! If the following bool is true, the client will call "void CGUnit_C::OnDeath()" for this object.
     //! OnDeath() does for eg trigger death animation and interrupts certain spells/missiles/auras/sounds...
     data.WriteBit(onDeath);
 
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[5]);
+    data.WriteGuidMask(guid, 7, 0, 6, 5);
     data.FlushBits();
 
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[5]);
+    data.WriteGuidBytes(guid, 0, 4, 7, 2, 6, 3, 1, 5);
 
     target->GetSession()->SendPacket(&data);
 }
@@ -389,9 +398,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     bool hasGobjectRotation = flags & UPDATEFLAG_ROTATION;
     bool hasTransportPosition = flags & UPDATEFLAG_GO_TRANSPORT_POSITION;
     bool hasTarget = flags & UPDATEFLAG_HAS_TARGET;
+    bool hasVehicle = flags & UPDATEFLAG_VEHICLE;
     bool hasTransport = flags & UPDATEFLAG_TRANSPORT;
-    bool hasVehicle = false; //flags & UPDATEFLAG_VEHICLE;
-    bool hasAnimKits = false; //flags & UPDATEFLAG_ANIMKITS;
+    bool hasAnimKits = flags & UPDATEFLAG_ANIMKITS;
 
     bool hasFallData;
     bool hasFallDirection;
@@ -403,12 +412,17 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     uint32 movementFlags;
     uint32 movementFlagsExtra;
 
+    uint32 stopFrameCount = 0;
+    if (GameObject const* go = ToGameObject())
+        if (go->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
+            stopFrameCount = go->GetGOValue()->Transport.StopFrames->size();
+
     data->WriteBit(0);
     data->WriteBit(hasAnimKits);
     data->WriteBit(hasLiving);
     data->WriteBit(0);
     data->WriteBit(0);
-    data->WriteBits(0, 22);
+    data->WriteBits(stopFrameCount, 22);
     data->WriteBit(hasVehicle);
     data->WriteBit(0);
     data->WriteBit(0);
@@ -453,7 +467,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             ObjectGuid transGuid = self->m_movementInfo.transport.guid;
             data->WriteBit(transGuid[4]);
             data->WriteBit(transGuid[2]);
-            data->WriteBit(self->m_movementInfo.transport.time3 && self->m_movementInfo.transport.guid);
+            data->WriteBit(self->m_movementInfo.transport.vehicleId != 0);
             data->WriteBit(transGuid[0]);
             data->WriteBit(transGuid[1]);
             data->WriteBit(transGuid[3]);
@@ -512,17 +526,17 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteBit(transGuid[3]);
         data->WriteBit(transGuid[2]);
         data->WriteBit(transGuid[7]);
-        data->WriteBit(self->m_movementInfo.transport.time3 && self->m_movementInfo.transport.guid);
+        data->WriteBit(self->m_movementInfo.transport.vehicleId != 0);
     }
 
-    /*
     if (hasAnimKits)
     {
-        data->WriteBit(1);  // Missing AnimKit1
-        data->WriteBit(1);  // Missing AnimKit2
-        data->WriteBit(1);  // Missing AnimKit3
+        // Not sure about the order
+        Unit const* unit = ToUnit();
+        data->WriteBit(unit->GetAIAnimKitId() == 0);
+        data->WriteBit(unit->GetMovementAnimKitId() == 0);
+        data->WriteBit(unit->GetMeleeAnimKitId() == 0);
     }
-    */
 
     if (hasTarget)
     {
@@ -540,6 +554,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     data->FlushBits();
 
+    if (GameObject const* go = ToGameObject())
+        for (uint32 i = 0; i < stopFrameCount; ++i)
+            *data << uint32(go->GetGOValue()->Transport.StopFrames->at(i));
+
     if (hasLiving)
     {
         Unit const* self = ToUnit();
@@ -552,8 +570,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             data->WriteByteSeq(transGuid[7]);
             *data << float(self->GetTransOffsetX());
 
-            if (self->m_movementInfo.transport.time3 && self->m_movementInfo.transport.guid)
-                *data << uint32(self->m_movementInfo.transport.time3);
+            if (self->m_movementInfo.transport.vehicleId)
+                *data << uint32(self->m_movementInfo.transport.vehicleId);
 
             *data << float(self->GetTransOffsetO());
             *data << float(self->GetTransOffsetY());
@@ -630,7 +648,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         *data << float(self->GetSpeed(MOVE_RUN));
         *data << float(self->GetSpeed(MOVE_SWIM));
         *data << float(self->GetPositionZMinusOffset());
-
     }
 
     if (hasTransportPosition)
@@ -648,8 +665,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteBit(transGuid[4]);
         data->WriteBit(transGuid[1]);
 
-        if (self->m_movementInfo.transport.time3 && self->m_movementInfo.transport.guid)
-            *data << uint32(self->m_movementInfo.transport.time3);
+        if (self->m_movementInfo.transport.vehicleId)
+            *data << uint32(self->m_movementInfo.transport.vehicleId);
 
         *data << uint32(self->GetTransTime());
 
@@ -677,15 +694,12 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteByteSeq(victimGuid[4]);
     }
 
-    /*
     if (hasVehicle)
     {
         Unit const* self = ToUnit();
         *data << uint32(self->GetVehicleKit()->GetVehicleInfo()->m_ID);
         *data << float(self->GetOrientation());
     }
-    */
-
 
     if (hasStacionaryPostion)
     {
@@ -699,16 +713,16 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         *data << float(self->GetPositionX());
     }
 
-    /*
     if (hasAnimKits)
     {
-        if (hasAnimKit3)
-            *data << uint16(animKit3);
-        if (hasAnimKit2)
-            *data << uint16(animKit2);
-        if (hasAnimKit1)
-            *data << uint16(animKit1);
-    }*/
+        Unit const* unit = ToUnit();
+        if (unit->GetMeleeAnimKitId())
+            *data << uint16(unit->GetMeleeAnimKitId());
+        if (unit->GetMovementAnimKitId())
+            *data << uint16(unit->GetMovementAnimKitId());
+        if (unit->GetAIAnimKitId())
+            *data << uint16(unit->GetAIAnimKitId());
+    }
 
     if (hasTransport)
     {
@@ -753,26 +767,24 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
     updateMask.AppendToPacket(data);
     data->append(fieldBuffer);
     BuildDynamicValuesUpdate(data);
-
 }
 
 void Object::BuildDynamicValuesUpdate(ByteBuffer *data) const
 {
-    // Only handle Item type
-    // TODO: Implement Player dynamis fields
-    if (m_objectTypeId != TYPEID_ITEM)
+    if (m_objectTypeId == TYPEID_CONTAINER)
     {
         *data << uint8(0);
         return;
     }
 
-    // Dynamic Fields (5.0.5 MoP new fields)
     uint32 dynamicTabMask = 0;
     std::vector<uint32> dynamicFieldsMask;
     dynamicFieldsMask.resize(m_dynamicTab.size());
 
     for (size_t i = 0; i < m_dynamicTab.size(); i++)
+    {
         dynamicFieldsMask[i] = 0;
+    }
 
     for (size_t i = 0; i < m_dynamicChange.size(); i++)
     {
@@ -787,6 +799,7 @@ void Object::BuildDynamicValuesUpdate(ByteBuffer *data) const
     }
 
     *data << uint8(bool(dynamicTabMask));
+
     if (dynamicTabMask)
     {
         *data << uint32(dynamicTabMask);
@@ -817,7 +830,7 @@ void Object::ClearUpdateMask(bool remove)
     if (m_objectUpdated)
     {
         for (size_t i = 0; i < m_dynamicTab.size(); i++)
-            memset(m_dynamicChange[i], 0, 32 * sizeof(bool));
+            memset(m_dynamicChange[i], false, 32 * sizeof(bool));
 
         if (remove)
             sObjectAccessor->RemoveUpdateObject(this);
@@ -889,6 +902,10 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             flags = AreaTriggerUpdateFieldFlags;
             break;
         case TYPEID_OBJECT:
+            flags = ObjectUpdateFieldFlags;
+            break;
+        case TYPEID_SCENEOBJECT:
+            flags = SceneObjectUpdateFieldFlags;
             break;
     }
 
@@ -1119,6 +1136,7 @@ void Object::ApplyModUInt32Value(uint16 index, int32 val, bool apply)
     cur += (apply ? val : -val);
     if (cur < 0)
         cur = 0;
+
     SetUInt32Value(index, cur);
 }
 
@@ -1149,6 +1167,7 @@ void Object::ApplyModPositiveFloatValue(uint16 index, float  val, bool apply)
     cur += (apply ? val : -val);
     if (cur < 0)
         cur = 0;
+
     SetFloatValue(index, cur);
 }
 
@@ -1387,8 +1406,8 @@ void MovementInfo::OutDebug()
         TC_LOG_INFO("misc", "time: %u", transport.time);
         if (flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
             TC_LOG_INFO("misc", "time2: %u", transport.time2);
-        if (transport.time3)
-            TC_LOG_INFO("misc", "time3: %u", transport.time3);
+        if (transport.vehicleId)
+            TC_LOG_INFO("misc", "VehicleId: %u", transport.vehicleId);
     }
 
     if ((flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
@@ -1831,6 +1850,22 @@ bool WorldObject::IsInBetween(const WorldObject* obj1, const WorldObject* obj2, 
     return (size * size) >= GetExactDist2dSq(obj1->GetPositionX() + std::cos(angle) * dist, obj1->GetPositionY() + std::sin(angle) * dist);
 }
 
+bool WorldObject::IsInAxe(WorldObject const* obj1, WorldObject const* obj2, float size) const
+{
+   if (!obj1 || !obj2)
+		return false;
+	
+    float dist = GetExactDist2d(obj1->GetPositionX(), obj1->GetPositionY());
+	
+   if (!size)
+		size = GetObjectSize() / 2;
+	
+    float angle = obj1->GetAngle(obj2);
+	
+    // not using sqrt() for performance
+    return (size * size) >= GetExactDist2dSq(obj1->GetPositionX() + cos(angle) * dist, obj1->GetPositionY() + sin(angle) * dist);
+}
+
 bool WorldObject::isInFront(WorldObject const* target,  float arc) const
 {
     return HasInArc(arc, target);
@@ -2052,6 +2087,25 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
             return false;
     }
 
+    // Traps can only be detected within melee distance
+    if (const GameObject *thisGO = obj->ToGameObject())
+    {
+        if (thisGO->GetGoType() == GAMEOBJECT_TYPE_TRAP && thisGO->GetOwner() && thisGO->GetOwner()->getClass() == CLASS_HUNTER)
+        {
+            float DetectRange = ToPlayer()->GetCombatReach() + 4.5f; // Combat Reach + Melee attack Range
+
+            // Friendly units and Rogues see the traps
+            if (ToPlayer()->getClass() == CLASS_ROGUE || ToPlayer()->IsFriendlyTo(thisGO->GetOwner()))
+                return true;
+
+            if (thisGO->GetOwner() == ToPlayer() ||
+                obj->IsWithinDist(this, DetectRange, false)) // Detect Traps increases chance to detect traps
+                return true;
+
+            return false;
+        }
+    }
+
     if (obj->IsInvisibleDueToDespawn())
         return false;
 
@@ -2063,6 +2117,15 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
 
 bool WorldObject::CanNeverSee(WorldObject const* obj) const
 {
+    // Archaeology Finds can be seen only by owner
+    if (obj->GetTypeId() == TYPEID_GAMEOBJECT && (obj->GetEntry() == 203071 || obj->GetEntry() == 203078 || obj->GetEntry() == 204282 || obj->GetEntry() == 202655 ||
+        obj->GetEntry() == 206836 || obj->GetEntry() == 207187 || obj->GetEntry() == 207188 || obj->GetEntry() == 207189 || obj->GetEntry() == 207190))
+    {
+        if (uint64 ownerGUID = obj->GetUInt64Value(GAMEOBJECT_FIELD_CREATED_BY))
+            if (GetGUID() != ownerGUID)
+                return true;
+    }
+
     return GetMap() != obj->GetMap() || !InSamePhase(obj);
 }
 
@@ -2176,23 +2239,9 @@ void WorldObject::SendPlaySound(uint32 Sound, bool OnlySelf)
     ObjectGuid guid = GetGUID();
 
     WorldPacket data(SMSG_PLAY_SOUND, 4 + 9);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[1]);
+    data.WriteGuidMask(guid, 2, 3, 7, 6, 0, 5, 4, 1);
     data << uint32(Sound);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[1]);
+    data.WriteGuidBytes(guid, 3, 2, 4, 7, 5, 0, 6, 1);
     if (OnlySelf && GetTypeId() == TYPEID_PLAYER)
         this->ToPlayer()->GetSession()->SendPacket(&data);
     else
@@ -2376,27 +2425,11 @@ void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr
 
 void WorldObject::SendObjectDeSpawnAnim(uint64 guid)
 {
-    ObjectGuid oGuid = guid;
-
     WorldPacket data(SMSG_GAMEOBJECT_DESPAWN_ANIM, 8);
+    ObjectGuid GUID = guid;
+    data.WriteGuidMask(GUID, 0, 2, 4, 1, 7, 3, 6, 5);
 
-    data.WriteBit(oGuid[0]);  // 16
-    data.WriteBit(oGuid[2]);  // 18
-    data.WriteBit(oGuid[4]);  // 20
-    data.WriteBit(oGuid[1]);  // 17
-    data.WriteBit(oGuid[7]);  // 23
-    data.WriteBit(oGuid[3]);  // 19
-    data.WriteBit(oGuid[6]);  // 22
-    data.WriteBit(oGuid[5]);  // 21
-
-    data.WriteByteSeq(oGuid[0]);  // 16
-    data.WriteByteSeq(oGuid[2]);  // 18
-    data.WriteByteSeq(oGuid[4]);  // 20
-    data.WriteByteSeq(oGuid[5]);  // 21
-    data.WriteByteSeq(oGuid[7]);  // 23
-    data.WriteByteSeq(oGuid[3]);  // 19
-    data.WriteByteSeq(oGuid[1]);  // 17
-    data.WriteByteSeq(oGuid[6]);  // 22
+    data.WriteGuidBytes(GUID, 0, 2, 4, 5, 7, 3, 1, 6);
 
     SendMessageToSet(&data, true);
 }
@@ -2688,6 +2721,15 @@ Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive
     return creature;
 }
 
+Creature* WorldObject::FindNearestCreaturePet(Player* owner, uint32 entry, float range, bool alive) const
+{
+    Creature* creature = NULL;
+	Trinity::NearestCreaturePetEntryWithLiveStateInObjectRangeCheck checker(*this, owner, entry, alive, range);
+    Trinity::CreatureLastSearcher<Trinity::NearestCreaturePetEntryWithLiveStateInObjectRangeCheck> searcher(this, creature, checker);
+    VisitNearbyObject(range, searcher);
+    return creature;
+}
+
 GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
 {
     GameObject* go = NULL;
@@ -2733,7 +2775,7 @@ void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureL
 }
 
 void WorldObject::GetPlayerListInGrid(std::list<Player*>& playerList, float maxSearchRange) const
-{    
+{
     Trinity::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange);
     Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, playerList, checker);
     this->VisitNearbyWorldObject(maxSearchRange, searcher);
@@ -3113,25 +3155,25 @@ bool WorldObject::InSamePhase(WorldObject const* obj) const
 void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
 {
     ObjectGuid guid = GetGUID();
+    ObjectGuid guid2 = GetGUID();
 
     WorldPacket data(SMSG_PLAY_OBJECT_SOUND, 4 + 9);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[5]);
+    data.WriteBit(guid2[5]);
+    data.WriteGuidMask(guid, 7, 0, 3);
+    data.WriteBit(guid2[1]);
     data.WriteBit(guid[4]);
-    data.WriteBit(guid[1]);
+    data.WriteGuidMask(guid2, 7, 2, 4, 3);
+    data.WriteGuidMask(guid, 5, 1, 6, 2);
+    data.WriteGuidMask(guid2, 6, 0);
+
+    data.WriteGuidBytes(guid, 6, 2);
+    data.WriteGuidBytes(guid2, 2, 5);
+    data.WriteGuidBytes(guid, 7, 5, 3, 1);
+    data.WriteGuidBytes(guid2, 3, 1);
     data << uint32(sound_id);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[5]);
+    data.WriteGuidBytes(guid2, 4, 7, 0, 6);
     data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[1]);
 
     if (target)
         target->SendDirectMessage(&data);

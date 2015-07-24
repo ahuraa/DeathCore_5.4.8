@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,8 +41,18 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         int32 GetDuration() const { return _duration; }
         void SetDuration(int32 newDuration) { _duration = newDuration; }
         void Delay(int32 delaytime) { SetDuration(GetDuration() - delaytime); }
+        Unit* GetCaster() const { return m_caster; }
+        ObjectGuid GetCasterGUID() const { return GetUInt64Value(AREATRIGGER_FIELD_CASTER); }
+        void BindToCaster();
+        void UnbindFromCaster();
+
+        float GetVisualRadius() const { return m_visualRadius; }
+        void SetVisualRadius(float radius) { m_visualRadius = radius; }
+		
 
     protected:
         int32 _duration;
+        Unit* m_caster;
+        float m_visualRadius;
 };
 #endif

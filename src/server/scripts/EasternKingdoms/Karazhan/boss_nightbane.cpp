@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,13 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Boss_Nightbane
-SD%Complete: 80
-SDComment: SDComment: Timers may incorrect
-SDCategory: Karazhan
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -71,7 +61,7 @@ class boss_nightbane : public CreatureScript
 public:
     boss_nightbane() : CreatureScript("boss_nightbane") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_nightbaneAI(creature);
     }
@@ -111,7 +101,7 @@ public:
         uint32 WaitTimer;
         uint32 MovePhase;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             BellowingRoarTimer = 30000;
             CharredEarthTimer = 15000;
@@ -162,7 +152,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             if (instance)
                 instance->SetData(TYPE_NIGHTBANE, IN_PROGRESS);
@@ -171,13 +161,13 @@ public:
            Talk(YELL_AGGRO);
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if (!Intro && !Flying)
                 ScriptedAI::AttackStart(who);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             if (instance)
                 instance->SetData(TYPE_NIGHTBANE, DONE);
@@ -185,14 +175,14 @@ public:
             HandleTerraceDoors(true);
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             if (!Intro && !Flying)
                 ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -238,7 +228,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->AI()->AttackStart(me->GetVictim());
         }
@@ -263,7 +253,7 @@ public:
             Skeletons = false;
          }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             /* The timer for this was never setup apparently, not sure if the code works properly:
             if (WaitTimer <= diff)

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -137,8 +137,8 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         }
 
         // battleground state prepare, stop flight
-        GetPlayer()->GetMotionMaster()->MovementExpired();
-        GetPlayer()->CleanupAfterTaxiFlight();
+        //GetPlayer()->GetMotionMaster()->MovementExpired();
+        //GetPlayer()->CleanupAfterTaxiFlight();
     }
 
     // resurrect character at enter into instance where his corpse exist after add to map
@@ -205,23 +205,9 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
     uint32 flags, time;
     recvPacket >> time >> flags;
 
-    guid[0] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
+    recvPacket.ReadGuidMask(guid, 0, 7, 3, 5, 4, 6, 1, 2);
 
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[3]);
+    recvPacket.ReadGuidBytes(guid, 4, 1, 6, 7, 0, 2, 5, 3);
 
     TC_LOG_DEBUG("network", "Guid " UI64FMTD, uint64(guid));
     TC_LOG_DEBUG("network", "Flags %u, time %u", flags, time/IN_MILLISECONDS);
@@ -300,6 +286,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         TC_LOG_ERROR("network", "HandleMovementOpcodes: Invalid Position");
         return;
     }
+
+    // stop some emotes at player move
+    if (plrMover && (plrMover->GetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE) != 0))
+        plrMover->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
 
     /* handle special cases */
     if (movementInfo.transport.guid)
@@ -444,6 +434,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     }
 
     float newspeed = extras.Data.floatData;
+
     /*----------------*/
 
     // client ACK send one packet for mounted/run case and need skip all except last from its
@@ -509,27 +500,13 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
 
-    ObjectGuid guid;
+    ObjectGuid guid;   
 
     recvPacket.ReadBit();
 
-    guid[3] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
+    recvPacket.ReadGuidMask(guid, 3, 0, 2, 1, 5, 4, 7, 6);
 
-    recvPacket.ReadByteSeq(guid[3]);
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[6]);
+    recvPacket.ReadGuidBytes(guid, 3, 4, 5, 2, 7, 0, 1, 6);
 
     if (GetPlayer()->IsInWorld())
     {
@@ -551,25 +528,11 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
 {
     ObjectGuid guid = GetPlayer()->GetGUID();
 
-    WorldPacket data(SMSG_MOUNTSPECIAL_ANIM, 1 + 8);
+    WorldPacket data(SMSG_MOUNT_SPECIAL_ANIM, 1 + 8);
+    
+    data.WriteGuidMask(guid, 5, 7, 0, 3, 2, 1, 4, 6);
 
-    data.WriteBit(guid[5]);  // 21
-    data.WriteBit(guid[7]);  // 23
-    data.WriteBit(guid[0]);  // 16
-    data.WriteBit(guid[3]);  // 19
-    data.WriteBit(guid[2]);  // 18
-    data.WriteBit(guid[1]);  // 17
-    data.WriteBit(guid[4]);  // 20
-    data.WriteBit(guid[6]);  // 22
-
-    data.WriteByteSeq(guid[7]);  // 23
-    data.WriteByteSeq(guid[2]);  // 18
-    data.WriteByteSeq(guid[0]);  // 16
-    data.WriteByteSeq(guid[4]);  // 20
-    data.WriteByteSeq(guid[5]);  // 21
-    data.WriteByteSeq(guid[6]);  // 22
-    data.WriteByteSeq(guid[1]);  // 17
-    data.WriteByteSeq(guid[3]);  // 19
+    data.WriteGuidBytes(guid, 7, 2, 0, 4, 5, 6, 1, 3);
 
     GetPlayer()->SendMessageToSet(&data, false);
 }
@@ -610,8 +573,121 @@ void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_WATER_WALK_ACK");
 
+    uint64 guid;                                            // guid - unused
+    recvData.readPackGUID(guid);
+
+    recvData.read_skip<uint32>();                          // unk
+
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+
+    recvData.read_skip<uint32>();                          // unk2
+}
+
+void WorldSession::HandleMoveSetFly(WorldPacket& recvData)
+{
+    // TODO: find out what are unknown booleans and use ReadMovementInfo
+    TC_LOG_DEBUG("network", "CMSG_MOVE_SET_FLY");
+    ObjectGuid playerGuid;
+    ObjectGuid transportGuid;
+
+    recvData.read_skip<float>(); // position Y
+    recvData.read_skip<float>(); // position Z
+    recvData.read_skip<float>(); // position X
+    playerGuid[5] = recvData.ReadBit();
+    bool hasTransportData = recvData.ReadBit();
+    playerGuid[3] = recvData.ReadBit();
+    uint32 unkCounter = recvData.ReadBits(22);
+    bool unkBool2 = !recvData.ReadBit();
+    recvData.ReadBit();
+    bool unkBool3 = recvData.ReadBit();
+    playerGuid[6] = recvData.ReadBit();
+    recvData.ReadBit();
+    playerGuid[7] = recvData.ReadBit();
+    bool unkBool4 = !recvData.ReadBit();
+    recvData.ReadGuidMask(playerGuid, 0, 2);
+    bool unkBool5 = !recvData.ReadBit();
+    bool unkBool11 = !recvData.ReadBit();
+    playerGuid[1] = recvData.ReadBit();
+    recvData.ReadBit();
+    bool unkBool12 = !recvData.ReadBit();
+    bool unkBool6 = !recvData.ReadBit();
+    playerGuid[4] = recvData.ReadBit();
+    bool hasMovementFlag = !recvData.ReadBit();
+
+    bool unkBool8, unkBool9 = false;
+    if (hasTransportData)
+    {
+        recvData.ReadGuidMask(transportGuid, 1, 3, 5);
+        unkBool8 = recvData.ReadBit();
+        recvData.ReadGuidMask(transportGuid, 6, 7, 2, 4);
+        unkBool9 = recvData.ReadBit();
+        transportGuid[0] = recvData.ReadBit();
+    }
+
+    if (unkBool2)
+        recvData.ReadBits(13);
+
+    bool unkBool10 = false;
+    if (unkBool3)
+        unkBool10 = recvData.ReadBit();
+
+    if (hasMovementFlag)
+        _player->SetUnitMovementFlags(recvData.ReadBits(30));
+
+    recvData.ReadGuidBytes(playerGuid, 1, 6, 5, 2, 4, 0, 7, 3);
+
+    for (uint32 i = 0; i < unkCounter; i++)
+        recvData.read_skip<uint32>();
+
+    if (hasTransportData)
+    {
+        recvData.ReadGuidBytes(transportGuid, 7, 5, 1);
+        recvData.read_skip<uint32>();
+        recvData.read_skip<uint8>();
+
+        if (unkBool9)
+            recvData.read_skip<uint32>();
+
+        recvData.ReadGuidBytes(transportGuid, 0, 4);
+        recvData.read_skip<float>();
+        recvData.ReadByteSeq(transportGuid[3]);
+        recvData.read_skip<float>();
+        recvData.ReadGuidBytes(transportGuid, 2, 6);
+        recvData.read_skip<float>();
+        recvData.read_skip<float>();
+
+        if (unkBool8)
+            recvData.read_skip<uint32>();
+    }
+
+    if (unkBool3)
+    {
+        if (unkBool10)
+        {
+            recvData.read_skip<float>();
+            recvData.read_skip<float>();
+            recvData.read_skip<float>();
+        }
+
+        recvData.read_skip<float>();
+        recvData.read_skip<uint32>();
+    }
+
+    if (unkBool4)
+        recvData.read_skip<uint32>();
+
+    if (unkBool6)
+        recvData.read_skip<uint32>();
+
+    if (unkBool5)
+        recvData.read_skip<float>();
+
+    if (unkBool11)
+        recvData.read_skip<float>();
+
+    if (unkBool12)
+        recvData.read_skip<float>();
 }
 
 void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
@@ -619,27 +695,10 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     if (!_player->IsAlive() || _player->IsInCombat())
         return;
 
-    ObjectGuid summonerGuid;
+    uint64 summonerGuid;
     bool agree;
-
-    summonerGuid[1] = recvData.ReadBit();  // 17
-    summonerGuid[3] = recvData.ReadBit();  // 19
-    summonerGuid[5] = recvData.ReadBit();  // 21
-    summonerGuid[2] = recvData.ReadBit();  // 18
-    agree = recvData.ReadBit();            // 24
-    summonerGuid[7] = recvData.ReadBit();  // 23
-    summonerGuid[0] = recvData.ReadBit();  // 16
-    summonerGuid[4] = recvData.ReadBit();  // 20
-    summonerGuid[6] = recvData.ReadBit();  // 22
-
-    recvData.ReadByteSeq(summonerGuid[0]);  // 16
-    recvData.ReadByteSeq(summonerGuid[1]);  // 17
-    recvData.ReadByteSeq(summonerGuid[6]);  // 22
-    recvData.ReadByteSeq(summonerGuid[3]);  // 19
-    recvData.ReadByteSeq(summonerGuid[5]);  // 21
-    recvData.ReadByteSeq(summonerGuid[4]);  // 20
-    recvData.ReadByteSeq(summonerGuid[2]);  // 18
-    recvData.ReadByteSeq(summonerGuid[7]);  // 23
+    recvData >> summonerGuid;
+    recvData >> agree;
 
     _player->SummonIfPossible(agree);
 }
@@ -648,8 +707,8 @@ void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvPacket)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_SET_COLLISION_HEIGHT_ACK");
 
-    static MovementStatusElements const heightElement = MSEExtraFloat;
-    Movement::ExtraMovementStatusElement extra(&heightElement);
+    static MovementStatusElements const heightElements[] = { MSEExtraFloat, MSEExtra2Bits };
+    Movement::ExtraMovementStatusElement extra(heightElements);
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvPacket, &movementInfo, &extra);
 }

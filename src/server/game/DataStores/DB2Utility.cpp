@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,47 +33,6 @@ bool DB2Utilities::HasItemEntry(DB2Storage<ItemEntry> const& /*store*/, uint32 i
 bool DB2Utilities::HasItemSparseEntry(DB2Storage<ItemSparseEntry> const& /*store*/, uint32 id)
 {
     return ItemExists(id);
-}
-
-bool DB2Utilities::HasBroadcastTextEntry(DB2Storage<BroadcastTextEntry> const& /*store*/, uint32 id)
-{
-    return sObjectMgr->GetBroadcastText(id) != NULL;
-}
-
-void DB2Utilities::WriteBroadcastTextDbReply(DB2Storage<BroadcastTextEntry> const& /*store*/, uint32 id, uint32 locale, ByteBuffer& buffer)
-{
-    BroadcastText const* broadcastText = sObjectMgr->GetBroadcastText(id);
-    ASSERT(broadcastText);
-
-    std::string maleText;
-    std::string femaleText;
-    ObjectMgr::GetLocaleString(broadcastText->MaleText, locale, maleText);
-    ObjectMgr::GetLocaleString(broadcastText->FemaleText, locale, femaleText);
-    
-    uint16 maleTextLength = maleText.length();
-    uint16 femaleTextLength = femaleText.length();
-    
-    buffer << uint32(broadcastText->Id);
-    buffer << uint32(broadcastText->Language);
-    buffer << uint16(maleTextLength);
-
-    if (maleTextLength > 0)
-        buffer << maleText;
-
-    buffer << uint16(femaleTextLength);
-
-    if (femaleTextLength > 0)
-        buffer << femaleText;
-
-    for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; i++)
-        buffer << uint32(broadcastText->Emotes[i]._Emote);
-
-    for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; i++)
-        buffer << uint32(broadcastText->Emotes[i]._Delay);
-
-    buffer << uint32(broadcastText->SoundId);
-    buffer << uint32(broadcastText->EndEmoteId);
-    buffer << uint32(broadcastText->Type);
 }
 
 void DB2Utilities::WriteItemDbReply(DB2Storage<ItemEntry> const& /*store*/, uint32 id, uint32 /*locale*/, ByteBuffer& buffer)

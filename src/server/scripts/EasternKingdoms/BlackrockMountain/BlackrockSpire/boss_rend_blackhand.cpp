@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -168,14 +165,14 @@ public:
     {
         boss_rend_blackhandAI(Creature* creature) : BossAI(creature, DATA_WARCHIEF_REND_BLACKHAND) { }
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             _Reset();
             gythEvent = false;
             victorGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_WHIRLWIND,     urand(13000, 15000));
@@ -183,14 +180,14 @@ public:
             events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(17000, 19000));
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
                 victor->AI()->SetData(1, 2);
         }
 
-        void SetData(uint32 type, uint32 data) OVERRIDE
+        void SetData(uint32 type, uint32 data) override
         {
             if (instance && type == AREATRIGGER && data == AREATRIGGER_BLACKROCK_STADIUM)
             {
@@ -210,7 +207,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id) OVERRIDE
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type == WAYPOINT_MOTION_TYPE)
             {
@@ -228,7 +225,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (gythEvent)
             {
@@ -437,7 +434,7 @@ public:
             uint64 portcullisGUID;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_rend_blackhandAI(creature);
     }

@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,14 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Boss_Shade_of_Aran
-SD%Complete: 95
-SDComment: Flame wreath missing cast animation, mods won't triggere.
-SDCategory: Karazhan
-EndScriptData */
-
+ 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "karazhan.h"
@@ -86,7 +76,7 @@ class boss_shade_of_aran : public CreatureScript
 public:
     boss_shade_of_aran() : CreatureScript("boss_shade_of_aran") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_aranAI(creature);
     }
@@ -125,7 +115,7 @@ public:
         bool Drinking;
         bool DrinkInturrupted;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             SecondarySpellTimer = 5000;
             NormalCastTimer = 0;
@@ -157,12 +147,12 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_KILL);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
 
@@ -173,7 +163,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -219,7 +209,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -480,13 +470,13 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*pAttacker*/, uint32 &damage) OVERRIDE
+        void DamageTaken(Unit* /*pAttacker*/, uint32 &damage) override
         {
             if (!DrinkInturrupted && Drinking && damage)
                 DrinkInturrupted = true;
         }
 
-        void SpellHit(Unit* /*pAttacker*/, const SpellInfo* Spell) OVERRIDE
+        void SpellHit(Unit* /*pAttacker*/, const SpellInfo* Spell) override
         {
             //We only care about interrupt effects and only if they are durring a spell currently being casted
             if ((Spell->Effects[0].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
@@ -515,7 +505,7 @@ class npc_aran_elemental : public CreatureScript
 public:
     npc_aran_elemental() : CreatureScript("npc_aran_elemental") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new water_elementalAI(creature);
     }
@@ -526,14 +516,14 @@ public:
 
         uint32 CastTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             CastTimer = 2000 + (rand()%3000);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

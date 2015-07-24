@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -584,7 +584,7 @@ bool IsWeaponSkill(uint32 skill);
 
 inline bool IsProfessionSkill(uint32 skill)
 {
-    return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID;
+    return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID || skill == SKILL_ARCHAEOLOGY;
 }
 
 inline bool IsProfessionOrRidingSkill(uint32 skill)
@@ -600,6 +600,10 @@ DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
 DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
 int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const* spellproto);
 bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
+
+typedef std::vector<std::set<uint32> > SpellClassList;
+typedef std::set<uint32> TalentSpellSet;
+typedef std::map<uint32, std::list<uint32> > SpellOverrideInfo;
 
 class SpellMgr
 {
@@ -692,6 +696,9 @@ class SpellMgr
         // SpellInfo object management
         SpellInfo const* GetSpellInfo(uint32 spellId) const { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
         uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap.size(); }
+        std::set<uint32> GetSpellClassList(uint8 ClassID) const { return mSpellClassInfo[ClassID]; }
+        std::list<uint32> const* GetSpellOverrideInfo(uint32 spellId) { return mSpellOverrideInfo.find(spellId) == mSpellOverrideInfo.end() ? NULL : &mSpellOverrideInfo[spellId]; }
+        bool IsTalent(uint32 spellId) { return mTalentSpellInfo.find(spellId) != mTalentSpellInfo.end() ?  true :  false; }
 
     private:
         SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
@@ -726,6 +733,8 @@ class SpellMgr
         void UnloadSpellInfoImplicitTargetConditionLists();
         void LoadSpellInfoCustomAttributes();
         void LoadSpellInfoCorrections();
+        void LoadTalentSpellInfo();
+        void LoadSpellClassInfo();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;
@@ -755,6 +764,9 @@ class SpellMgr
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellInfoMap               mSpellInfoMap;
+        SpellClassList             mSpellClassInfo;
+        TalentSpellSet             mTalentSpellInfo;
+        SpellOverrideInfo          mSpellOverrideInfo;
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()

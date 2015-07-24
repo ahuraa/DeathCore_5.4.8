@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -195,7 +195,7 @@ class SpellScriptLoader : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Should return a fully valid SpellScript pointer.
         virtual SpellScript* GetSpellScript() const { return NULL; }
@@ -353,7 +353,7 @@ class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Gets an InstanceScript object for this instance.
         virtual InstanceScript* GetInstanceScript(InstanceMap* /*map*/) const { return NULL; }
@@ -374,7 +374,7 @@ class ItemScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when a dummy spell effect is triggered on the item.
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, Item* /*target*/) { return false; }
@@ -387,6 +387,12 @@ class ItemScript : public ScriptObject
 
         // Called when the item expires (is destroyed).
         virtual bool OnExpire(Player* /*player*/, ItemTemplate const* /*proto*/) { return false; }
+        
+        // Called when a player selects an option in an item gossip window
+        virtual void OnGossipSelect(Player* /*player*/, Item* /*item*/, uint32 /*sender*/, uint32 /*action*/) { }
+
+        // Called when a player selects an option in an item gossip window
+        virtual void OnGossipSelectCode(Player* /*player*/, Item* /*item*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { }
 };
 
 class UnitScript : public ScriptObject
@@ -420,7 +426,7 @@ class CreatureScript : public UnitScript, public UpdatableScript<Creature>
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when a dummy spell effect is triggered on the creature.
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, Creature* /*target*/) { return false; }
@@ -461,7 +467,7 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when a dummy spell effect is triggered on the gameobject.
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, GameObject* /*target*/) { return false; }
@@ -508,7 +514,7 @@ class AreaTriggerScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when the area trigger is activated by a player.
         virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) { return false; }
@@ -522,7 +528,7 @@ class BattlegroundScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Should return a fully valid Battleground object for the type ID.
         virtual Battleground* GetBattleground() const = 0;
@@ -536,7 +542,7 @@ class OutdoorPvPScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Should return a fully valid OutdoorPvP object for the type ID.
         virtual OutdoorPvP* GetOutdoorPvP() const = 0;
@@ -562,7 +568,7 @@ class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when the weather changes in the zone this script is associated with.
         virtual void OnChange(Weather* /*weather*/, WeatherState /*state*/, float /*grade*/) { }
@@ -597,7 +603,7 @@ class ConditionScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when a single condition is checked for a player.
         virtual bool OnConditionCheck(Condition* /*condition*/, ConditionSourceInfo& /*sourceInfo*/) { return true; }
@@ -645,7 +651,7 @@ class TransportScript : public ScriptObject, public UpdatableScript<Transport>
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when a player boards the transport.
         virtual void OnAddPassenger(Transport* /*transport*/, Player* /*player*/) { }
@@ -668,7 +674,7 @@ class AchievementCriteriaScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return true; }
+        bool IsDatabaseBound() const final { return true; }
 
         // Called when an additional criteria is checked.
         virtual bool OnCheck(Player* source, Unit* target) = 0;
@@ -760,6 +766,12 @@ class PlayerScript : public UnitScript
 
         // Called when a player changes to a new map (after moving to new map)
         virtual void OnMapChanged(Player* /*player*/) { }
+        
+        // Called when a player selects an option in a player gossip window
+        virtual void OnGossipSelect(Player* /*player*/, uint32 /*menu_id*/, uint32 /*sender*/, uint32 /*action*/) { }
+
+        // Called when a player selects an option in a player gossip window
+        virtual void OnGossipSelectCode(Player* /*player*/, uint32 /*menu_id*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { }
 };
 
 class GuildScript : public ScriptObject
@@ -770,7 +782,7 @@ class GuildScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return false; }
+        bool IsDatabaseBound() const final { return false; }
 
         // Called when a member is added to the guild.
         virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint8& /*plRank*/) { }
@@ -813,7 +825,7 @@ class GroupScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const FINAL { return false; }
+        bool IsDatabaseBound() const final { return false; }
 
         // Called when a member is added to a group.
         virtual void OnAddMember(Group* /*group*/, uint64 /*guid*/) { }
@@ -917,6 +929,8 @@ class ScriptMgr
         bool OnQuestAccept(Player* player, Item* item, Quest const* quest);
         bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets);
         bool OnItemExpire(Player* player, ItemTemplate const* proto);
+        void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action);
+        void OnGossipSelectCode(Player* player, Item* item, uint32 sender, uint32 action, const char* code);
 
     public: /* CreatureScript */
 
@@ -1034,6 +1048,8 @@ class ScriptMgr
         void OnPlayerSave(Player* player);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
+        void OnGossipSelect(Player* player, uint32 menu_id, uint32 sender, uint32 action);
+        void OnGossipSelectCode(Player* player, uint32 menu_id, uint32 sender, uint32 action, const char* code);
 
     public: /* GuildScript */
 

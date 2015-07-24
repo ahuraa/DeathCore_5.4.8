@@ -1,5 +1,4 @@
 # Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
-# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -11,6 +10,7 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+	Custom/auto_learn_spells_first.cpp
 )
 
 message("  -> Prepared: Custom")

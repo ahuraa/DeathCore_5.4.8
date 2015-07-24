@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,6 +40,7 @@
 #include "World.h"
 #include "ObjectAccessor.h"
 #include "BattlegroundMgr.h"
+#include "BattleShop.h"
 #include "OutdoorPvPMgr.h"
 #include "MapManager.h"
 #include "SocialMgr.h"
@@ -98,7 +99,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, bool hasBoost):
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -107,6 +108,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     _security(sec),
     _accountId(id),
     m_expansion(expansion),
+    m_charBooster(new CharacterBooster(this)),
     _warden(NULL),
     _logoutTime(0),
     m_inQueue(false),
@@ -122,6 +124,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     _filterAddonMessages(false),
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
+    m_hasBoost(hasBoost),
     timeLastWhoCommand(0),
     _RBACData(NULL)
 {
@@ -163,6 +166,9 @@ WorldSession::~WorldSession()
 
     delete _warden;
     delete _RBACData;
+    delete m_charBooster;
+    for (uint32 i = 0; i < m_petslist.size(); ++i)
+        delete &this->m_petslist[i];
 
     ///- empty incoming packet queue
     WorldPacket* packet = NULL;
@@ -294,6 +300,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 {
     /// Update Timeout timer.
     UpdateTimeOutTime(diff);
+    m_charBooster->Update(diff);
 
     ///- Before we process anything:
     /// If necessary, kick the player from the character select screen
@@ -406,8 +413,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         }
         catch (ByteBufferException const&)
         {
-            TC_LOG_ERROR("network", "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %s) from client %s, accountid=%i. Skipped packet.",
-                    GetOpcodeNameForLogging(packet->GetOpcode(), false).c_str(), GetRemoteAddress().c_str(), GetAccountId());
+            TC_LOG_ERROR("network", "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %s) from client %s, accountid=%i. Skipped packet. Size (%u)",
+                    GetOpcodeNameForLogging(packet->GetOpcode(), false).c_str(), GetRemoteAddress().c_str(), GetAccountId(), packet->size());
             packet->hexlike();
         }
 
@@ -477,6 +484,13 @@ void WorldSession::LogoutPlayer(bool save)
         {
             _player->getHostileRefManager().deleteReferences();
             _player->BuildPlayerRepop();
+            _player->RepopAtGraveyard();
+        }
+        else if (_player->IsInCombat())
+        {
+            _player->getHostileRefManager().deleteReferences();
+            _player->BuildPlayerRepop();
+            _player->KillPlayer();
             _player->RepopAtGraveyard();
         }
         else if (_player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
@@ -591,25 +605,11 @@ void WorldSession::LogoutPlayer(bool save)
 
         data.WriteBit(0); // Dafuck ? 1st bit twice read ??????
 
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[1]);
-        data.WriteBit(guid[4]);
-        data.WriteBit(guid[6]);
-        data.WriteBit(guid[7]);
-        data.WriteBit(guid[5]);
-        data.WriteBit(guid[0]);
-        
+        data.WriteGuidMask(guid, 3, 2, 1, 4, 6, 7, 5, 0);
+
         data.FlushBits();
-        
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[5]);
+
+        data.WriteGuidBytes(guid, 6, 4, 1, 2, 7, 3, 0, 5);
         SendPacket(&data);
 
         TC_LOG_DEBUG("network", "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
@@ -890,7 +890,7 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
 
             addonInfo >> usingPubKey >> crc >> urlFile;
 
-            TC_LOG_INFO("misc", "ADDON: Name: %s, UsePubKey: 0x%x, CRC: 0x%x, UrlFile: %i", addonName.c_str(), usingPubKey, crc, urlFile);
+            TC_LOG_DEBUG("misc", "ADDON: Name: %s, UsePubKey: 0x%x, CRC: 0x%x, UrlFile: %i", addonName.c_str(), usingPubKey, crc, urlFile);
 
             AddonInfo addon(addonName, true, crc, 2, usingPubKey);
 
@@ -898,15 +898,15 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
             if (savedAddon)
             {
                 if (addon.CRC != savedAddon->CRC)
-                    TC_LOG_INFO("misc", "ADDON: %s was known, but didn't match known CRC (0x%x)!", addon.Name.c_str(), savedAddon->CRC);
+                    TC_LOG_DEBUG("misc", "ADDON: %s was known, but didn't match known CRC (0x%x)!", addon.Name.c_str(), savedAddon->CRC);
                 else
-                    TC_LOG_INFO("misc", "ADDON: %s was known, CRC is correct (0x%x)", addon.Name.c_str(), savedAddon->CRC);
+                    TC_LOG_DEBUG("misc", "ADDON: %s was known, CRC is correct (0x%x)", addon.Name.c_str(), savedAddon->CRC);
             }
             else
             {
                 AddonMgr::SaveAddon(addon);
 
-                TC_LOG_INFO("misc", "ADDON: %s (0x%x) was not known, saving...", addon.Name.c_str(), addon.CRC);
+                TC_LOG_DEBUG("misc", "ADDON: %s (0x%x) was not known, saving...", addon.Name.c_str(), addon.CRC);
             }
 
             /// @todo Find out when to not use CRC/pubkey, and other possible states.
@@ -1047,7 +1047,7 @@ bool WorldSession::IsAddonRegistered(const std::string& prefix) const
     return itr != _registeredAddonPrefixes.end();
 }
 
-void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket*/) // empty packet
+void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket*/)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_UNREGISTER_ALL_ADDON_PREFIXES");
 
@@ -1060,7 +1060,7 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
 
     // This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
 
-    uint32 count = recvPacket.ReadBits(25);
+    uint32 count = recvPacket.ReadBits(24);
 
     if (count > REGISTERED_ADDON_PREFIX_SOFTCAP)
     {
@@ -1080,6 +1080,7 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
     if (_registeredAddonPrefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP) // shouldn't happen
     {
         _filterAddonMessages = false;
+        recvPacket.rfinish();
         return;
     }
 
@@ -1161,15 +1162,16 @@ void WorldSession::ProcessQueryCallbacks()
     {
         uint64 param = _sendStabledPetCallback.GetParam();
         _sendStabledPetCallback.GetResult(result);
-        SendPetStableListCallback(result, param);
+        SendStablePetCallback(result, param);
         _sendStabledPetCallback.FreeResult();
     }
 
     //- HandleStablePet
     if (_stablePetCallback.ready())
     {
+        uint64 param = _unstablePetCallback.GetParam();
         _stablePetCallback.get(result);
-        HandleStablePetCallback(result);
+        HandleStablePetCallback(result, param);
         _stablePetCallback.cancel();
     }
 
@@ -1190,6 +1192,209 @@ void WorldSession::ProcessQueryCallbacks()
         HandleStableSwapPetCallback(result, param);
         _stableSwapCallback.FreeResult();
     }
+}
+bool WorldSession::addPet(uint8 slot, uint32 entry, uint32 pettemplate, uint64 guid, uint8 petlevel, std::string name, bool checking)
+{
+    if (checking == true)
+    {
+        PetSlots CheckPetSlot = checkPets(slot, entry);
+        if (CheckPetSlot.name > "" && _player->m_free_slot < 5 && _player->m_free_slot == slot)
+        {
+            ++_player->m_free_slot;
+        }
+    }
+
+    if (guid == entry)
+    {
+        guid = MAKE_NEW_GUID(entry, 0, HIGHGUID_PET);
+    }
+
+    PetSlots petSlot;
+    petSlot.entry = entry;
+    petSlot.guid = guid;
+    petSlot.name = (name.length() > 0 ? name : "unknown");
+    petSlot.namelen = name.length();
+    petSlot.slot = (slot);
+    petSlot.slottype = (slot < 5 ? 1 : 3);
+    petSlot.pettemplate = pettemplate;
+    petSlot.level = petlevel;
+    m_petslist[slot] = petSlot;
+    return true;
+}
+
+bool WorldSession::addPet(uint8 slot, PetSlots PetToSave, bool checking)
+{
+    if (checking == true)
+    {
+        PetSlots CheckPetSlot = checkPets(slot, PetToSave.entry);
+        // Maby not maby the best place to do this check
+        if (CheckPetSlot.name > "" && _player->m_free_slot < 5 && _player->m_free_slot == slot)
+        {
+            ++_player->m_free_slot;
+        }
+    }
+    if (PetToSave.guid == PetToSave.entry)
+    {
+        PetToSave.guid = MAKE_NEW_GUID(PetToSave.entry, 0, HIGHGUID_PET);
+    }
+
+    m_petslist[slot] = PetToSave;
+    return true;
+}
+
+bool WorldSession::delPet(uint8 slot)
+{
+    m_petslist.erase(slot);
+    return true;
+}
+
+bool WorldSession::delPet(Unit* pet_entry)
+{
+    for (PetSlotsList::iterator itr = m_petslist.begin(); itr != m_petslist.end(); ++itr)
+    {
+        if (itr->second.entry == pet_entry->GetCharmInfo()->GetPetNumber())
+        {
+            m_petslist.erase(itr->first);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+PetSlots WorldSession::savePet(uint8 slot)
+{
+    PetSlotsList::const_iterator itr2 = m_petslist.find(slot);
+    if (itr2 != m_petslist.end())
+        return itr2->second;
+    else
+    {
+        PetSlots not_found;
+        not_found.clean_start();
+        return not_found;
+    }
+}
+
+bool WorldSession::movePet(uint8 slot, uint32 entry)
+{
+    bool found = false;
+
+    for (PetSlotsList::iterator itr = m_petslist.begin(); itr != m_petslist.end(); ++itr)
+    {
+        if (itr->second.entry == entry)
+        {
+            PetSlots Save = itr->second;
+            PetSlotsList test;
+            PetSlotsList test2;
+            PetSlots test3;
+
+            test[slot] = itr->second;
+            PetSlotsList::const_iterator itr2 = m_petslist.find(slot);
+            if (itr2 != m_petslist.end())
+            {
+                test2[slot] = itr2->second;
+                test3 = itr2->second;
+
+                found = true;
+            }
+
+            if (found)
+            {
+                if (slot > 4)
+                    test[slot].guid = 0;
+                else if (test[slot].guid == 0)
+                    test[slot].guid = MAKE_NEW_GUID(test[slot].entry, 0, HIGHGUID_PET); // Create an uniqe GUID for the pet if its in slot 1-5.
+                if (itr->first > 4)
+                    test2[slot].guid = 0;
+                else if (test2[slot].guid == 0)
+                    test2[slot].guid = MAKE_NEW_GUID(test2[slot].entry, 0, HIGHGUID_PET); // Create an uniqe GUID for the pet if its in slot 1-5.
+                test[slot].slottype = slot > 4 ? 3 : 1;
+                test2[slot].slottype = slot > 4 ? 3 : 1;
+                addPet(itr->first, test2[slot]);
+                addPet(slot, test[slot]);
+                return true;
+            }
+            else
+            {
+                test[slot].clean_start();
+                test[slot] = itr->second;
+                if (slot > 4)
+                    test[slot].guid = 0;
+                else if (test[slot].guid == 0)
+                    test[slot].guid = MAKE_NEW_GUID(test[slot].entry, 0, HIGHGUID_PET); // Create an uniqe GUID for the pet.
+
+                test[slot].slot = slot;
+                test[slot].slottype = slot > 4 ? 3 : 1;
+                addPet(slot, test[slot]);
+                delPet(itr->first);
+
+                return true;
+            }
+        }
+        if (itr == m_petslist.end())
+        {
+            return false;
+        }
+    }
+    return false;
+}
+
+PetSlots WorldSession::checkPets(uint8 slot, uint32 entry) // The same as movePet but this return the pet it should swap with ..
+{
+    bool found = false;
+    PetSlots temp;
+    temp.clean_start();
+
+    for (PetSlotsList::iterator itr = m_petslist.begin(); itr != m_petslist.end(); ++itr)
+    {
+        if (itr->second.entry == entry)
+        {
+            PetSlots Save = itr->second;
+            PetSlots test;
+            test = itr->second;
+            PetSlotsList::const_iterator itr2 = m_petslist.find(slot);
+            if (itr2 != m_petslist.end())
+            {
+                found = true;
+            }
+
+            if (found)
+            {
+                temp = itr2->second;
+                return temp;
+            }
+            else
+                return Save;
+        }
+        if (itr == m_petslist.end())
+        {
+            // couldent find a single pet so its a big miss for this player
+            return temp;
+        }
+    }
+    return temp;
+}
+
+uint8 WorldSession::CheckEmptyPetSlot(Player* owner)
+{
+    uint8 slot = 5;
+    uint32 spell[] = { 883, 83242, 83243, 83244, 83245 };
+
+    for (int i = 0; i < 5; ++i)
+    {
+        if (!owner->HasSpell(spell[i]))
+        {
+            return slot;
+        }
+
+        std::unordered_map<uint8, PetSlots>::iterator it = m_petslist.find(i);
+        if (it == m_petslist.end())
+        {
+           slot = i;
+           return slot;
+        }
+    }
+    return slot;
 }
 
 void WorldSession::InitWarden(BigNumber* k, std::string const& os)

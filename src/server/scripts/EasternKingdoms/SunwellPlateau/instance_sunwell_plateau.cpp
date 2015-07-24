@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,13 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Instance_Sunwell_Plateau
-SD%Complete: 25
-SDComment: VERIFY SCRIPT
-SDCategory: Sunwell_Plateau
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -46,7 +36,7 @@ class instance_sunwell_plateau : public InstanceMapScript
 public:
     instance_sunwell_plateau() : InstanceMapScript("instance_sunwell_plateau", 580) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_sunwell_plateau_InstanceMapScript(map);
     }
@@ -83,7 +73,7 @@ public:
         uint32 SpectralRealmTimer;
         std::vector<uint64> SpectralRealmList;
 
-        void Initialize() OVERRIDE
+        void Initialize() override
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -115,7 +105,7 @@ public:
             SpectralRealmTimer = 5000;
         }
 
-        bool IsEncounterInProgress() const OVERRIDE
+        bool IsEncounterInProgress() const override
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
@@ -143,7 +133,7 @@ public:
             return NULL;
         }
 
-        void OnCreatureCreate(Creature* creature) OVERRIDE
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -163,7 +153,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -184,7 +174,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 id) const OVERRIDE
+        uint32 GetData(uint32 id) const override
         {
             switch (id)
             {
@@ -198,7 +188,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 id) const OVERRIDE
+        uint64 GetData64(uint32 id) const override
         {
             switch (id)
             {
@@ -223,7 +213,7 @@ public:
             return 0;
         }
 
-        void SetData(uint32 id, uint32 data) OVERRIDE
+        void SetData(uint32 id, uint32 data) override
         {
             switch (id)
             {
@@ -274,7 +264,7 @@ public:
                 SaveToDB();
         }
 
-        std::string GetSaveData() OVERRIDE
+        std::string GetSaveData() override
         {
             OUT_SAVE_INST_DATA;
             std::ostringstream stream;
@@ -285,7 +275,7 @@ public:
             return stream.str();
         }
 
-        void Load(char const* in) OVERRIDE
+        void Load(char const* in) override
         {
             if (!in)
             {

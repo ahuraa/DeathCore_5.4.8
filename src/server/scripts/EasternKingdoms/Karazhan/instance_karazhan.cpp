@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,13 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Instance_Karazhan
-SD%Complete: 70
-SDComment: Instance Script for Karazhan to help in various encounters. @todo GameObject visibility for Opera event.
-SDCategory: Karazhan
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -51,7 +41,7 @@ class instance_karazhan : public InstanceMapScript
 public:
     instance_karazhan() : InstanceMapScript("instance_karazhan", 532) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_karazhan_InstanceMapScript(map);
     }
@@ -82,7 +72,7 @@ public:
         uint64 ImageGUID;
         uint64 DustCoveredChest;
 
-        void Initialize() OVERRIDE
+        void Initialize() override
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -110,7 +100,7 @@ public:
             DustCoveredChest    = 0;
         }
 
-        bool IsEncounterInProgress() const OVERRIDE
+        bool IsEncounterInProgress() const override
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
@@ -119,7 +109,7 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* creature) OVERRIDE
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -129,7 +119,7 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 uiData) OVERRIDE
+        void SetData(uint32 type, uint32 uiData) override
         {
             switch (type)
             {
@@ -184,7 +174,7 @@ public:
             }
         }
 
-         void SetData64(uint32 identifier, uint64 data) OVERRIDE
+         void SetData64(uint32 identifier, uint64 data) override
          {
              switch (identifier)
              {
@@ -192,7 +182,7 @@ public:
              }
          }
 
-        void OnGameObjectCreate(GameObject* go) OVERRIDE
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -238,12 +228,12 @@ public:
             }
         }
 
-        std::string GetSaveData() OVERRIDE
+        std::string GetSaveData() override
         {
             return strSaveData;
         }
 
-        uint32 GetData(uint32 uiData) const OVERRIDE
+        uint32 GetData(uint32 uiData) const override
         {
             switch (uiData)
             {
@@ -266,7 +256,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiData) const OVERRIDE
+        uint64 GetData64(uint32 uiData) const override
         {
             switch (uiData)
             {

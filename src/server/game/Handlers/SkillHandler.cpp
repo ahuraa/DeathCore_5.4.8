@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,28 +30,41 @@
 
 void WorldSession::HandeSetTalentSpecialization(WorldPacket& recvData)
 {
-    uint32 specializationTabId;
-    recvData >> specializationTabId;
+    uint32 tab = recvData.read<uint32>();
+    uint8 classId = _player->getClass();
 
-    if (specializationTabId > MAX_TALENT_TABS)
+    // Avoid cheat - hack
+    if (_player->GetSpecializationId(_player->GetActiveSpec()))
         return;
 
-    if (_player->GetTalentSpecialization(_player->GetActiveSpec()))
-        return;
+    uint32 specializationId = 0;
+    uint32 specializationSpell = 0;
 
-    uint32 specializationId = GetClassSpecializations(_player->getClass())[specializationTabId];
-
-    _player->SetTalentSpecialization(_player->GetActiveSpec(), specializationId);
-    _player->SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, specializationId);
-    _player->SendTalentsInfoData();
-
-    std::list<uint32> learnList = GetSpellsForLevels(0, _player->getRaceMask(), _player->GetTalentSpecialization(_player->GetActiveSpec()), 0, _player->getLevel());
-    for (std::list<uint32>::const_iterator iter = learnList.begin(); iter != learnList.end(); iter++)
+    for (uint32 i = 0; i < sChrSpecializationStore.GetNumRows(); i++)
     {
-        if (!_player->HasSpell(*iter))
-            _player->learnSpell(*iter, true);
+        ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(i);
+        if (!specialization)
+            continue;
+
+        if (specialization->classId == classId && specialization->TabPage == tab)
+        {
+            specializationId = specialization->Id;
+            specializationSpell = specialization->specializationSpell;
+            break;
+        }
     }
 
+    if (specializationId)
+    {
+        _player->SetSpecializationId(_player->GetActiveSpec(), specializationId);
+        _player->SendTalentsInfoData(false);
+        if (specializationSpell)
+            _player->learnSpell(specializationSpell, false);
+        
+        _player->InitStatsForLevel(true);
+        _player->UpdateMastery();
+        _player->InitSpellForLevel();
+    }
     _player->SaveToDB();
 }
 
@@ -60,7 +73,6 @@ void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
     uint32 talentCount = recvData.ReadBits(23);
     uint16 talentId;
     bool anythingLearned = false;
-
     for (int i = 0; i != talentCount; i++)
     {
         recvData >> talentId;
@@ -72,67 +84,72 @@ void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
         _player->SendTalentsInfoData();
 }
 
-void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
+void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "CMSG_LEARN_PREVIEW_TALENTS");
-}
-
-void WorldSession::HandleConfirmRespecWipe(WorldPacket& recvData)
-{
-    TC_LOG_DEBUG("network", "CMSG_CONFIRM_RESPEC_WIPE");
-
-    ObjectGuid respecMasterGUID;
-    RespecType respecType;
-
-    respecType = (RespecType)recvData.read<uint8>();
-    respecMasterGUID[7] = recvData.ReadBit();  // 23
-    respecMasterGUID[2] = recvData.ReadBit();  // 18
-    respecMasterGUID[6] = recvData.ReadBit();  // 22
-    respecMasterGUID[1] = recvData.ReadBit();  // 17
-    respecMasterGUID[4] = recvData.ReadBit();  // 20
-    respecMasterGUID[0] = recvData.ReadBit();  // 16
-    respecMasterGUID[3] = recvData.ReadBit();  // 19
-    respecMasterGUID[5] = recvData.ReadBit();  // 21
-
-    recvData.ReadByteSeq(respecMasterGUID[2]);  // 18
-    recvData.ReadByteSeq(respecMasterGUID[4]);  // 20
-    recvData.ReadByteSeq(respecMasterGUID[1]);  // 17
-    recvData.ReadByteSeq(respecMasterGUID[3]);  // 19
-    recvData.ReadByteSeq(respecMasterGUID[0]);  // 16
-    recvData.ReadByteSeq(respecMasterGUID[5]);  // 21
-    recvData.ReadByteSeq(respecMasterGUID[7]);  // 23
-    recvData.ReadByteSeq(respecMasterGUID[6]);  // 22
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(respecMasterGUID, UNIT_NPC_FLAG_TRAINER);
-    if (!unit)
+    TC_LOG_DEBUG("network", "CMSG_RESET_TALENTS_RESPONSE");
+   
+    if (Player* player = GetPlayer())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTalentWipeConfirmOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(respecMasterGUID)));
-        return;
+        player->ResetTalents();
+        player->ResetSpec();
+        player->SendTalentsInfoData();
+        player->CastSpell(_player, 14867, true);
     }
 
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+    // We have to find a good structure, with this opcode is possible reset talents or spec or glyphs
+    // This structure is wrong
+    /*
+        ObjectGuid guid;
+        uint8 specializationReset;
+        uint32 cost;
 
-    if (respecType == RESPEC_TYPE_TALENT)
-    {
-        if (!_player->ResetTalents(false, true))
+        recvData.ReadGuidMask(guid, 5, 7, 3, 2, 1, 0, 4, 6);
+
+        recvData.ReadGuidBytes(guid, 1, 0);
+
+        recvData >> specializationReset;
+
+        recvData.ReadGuidBytes(guid, 7, 3, 2, 5, 6, 4);
+
+        recvData >> cost;
+
+        Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
+        if (!unit)
         {
-            WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM, 8+4);    //you have not any talent
-            data << uint8(0);
-            data << uint8(0);
-            data << uint32(0);
-            SendPacket(&data);
+            TC_LOG_DEBUG("network", "WORLD: HandleTalentWipeConfirmOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
             return;
         }
-    }
-    else
-    {
-        _player->ResetTalents(false, false, true);
-    }
 
-    _player->SendTalentsInfoData();
-    unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
+        // remove fake death
+        if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+            GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+        if (!specializationReset)
+        {
+            if (!_player->ResetTalents())
+            {
+                ObjectGuid Guid = guid;
+
+                WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8 + 4);    //you have not any talent
+
+                data.WriteGuidMask(Guid, 5, 7, 3, 2, 1, 0, 4, 6);
+
+                data.WriteGuidBytes(Guid, 1, 0);
+                data << uint8(0);
+                data.WriteGuidBytes(Guid, 7, 3, 2, 5, 6, 4);
+                data << uint32(0);
+                SendPacket(&data);
+                return;
+            }
+        }
+        else
+        {
+            _player->ResetSpec();
+        }
+
+        _player->SendTalentsInfoData();
+        unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
+    */
 }
 
 void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)

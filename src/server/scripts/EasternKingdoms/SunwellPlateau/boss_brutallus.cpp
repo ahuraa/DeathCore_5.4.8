@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,12 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Boss_Brutallus
-SD%Complete: 80
-SDComment: Find a way to start the intro, best code for the intro
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -70,7 +61,7 @@ class boss_brutallus : public CreatureScript
 public:
     boss_brutallus() : CreatureScript("boss_brutallus") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_brutallusAI(creature);
     }
@@ -98,7 +89,7 @@ public:
         bool IsIntro;
         bool Enraged;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             SlashTimer = 11000;
             StompTimer = 30000;
@@ -118,7 +109,7 @@ public:
                 instance->SetData(DATA_BRUTALLUS_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(YELL_AGGRO);
 
@@ -126,12 +117,12 @@ public:
                 instance->SetData(DATA_BRUTALLUS_EVENT, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* /*victim*/) OVERRIDE
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(YELL_KILL);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(YELL_DEATH);
 
@@ -144,7 +135,7 @@ public:
             }
         }
 
-        void EnterEvadeMode() OVERRIDE
+        void EnterEvadeMode() override
         {
             if (!Intro)
                 ScriptedAI::EnterEvadeMode();
@@ -181,7 +172,7 @@ public:
             IsIntro = false;
         }
 
-        void AttackStart(Unit* who) OVERRIDE
+        void AttackStart(Unit* who) override
         {
             if (!who || Intro || IsIntro)
                 return;
@@ -266,7 +257,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* who) OVERRIDE
+        void MoveInLineOfSight(Unit* who) override
 
         {
             if (!me->IsValidAttackTarget(who))
@@ -280,7 +271,7 @@ public:
                 ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff) override
         {
             if (IsIntro)
             {

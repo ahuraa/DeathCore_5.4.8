@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,11 +37,11 @@
 #include "Vehicle.h"
 #include "VMapFactory.h"
 
-u_map_magic MapMagic        = { {'M','A','P','S'} };
-u_map_magic MapVersionMagic = { {'v','1','.','3'} };
-u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
-u_map_magic MapHeightMagic  = { {'M','H','G','T'} };
-u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
+u_map_magic MapMagic = { { 'M', 'A', 'P', 'S' } };
+u_map_magic MapVersionMagic = { { 'v', '1', '.', '4' } };
+u_map_magic MapAreaMagic = { { 'A', 'R', 'E', 'A' } };
+u_map_magic MapHeightMagic = { { 'M', 'H', 'G', 'T' } };
+u_map_magic MapLiquidMagic = { { 'M', 'L', 'I', 'Q' } };
 
 #define DEFAULT_GRID_EXPIRY     300
 #define MAX_GRID_LOAD_TIME      50
@@ -136,9 +136,9 @@ void Map::LoadMMap(int gx, int gy)
     bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gx, gy);
 
     if (mmapLoadResult)
-        TC_LOG_INFO("maps", "MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        TC_LOG_DEBUG("maps", "MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
     else
-        TC_LOG_INFO("maps", "Could not load MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        TC_LOG_DEBUG("maps", "Could not load MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
 }
 
 void Map::LoadVMap(int gx, int gy)
@@ -148,10 +148,10 @@ void Map::LoadVMap(int gx, int gy)
     switch (vmapLoadResult)
     {
         case VMAP::VMAP_LOAD_RESULT_OK:
-            TC_LOG_INFO("maps", "VMAP loaded name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+            TC_LOG_DEBUG("maps", "VMAP loaded name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
             break;
         case VMAP::VMAP_LOAD_RESULT_ERROR:
-            TC_LOG_INFO("maps", "Could not load VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+            TC_LOG_DEBUG("maps", "Could not load VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
             break;
         case VMAP::VMAP_LOAD_RESULT_IGNORED:
             TC_LOG_DEBUG("maps", "Ignored VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
@@ -193,7 +193,7 @@ void Map::LoadMap(int gx, int gy, bool reload)
     int len = sWorld->GetDataPath().length() + strlen("maps/%03u%02u%02u.map") + 1;
     tmp = new char[len];
     snprintf(tmp, len, (char *)(sWorld->GetDataPath() + "maps/%03u%02u%02u.map").c_str(), GetId(), gx, gy);
-    TC_LOG_INFO("maps", "Loading map %s", tmp);
+    TC_LOG_DEBUG("maps", "Loading map %s", tmp);
     // loading data
     GridMaps[gx][gy] = new GridMap();
     if (!GridMaps[gx][gy]->loadData(tmp))

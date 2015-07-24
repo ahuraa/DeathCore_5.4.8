@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -281,11 +281,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         {
                             if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate((*itr)->ToCreature()->GetEntry()))
                             {
-                                if ((*itr)->ToCreature()->getFaction() != ci->faction)
+                                if ((*itr)->ToCreature()->getFaction() != ci->faction_A)
                                 {
-                                    (*itr)->ToCreature()->setFaction(ci->faction);
+                                    (*itr)->ToCreature()->setFaction(ci->faction_A);
                                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_SET_FACTION: Creature entry %u, GuidLow %u set faction to %u",
-                                        (*itr)->GetEntry(), (*itr)->GetGUIDLow(), ci->faction);
+                                        (*itr)->GetEntry(), (*itr)->GetGUIDLow(), ci->faction_A);
                                 }
                             }
                         }
@@ -1624,7 +1624,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 if (IsUnit(*itr))
-                    (*itr)->ToUnit()->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, e.action.unitFlag.flag);
+                    (*itr)->ToUnit()->SetUInt64Value(UNIT_FIELD_NPC_FLAGS, e.action.unitFlag.flag);
 
             delete targets;
             break;

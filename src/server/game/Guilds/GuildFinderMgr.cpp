@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,8 +42,8 @@ void GuildFinderMgr::LoadGuildSettings()
     //                                                           0                1             2                  3             4           5             6         7
     QueryResult result = CharacterDatabase.Query("SELECT gfgs.guildId, gfgs.availability, gfgs.classRoles, gfgs.interests, gfgs.level, gfgs.listed, gfgs.comment, c.race "
                                                  "FROM guild_finder_guild_settings gfgs "
-                                                 "LEFT JOIN guild_member gm ON gm.guildid=gfgs.guildId "
-                                                 "LEFT JOIN characters c ON c.guid = gm.guid LIMIT 1");
+                                                 "LEFT JOIN guild g ON g.guildId = gfgs.guildId "
+                                                 "LEFT JOIN characters c ON c.guid = g.leaderguid");
 
     if (!result)
     {
@@ -249,8 +249,10 @@ LFGuildStore GuildFinderMgr::GetGuildsMatchingSetting(LFGuildPlayer& settings, T
         if (!(guildSettings.GetInterests() & settings.GetInterests()))
             continue;
 
+        /* Not working
         if (!(guildSettings.GetLevel() & settings.GetLevel()))
             continue;
+        */
 
         resultSet.insert(std::make_pair(itr->first, guildSettings));
     }
@@ -322,7 +324,7 @@ void GuildFinderMgr::DeleteGuild(uint32 guildId)
 
 void GuildFinderMgr::SendApplicantListUpdate(Guild& guild)
 {
-    WorldPacket data(SMSG_LF_GUILD_APPLICANT_LIST_UPDATED, 0);
+    WorldPacket data(SMSG_LF_GUILD_APPLICANT_LIST_CHANGED, 0);
     if (Player* player = ObjectAccessor::FindPlayer(guild.GetLeaderGUID()))
         player->SendDirectMessage(&data);
     guild.BroadcastPacketToRank(&data, GR_OFFICER);

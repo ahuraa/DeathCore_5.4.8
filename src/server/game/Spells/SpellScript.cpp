@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,9 +66,9 @@ _SpellScript::EffectHook::EffectHook(uint8 _effIndex)
     effIndex = _effIndex;
 }
 
-uint8 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellInfo const* spellEntry)
+uint32 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellInfo const* spellEntry)
 {
-    uint8 mask = 0;
+    uint32 mask = 0;
     if ((effIndex == EFFECT_ALL) || (effIndex == EFFECT_FIRST_FOUND))
     {
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -76,13 +76,13 @@ uint8 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellInfo const* spellEnt
             if ((effIndex == EFFECT_FIRST_FOUND) && mask)
                 return mask;
             if (CheckEffect(spellEntry, i))
-                mask |= (uint8)1<<i;
+                mask |= (uint32)1<<i;
         }
     }
     else
     {
         if (CheckEffect(spellEntry, effIndex))
-            mask |= (uint8)1<<effIndex;
+            mask |= (uint32)1<<effIndex;
     }
     return mask;
 }
@@ -748,6 +748,27 @@ AuraScript::EffectPeriodicHandler::EffectPeriodicHandler(AuraEffectPeriodicFnTyp
 void AuraScript::EffectPeriodicHandler::Call(AuraScript* auraScript, AuraEffect const* _aurEff)
 {
     (auraScript->*pEffectHandlerScript)(_aurEff);
+}
+
+AuraScript::AuraUpdateHandler::AuraUpdateHandler(AuraUpdateFnType _pEffectHandlerScript)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::AuraUpdateHandler::Call(AuraScript* auraScript, uint32 diff)
+{
+    (auraScript->*pEffectHandlerScript)(diff);
+}
+
+AuraScript::EffectUpdateHandler::EffectUpdateHandler(AuraEffectUpdateFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
+    : AuraScript::EffectBase(_effIndex, _effName)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::EffectUpdateHandler::Call(AuraScript* auraScript, uint32 diff, AuraEffect* aurEff)
+{
+    (auraScript->*pEffectHandlerScript)(diff, aurEff);
 }
 
 AuraScript::EffectUpdatePeriodicHandler::EffectUpdatePeriodicHandler(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)

@@ -1,7 +1,5 @@
 /*
- * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2013 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2015 Emu Coach <http://www.emucoach.com/forum.php>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -77,12 +75,12 @@ BEGIN
         BLOCK "080004b0"
         BEGIN
             VALUE "CompanyName",        VER_COMPANYNAME_STR
-            VALUE "FileDescription",    "DeathCore World Server Daemon"
+            VALUE "FileDescription",    "EmuCoach World Server Daemon"
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "worldserver"
             VALUE "LegalCopyright",     VER_LEGALCOPYRIGHT_STR
             VALUE "OriginalFilename",   "worldserver.exe"
-            VALUE "ProductName",        "DeathCore World Server"
+            VALUE "ProductName",        "EmuCoach World Server"
             VALUE "ProductVersion",     VER_PRODUCTVERSION_STR
         END
     END

@@ -1,7 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +18,6 @@
 #include "Chat.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
-#include "ArenaTeamMgr.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "Group.h"
@@ -44,7 +41,7 @@ class misc_commandscript : public CommandScript
 public:
     misc_commandscript() : CommandScript("misc_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    ChatCommand* GetCommands() const override
     {
         static ChatCommand commandTable[] =
         {
@@ -2413,23 +2410,9 @@ public:
         ObjectGuid guid = handler->GetSession()->GetPlayer()->GetGUID();
 
         WorldPacket data(SMSG_PLAY_SOUND, 4 + 9);
-        data.WriteBit(guid[2]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[7]);
-        data.WriteBit(guid[6]);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[5]);
-        data.WriteBit(guid[4]);
-        data.WriteBit(guid[1]);
+        data.WriteGuidMask(guid, 2, 3, 7, 6, 0, 5, 4, 1);
         data << uint32(soundId);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(guid[5]);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(guid[1]);
+        data.WriteGuidBytes(guid, 3, 2, 4, 7, 5, 0, 6, 1);
         sWorld->SendGlobalMessage(&data);
 
         handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);

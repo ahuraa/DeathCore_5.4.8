@@ -1,5 +1,4 @@
-# Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
-# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/> 
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -9,13 +8,14 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+
 # set up output paths for executable binaries (.exe-files, and .dll-files on DLL-capable platforms)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(MSVC_EXPECTED_VERSION 18.0)
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS MSVC_EXPECTED_VERSION)
-  message(FATAL_ERROR "MSVC: PandariaCore requires version ${MSVC_EXPECTED_VERSION} (MSVC 2013) to build but found ${CMAKE_CXX_COMPILER_VERSION}")
+  message(FATAL_ERROR "MSVC: DeathCore requires version ${MSVC_EXPECTED_VERSION} (MSVC 2010) to build but found ${CMAKE_CXX_COMPILER_VERSION}")
 endif()
 
 # set up output paths ofr static libraries etc (commented out - shown here as an example only)

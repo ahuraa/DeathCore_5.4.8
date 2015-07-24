@@ -1,7 +1,5 @@
 /*
- * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2013-2015 EmuCoach
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -882,6 +880,23 @@ namespace Trinity
             uint32 i_lowguid;
     };
 
+    class AnyFriendlyUnitInRangeCheck
+    {
+    public:
+        AnyFriendlyUnitInRangeCheck(Unit const* unit, float range, bool playerOnly = false) : i_unit(unit), i_range(range), i_playerOnly(playerOnly) { }
+        bool operator()(Unit* u)
+        {
+            if (u->IsAlive() && i_unit->IsWithinDistInMap(u, i_range) && i_unit->IsFriendlyTo(u) && (!i_playerOnly || u->GetTypeId() == TYPEID_PLAYER))
+                return true;
+            else
+                return false;
+        }
+    private:
+        Unit const* i_unit;
+        float i_range;
+        bool i_playerOnly;
+    };
+
     class AnyFriendlyUnitInObjectRangeCheck
     {
         public:
@@ -898,6 +913,46 @@ namespace Trinity
             Unit const* i_funit;
             float i_range;
             bool i_playerOnly;
+    };
+    
+    class AnyUnitHavingBuffInObjectRangeCheck
+    {
+        public:
+            AnyUnitHavingBuffInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, uint32 spellid, bool isfriendly)
+                : i_obj(obj), i_funit(funit), i_range(range), i_spellid(spellid), i_friendly(isfriendly) {}
+            bool operator()(Unit* u)
+            {
+                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range) && i_funit->IsFriendlyTo(u) == i_friendly && u->HasAura(i_spellid, i_obj->GetGUID()))
+                    return true;
+                else
+                    return false;
+            }
+        private:
+            WorldObject const* i_obj;
+            Unit const* i_funit;
+            float i_range;
+            bool i_friendly;
+            uint32 i_spellid;
+    };
+    
+    class AnyUnitNotHavingTypeInRangeCheck
+    {
+        public:
+            AnyUnitNotHavingTypeInRangeCheck(Unit const* funit, uint32 type, float range)
+                : ctype(type), _refUnit(funit), _range(range) {}
+            bool operator()(Unit* u)
+            {
+                return (_refUnit->IsWithinDistInMap(u, _range) && u->GetCreatureType() != ctype);
+            }
+
+            bool operator()(WorldObject* obj)
+            {
+                return (obj->ToUnit() && _refUnit->IsWithinDistInMap(obj->ToUnit(), _range) && obj->ToUnit()->GetCreatureType() != ctype);
+            }
+        private:
+            uint32 ctype;
+            Unit const* _refUnit;
+            float _range;
     };
 
     class AnyGroupedUnitInObjectRangeCheck
@@ -941,6 +996,24 @@ namespace Trinity
         private:
             WorldObject const* i_obj;
             float i_range;
+    };
+    
+    class AnyUnitAttackableForCasterInObjectRangeCheck
+    {
+        public:
+            AnyUnitAttackableForCasterInObjectRangeCheck(WorldObject const* obj, float range, Unit* caster) : i_obj(obj), i_range(range), i_caster(caster) {}
+            bool operator()(Unit* u)
+            {
+                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range)
+                    && !u->IsFriendlyTo(i_caster))
+                    return true;
+
+                return false;
+            }
+        private:
+            WorldObject const* i_obj;
+            float i_range;
+            Unit* i_caster;
     };
 
     // Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)
@@ -1438,6 +1511,25 @@ namespace Trinity
             uint64 _casterGUID;
     };
 
+    class UnitAuraTypeCheck
+    {
+        public:
+            UnitAuraTypeCheck(bool present, AuraType type) : _present(present), _type(type) {}
+            bool operator()(Unit* unit) const
+            {
+                return unit->HasAuraType(_type) == _present;
+            }
+
+            bool operator()(WorldObject* object) const
+            {
+                return object->ToUnit() && object->ToUnit()->HasAuraType(_type) == _present;
+            }
+
+        private:
+            bool _present;
+            AuraType _type;
+    };
+
     // Player checks and do
 
     // Prepare using Builder localized packets with caching and send to player
@@ -1479,6 +1571,34 @@ namespace Trinity
             Builder& i_builder;
             std::vector<WorldPacketList> i_data_cache;
                                                             // 0 = default, i => i-1 locale index
+    };
+    
+    // Success at unit in range, range update for next check (this can be use with CreatureLastSearcher to find nearest creature)
+    class NearestCreaturePetEntryWithLiveStateInObjectRangeCheck
+    {
+        public:
+            NearestCreaturePetEntryWithLiveStateInObjectRangeCheck(WorldObject const& obj, Player* owner, uint32 entry, bool alive, float range)
+                : i_obj(obj), i_owner(owner), i_entry(entry), i_alive(alive), i_range(range) {}
+
+            bool operator()(Creature* u)
+            {
+                if (u->GetEntry() == i_entry && u->IsAlive() == i_alive && i_obj.IsWithinDistInMap(u, i_range) && u->GetOwner() == i_owner)
+                {
+                    i_range = i_obj.GetDistance(u);         // use found unit range as new range limit for next check
+                    return true;
+                }
+                return false;
+            }
+            float GetLastRange() const { return i_range; }
+        private:
+            WorldObject const& i_obj;
+            Player* i_owner;
+            uint32 i_entry;
+            bool   i_alive;
+            float  i_range;
+
+            // prevent clone this object
+            NearestCreaturePetEntryWithLiveStateInObjectRangeCheck(NearestCreaturePetEntryWithLiveStateInObjectRangeCheck const&);
     };
 }
 #endif

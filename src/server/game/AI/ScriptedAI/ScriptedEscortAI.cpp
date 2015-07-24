@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -167,7 +167,7 @@ void npc_escortAI::JustRespawned()
     //add a small delay before going to first waypoint, normal in near all cases
     m_uiWPWaitTimer = 2500;
 
-    if (me->getFaction() != me->GetCreatureTemplate()->faction)
+    if (me->getFaction() != me->GetCreatureTemplate()->faction_A)
         me->RestoreFaction();
 
     Reset();
@@ -480,7 +480,7 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
     }
 
     //disable npcflags
-    me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+    me->SetUInt64Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
     if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC))
     {
         HasImmuneToNPCFlags = true;

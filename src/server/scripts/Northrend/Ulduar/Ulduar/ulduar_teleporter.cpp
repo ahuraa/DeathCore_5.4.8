@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -52,7 +52,7 @@ class ulduar_teleporter : public GameObjectScript
     public:
         ulduar_teleporter() : GameObjectScript("ulduar_teleporter") { }
 
-        bool OnGossipSelect(Player* player, GameObject* /*gameObject*/, uint32 sender, uint32 action) OVERRIDE
+        bool OnGossipSelect(Player* player, GameObject* /*gameObject*/, uint32 sender, uint32 action) override
         {
             player->PlayerTalkClass->ClearMenus();
             if (sender != GOSSIP_SENDER_MAIN)
@@ -95,7 +95,7 @@ class ulduar_teleporter : public GameObjectScript
             return true;
         }
 
-        bool OnGossipHello(Player* player, GameObject* gameObject) OVERRIDE
+        bool OnGossipHello(Player* player, GameObject* gameObject) override
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Expedition Base Camp", GOSSIP_SENDER_MAIN, BASE_CAMP);
             if (InstanceScript* instance = gameObject->GetInstanceScript())

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,34 +24,6 @@
 
 #include <ace/Guard_T.h>
 #include <ace/Method_Request.h>
-
-class WDBThreadStartReq1 : public ACE_Method_Request
-{
-    public:
-
-        WDBThreadStartReq1()
-        {
-        }
-
-        virtual int call()
-        {
-            return 0;
-        }
-};
-
-class WDBThreadEndReq1 : public ACE_Method_Request
-{
-    public:
-
-        WDBThreadEndReq1()
-        {
-        }
-
-        virtual int call()
-        {
-            return 0;
-        }
-};
 
 class MapUpdateRequest : public ACE_Method_Request
 {
@@ -86,7 +58,7 @@ MapUpdater::~MapUpdater()
 
 int MapUpdater::activate(size_t num_threads)
 {
-    return m_executor.start((int)num_threads, new WDBThreadStartReq1, new WDBThreadEndReq1);
+    return m_executor.start((int)num_threads);
 }
 
 int MapUpdater::deactivate()

@@ -1,7 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,8 +38,8 @@
 #ifdef _WIN32
 #include "ServiceWin32.h"
 char serviceName[] = "worldserver";
-char serviceLongName[] = "WoWSCore world service";
-char serviceDescription[] = "WoWSCore World of Warcraft emulator world service";
+char serviceLongName[] = "DeathCore world service";
+char serviceDescription[] = "DeathCore World of Warcraft emulator world service";
 /*
  * -1 - not in service mode
  *  0 - stopped

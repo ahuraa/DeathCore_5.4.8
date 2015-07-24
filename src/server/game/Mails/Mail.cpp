@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,14 +59,12 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
 }
 
 MailSender::MailSender(CalendarEvent* sender)
-    : m_messageType(MAIL_CALENDAR), m_senderId(sender->GetEventId()), m_stationery(MAIL_STATIONERY_DEFAULT) // what stationery we should use here?
-{
-}
+    : m_messageType(MAIL_CALENDAR), m_senderId(sender->GetEventId()), m_stationery(MAIL_STATIONERY_DEFAULT){ }
 
 MailSender::MailSender(AuctionEntry* sender)
     : m_messageType(MAIL_AUCTION), m_senderId(sender->GetHouseId()), m_stationery(MAIL_STATIONERY_AUCTION) { }
 
-MailSender::MailSender(BlackMarketAuction* sender)
+MailSender::MailSender(BMAuctionEntry* sender)
     : m_messageType(MAIL_AUCTION), m_senderId(BLACKMARKET_AUCTION_HOUSE), m_stationery(MAIL_STATIONERY_AUCTION) { }
 
 MailSender::MailSender(Player* sender)

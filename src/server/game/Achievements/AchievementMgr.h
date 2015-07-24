@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,6 +37,7 @@ typedef std::vector<CriteriaEntry const*>            AchievementCriteriaEntryLis
 typedef std::vector<AchievementEntry const*>         AchievementEntryList;
 typedef std::vector<CriteriaTreeEntry const*>        AchievementCriteriaTreeList;
 typedef std::vector<ModifierTreeEntry const*>        ModifierTreeEntryList;
+
 
 typedef UNORDERED_MAP<uint32, AchievementEntryList>         AchievementListByReferencedId;
 typedef UNORDERED_MAP<uint32, AchievementCriteriaTreeList>  AchievementCriteriaTreeByCriteriaId;
@@ -250,9 +251,11 @@ class AchievementMgr
         void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer);
         void CheckAllAchievementCriteria(Player* referencePlayer);
         void SendAllAchievementData(Player* receiver) const;
-        void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;
+        void SendAchievementInfo(Player* receiver, uint32 achievementId = 0);
         bool HasAchieved(uint32 achievementId) const;
         T* GetOwner() const { return _owner; }
+        CriteriaProgress* GetCriteriaProgress(uint32 criteriaID);
+        CriteriaProgress* GetCriteriaProgress(CriteriaEntry const* entry) { return GetCriteriaProgress(entry->ID); }
 
         void UpdateTimedAchievements(uint32 timeDiff);
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
@@ -262,14 +265,13 @@ class AchievementMgr
     private:
         void SendAchievementEarned(AchievementEntry const* achievement) const;
         void SendCriteriaUpdate(CriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const;
-        CriteriaProgress* GetCriteriaProgress(CriteriaEntry const* entry);
         void SetCriteriaProgress(CriteriaEntry const* entry, uint64 changeValue, Player* referencePlayer, ProgressType ptype = PROGRESS_SET);
         void RemoveCriteriaProgress(CriteriaEntry const* entry);
         void CompletedCriteriaFor(AchievementEntry const* achievement, Player* referencePlayer);
         bool IsCompletedCriteria(CriteriaEntry const* criteria);
-        bool IsCompletedCriteriaForAchievement(CriteriaEntry const* criteria, AchievementEntry const* achievementEntry);
         bool IsCompletedAchievement(AchievementEntry const* entry);
-        bool CanUpdateCriteria(CriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer);
+        bool IsCompletedCriteriaForAchievement(CriteriaEntry const* criteria, AchievementEntry const* achievementEntry);
+        bool CanUpdateCriteria(CriteriaEntry const* criteria, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer);
         void SendPacket(WorldPacket* data) const;
 
         bool ConditionsSatisfied(CriteriaEntry const* criteria, Player* referencePlayer) const;
@@ -299,6 +301,7 @@ class AchievementGlobalMgr
             return m_AchievementCriteriasByType[type];
         }
 
+
         AchievementCriteriaEntryList const& GetTimedAchievementCriteriaByType(AchievementCriteriaTimedTypes type) const
         {
             return m_AchievementCriteriasByTimedType[type];
@@ -308,6 +311,7 @@ class AchievementGlobalMgr
         {
             return m_AchievementCriteriaTreeByCriteriaId[criteria->ID];
         }
+
 
         AchievementEntryList const* GetAchievementByReferencedId(uint32 id) const
         {
@@ -378,7 +382,7 @@ class AchievementGlobalMgr
                 case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:         // NYI
                 case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
                 case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:        // NYI
-                case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:  // NYI
+                case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:
                     return true;
                 default:
                     break;
@@ -400,7 +404,7 @@ class AchievementGlobalMgr
 
         // store achievement criterias by type to speed up lookup
         AchievementCriteriaEntryList m_AchievementCriteriasByType[ACHIEVEMENT_CRITERIA_TYPE_TOTAL];
-
+        
         AchievementCriteriaEntryList m_AchievementCriteriasByTimedType[ACHIEVEMENT_TIMED_TYPE_MAX];
 
         // store achievements by referenced achievement id to speed up lookup
@@ -415,6 +419,7 @@ class AchievementGlobalMgr
 
         AchievementRewards m_achievementRewards;
         AchievementRewardLocales m_achievementRewardLocales;
+
 };
 
 #define sAchievementMgr ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>::instance()

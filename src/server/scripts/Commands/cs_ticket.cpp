@@ -1,7 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-Name: ticket_commandscript
-%Complete: 100
-Comment: All ticket related commands
-Category: commandscripts
-EndScriptData */
 
 #include "AccountMgr.h"
 #include "Chat.h"
@@ -166,7 +157,7 @@ public:
         {
             if (submitter->IsInWorld())
             {
-                WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
+                WorldPacket data(SMSG_GM_TICKET_DELETETICKET, 4);
                 data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
                 submitter->GetSession()->SendPacket(&data);
             }
@@ -275,7 +266,7 @@ public:
             if (player->IsInWorld())
             {
                 // Force abandon ticket
-                WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
+                WorldPacket data(SMSG_GM_TICKET_DELETETICKET, 4);
                 data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
                 player->GetSession()->SendPacket(&data);
             }

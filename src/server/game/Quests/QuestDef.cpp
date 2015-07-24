@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -77,10 +77,14 @@ Quest::Quest(Field* questRecord)
         RewardItemIdCount[i] = questRecord[49+i].GetUInt16();
 
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        RewardChoiceItemId[i] = questRecord[53+i].GetUInt32();
-
+    {
+        RewardChoiceItems[i].rewardItemCount = questRecord[59 + i].GetUInt16();
+        RewardChoiceItems[i].rewardItemId = questRecord[53 + i].GetUInt32();
+        RewardChoiceItems[i].requiredClass = -1;
+    }
+    
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        RewardChoiceItemCount[i] = questRecord[59+ i].GetUInt16();
+        
 
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
         RewardFactionId[i] = questRecord[65+i].GetUInt16();
@@ -151,7 +155,7 @@ Quest::Quest(Field* questRecord)
             ++_rewItemsCount;
 
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        if (RewardChoiceItemId[i])
+        if (RewardChoiceItems[i].rewardItemId)
             ++_rewChoiceItemsCount;
 
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
@@ -262,20 +266,23 @@ uint32 Quest::CalculateHonorGain(uint8 level) const
 }
 
 // Note: These next two functions will need to be changed/extended once QuestPackageItem.db2 is implemented
-bool Quest::IsRewChoiceItemValid(uint32 itemId) const
+bool Quest::IsRewChoiceItemValid(uint32 itemId, uint8 pClass) const
 {
     for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; i++)
-        if (RewardChoiceItemId[i] == itemId)
+        if (RewardChoiceItems[i].rewardItemId == itemId && 
+            (RewardChoiceItems[i].requiredClass == -1 || RewardChoiceItems[i].requiredClass== pClass)
+            )
             return true;
 
     return false;
 }
 
-uint32 Quest::GetRewChoiceItemCount(uint32 itemId) const
+uint32 Quest::GetRewChoiceItemCount(uint32 itemId, uint8 pClass) const
 {
     for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; i++)
-        if (RewardChoiceItemId[i] == itemId)
-            return RewardChoiceItemCount[i];
+        if (RewardChoiceItems[i].rewardItemId == itemId &&
+            (RewardChoiceItems[i].requiredClass == -1 || RewardChoiceItems[i].requiredClass == pClass))
+            return RewardChoiceItems[i].rewardItemCount;
 
     return 0;
 }

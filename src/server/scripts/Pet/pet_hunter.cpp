@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,9 +46,9 @@ class npc_pet_hunter_snake_trap : public CreatureScript
         {
             npc_pet_hunter_snake_trapAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE { }
+            void EnterCombat(Unit* /*who*/) override { }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _spellTimer = 0;
 
@@ -70,7 +70,7 @@ class npc_pet_hunter_snake_trap : public CreatureScript
             }
 
             // Redefined for random target selection:
-            void MoveInLineOfSight(Unit* who) OVERRIDE
+            void MoveInLineOfSight(Unit* who) override
             {
                 if (!me->GetVictim() && me->CanCreatureAttack(who))
                 {
@@ -90,7 +90,7 @@ class npc_pet_hunter_snake_trap : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -136,7 +136,7 @@ class npc_pet_hunter_snake_trap : public CreatureScript
             uint32 _spellTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_pet_hunter_snake_trapAI(creature);
         }

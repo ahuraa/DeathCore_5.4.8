@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -682,6 +682,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_WP_SHOW                                = 774,
     RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 4.3.4
     RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // Only 4.3.4
+    RBAC_PERM_COMMAND_RESET_SPEC                             = 778,
 
     // custom permissions 1000+
     RBAC_PERM_MAX

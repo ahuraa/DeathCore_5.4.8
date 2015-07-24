@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -477,7 +477,7 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
         public:
             spell_trigger_spell_from_caster_SpellScript(uint32 triggerId) : SpellScript(), _triggerId(triggerId) { }
 
-            bool Validate(SpellInfo const* /*spell*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(_triggerId))
                     return false;
@@ -489,7 +489,7 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
                 GetCaster()->CastSpell(GetHitUnit(), _triggerId, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
             }
@@ -497,7 +497,7 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
             uint32 _triggerId;
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_trigger_spell_from_caster_SpellScript(_triggerId);
         }

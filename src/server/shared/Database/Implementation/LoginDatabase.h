@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,6 +82,7 @@ enum LoginDatabaseStatements
     LOGIN_INS_ACCOUNT,
     LOGIN_INS_REALM_CHARACTERS_INIT,
     LOGIN_UPD_EXPANSION,
+    LOGIN_UPD_ACCOUNT_BOOST,
     LOGIN_UPD_ACCOUNT_LOCK,
     LOGIN_UPD_ACCOUNT_LOCK_CONTRY,
     LOGIN_INS_LOG,
@@ -118,6 +119,7 @@ enum LoginDatabaseStatements
     LOGIN_SEL_IP2NATION_COUNTRY,
     LOGIN_SEL_AUTOBROADCAST,
     LOGIN_GET_EMAIL_BY_ID,
+    LOGIN_INS_BUG_TICKET,
 
     LOGIN_SEL_ACCOUNT_ACCESS_BY_ID,
     LOGIN_SEL_RBAC_ACCOUNT_PERMISSIONS,

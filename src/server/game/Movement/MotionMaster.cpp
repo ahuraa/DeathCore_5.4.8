@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -585,6 +585,42 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
         _owner->GetGUIDLow(), path_id, repeatable ? "YES" : "NO");
 }
 
+
+void MotionMaster::MoveSplinePath(uint8 path_id, bool fly, bool walk, float speed, bool cyclic, bool catmullrom, bool uncompressed)
+{
+	if (_owner->isMoving())
+		_owner->StopMoving();
+
+	Movement::MoveSplineInit init(_owner);
+	float x, y, z;
+	_owner->GetPosition(x, y, z);
+	G3D::Vector3 vertice(x, y, z);
+	init.Path().push_back(vertice);
+	const SplineWaypointPath* path = sWaypointMgr->GetSplinePath(_owner->GetEntry(), path_id);
+
+	if (!path || path->empty())
+		return;
+
+	for (SplineWaypointPath::const_iterator i = path->begin(); i != path->end(); ++i)
+	{
+		SplineWaypointData const &node = *i;
+		init.Path().push_back(G3D::Vector3(node.x, node.y, node.z));
+	}
+
+	init.SetWalk(walk);
+	if (catmullrom)
+		init.SetSmooth();
+	if (fly)
+		init.SetFly();
+	if (cyclic)
+		init.SetCyclic();
+	if (speed)
+		init.SetVelocity(speed);
+	if (uncompressed)
+		init.SetUncompressed();
+	init.Launch();
+}
+
 void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
 {
     if (!time)
@@ -657,4 +693,20 @@ bool MotionMaster::GetDestination(float &x, float &y, float &z)
     y = dest.y;
     z = dest.z;
     return true;
+}
+
+void MotionMaster::CustomJump(float x, float y, float z, float speedXY, float speedZ, uint32 id)
+{
+    speedZ *= 2.3f;
+    speedXY *= 2.3f;
+    float moveTimeHalf = speedZ / Movement::gravity;
+    float max_height = -Movement::computeFallElevation(moveTimeHalf,false,-speedZ);
+    max_height /= 15.0f;
+    
+    Movement::MoveSplineInit init(_owner);
+    init.MoveTo(x,y,z);
+    init.SetParabolic(max_height, 0);
+    init.SetVelocity(speedXY);
+    init.Launch();
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }

@@ -21,11 +21,15 @@ Esta é a nova source da DeathCore que estamos atualizando devagar, adicionando 
 
 ##Arquivos Necessários
 
-[dbc](https://mega.co.nz/#!i80jkDIY!2ctYKS6QBMJU3zRRv4WBMpUHPpb3XwUmQy_UqswjMik)
+[Db2](https://mega.co.nz/#!SwknTQIY!0IrxSDGHdC2NiHTFpmttQquQq0d70Rit_EcZ0KoQdSo)
 
-[maps](https://mega.co.nz/#!ylUWkJpC!uWhX1yVfjCElxMnHl21JHdhbmk5_BF3U7vgDmuelO4c)
+[Dbc](https://mega.co.nz/#!30U3lIiL!Kbxq8wW4xABPLosFPbdbRDI-zw3zomAwMqf-1tcAlZo)
 
-[vmaps](https://mega.co.nz/#!j4MQ3YrC!Vm7HGpPLGWcNUh3oCMZf_zChgVhyKlSqUv9pUmK7Pj8)
+[Maps](https://mega.co.nz/#!69k3ATDb!EgJMKBavnC8ii9nR21g4kYjAEALljDU3wUx5EVj4hoI)
+
+[Mmaps](https://mega.co.nz/#!n8l0DICL!0zP_TItxLxwIUQMkyeFRxPwzAMNospf662xDM8mKuFo)
+
+[Vmaps](https://mega.co.nz/#!ywMBmbya!eanfgMKuDGS4i_E3e2Dw_xPXIUEZQtVo8mnFOJcxGhc)
 
 ##Mist Of Pandaria 5.4.8 - Client
  
@@ -65,9 +69,9 @@ Para mais informações sobre o projeto, visite nosso website em projeto [Noffea
 ## Instalação
 
 Guias de instalação detalhadas estão disponíveis no wiki para 
-[Windows] (http://collab.kpsn.org/display/tc/Installation+Guide), 
-[Linux] (http://collab.kpsn.org/display/tc/Installation+Guide) e 
-[Mac OSX] (http://collab.kpsn.org/display/tc/Installation+Guide).
+[Windows] (#), 
+[Linux] (#) e 
+[Mac OSX] (#).
 
 ## Reportações
 

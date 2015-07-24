@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,7 +46,7 @@ class npc_pet_pri_lightwell : public CreatureScript
                 DoCast(me, SPELL_PRIEST_LIGHTWELL_CHARGES, false);
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 if (!me->IsAlive())
                     return;
@@ -57,7 +57,7 @@ class npc_pet_pri_lightwell : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_pet_pri_lightwellAI(creature);
         }
@@ -72,7 +72,7 @@ class npc_pet_pri_shadowfiend : public CreatureScript
         {
             npc_pet_pri_shadowfiendAI(Creature* creature) : PetAI(creature) { }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 if (me->IsSummon())
                     if (Unit* owner = me->ToTempSummon()->GetSummoner())
@@ -81,7 +81,7 @@ class npc_pet_pri_shadowfiend : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_pet_pri_shadowfiendAI(creature);
         }

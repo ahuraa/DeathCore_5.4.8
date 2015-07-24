@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,23 +32,9 @@ void WorldSession::HandleDuelProposedOpcode(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
 
-    guid[1] = recvPacket.ReadBit();
-    guid[5] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
+    recvPacket.ReadGuidMask(guid, 1, 5, 4, 6, 3, 2, 7, 0);
 
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[3]);
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[0]);
+    recvPacket.ReadGuidBytes(guid, 4, 2, 5, 7, 1, 3, 6, 0);
 
     if (Player* player = sObjectAccessor->FindPlayer(guid))
     {
@@ -66,24 +52,11 @@ void WorldSession::HandleDuelResponseOpcode(WorldPacket& recvPacket)
     Player* player;
     Player* plTarget;
 
-    guid[7] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    guid[3] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[2] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
+    recvPacket.ReadGuidMask(guid, 7, 1, 3, 4, 0, 2, 6);
     accepted = recvPacket.ReadBit();
     guid[5] = recvPacket.ReadBit();
 
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[5]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[3]);
+    recvPacket.ReadGuidBytes(guid, 6, 4, 5, 0, 1, 2, 7, 3);
 
     if (!GetPlayer()->duel)                                  // ignore accept from duel-sender
         return;

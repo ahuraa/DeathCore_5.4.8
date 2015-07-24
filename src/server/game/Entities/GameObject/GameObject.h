@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -194,11 +194,17 @@ struct GameObjectTemplate
         //11 GAMEOBJECT_TYPE_TRANSPORT
         struct
         {
-            uint32 pause;                                   //0
+            int32 stopFrame1;                               //0
             uint32 startOpen;                               //1
             uint32 autoCloseTime;                           //2 secs till autoclose = autoCloseTime / 0x10000
             uint32 pause1EventID;                           //3
             uint32 pause2EventID;                           //4
+            uint32 mapId;                                   //5
+            int32 stopFrame2;                               //6
+            uint32 unknown;
+            int32 stopFrame3;                               //8
+            uint32 unknown2;
+            int32 stopFrame4;                               //10
         } transport;
         //12 GAMEOBJECT_TYPE_AREADAMAGE
         struct
@@ -553,6 +559,8 @@ union GameObjectValue
         uint32 PathProgress;
         TransportAnimation const* AnimationInfo;
         uint32 CurrentSeg;
+        std::vector<uint32>* StopFrames;
+        uint32 StateUpdateTimer;
     } Transport;
     //25 GAMEOBJECT_TYPE_FISHINGHOLE
     struct
@@ -584,8 +592,12 @@ enum GOState
     GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
     GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
     GO_STATE_ACTIVE_ALTERNATIVE = 2,                        // show in world as used in alt way and not reset (closed door open by cannon fire)
-    GO_STATE_PREPARE_TRANSPORT  = 24                        // reset transport to startpoint after endpoint
+    GO_STATE_TRANSPORT_ACTIVE   = 24,
+    GO_STATE_TRANSPORT_STOPPED  = 25
 };
+
+#define MAX_GO_STATE 3
+#define MAX_GO_STATE_TRANSPORT_STOP_FRAMES 9
 
 // from `gameobject`
 struct GameObjectData
@@ -605,7 +617,7 @@ struct GameObjectData
     int32  spawntimesecs;
     uint32 animprogress;
     GOState go_state;
-    uint8 spawnMask;
+    uint32 spawnMask;
     uint8 artKit;
     bool dbData;
 };
@@ -659,7 +671,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const;
 
         void SaveToDB();
-        void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
+        void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
         bool LoadFromDB(uint32 guid, Map* map) { return LoadGameObjectFromDB(guid, map, false); }
         bool LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap = true);
         void DeleteFromDB();
@@ -712,16 +724,18 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void Refresh();
         void Delete();
         void getFishLoot(Loot* loot, Player* loot_owner);
-        GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 0)); }
+        GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_FIELD_BYTES, 0)); }
         void SetGoState(GOState state);
-        GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1)); }
-        void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1, type); }
-        void SetGoHealth(uint8 health) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3, health); }
-        uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 1); }
+        uint32 GetTransportPeriod() const;
+        void SetTransportState(GOState state, uint32 stopFrame = 0);
+        GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_FIELD_BYTES, 1)); }
+        void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_FIELD_BYTES, 1, type); }
+        void SetGoHealth(uint8 health) { SetByteValue(GAMEOBJECT_FIELD_BYTES, 3, health); }
+        uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_FIELD_VISUAL_BYTES, 1); }
         void SetGoArtKit(uint8 artkit);
-        uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 3); }
-        void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 3, animprogress); }
-        void SetGameobjectTransparence(uint8 transparency) { SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 0, transparency); }
+        uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_FIELD_VISUAL_BYTES, 3); }
+        void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_FIELD_VISUAL_BYTES, 3, animprogress); }
+        void SetGameobjectTransparence(uint8 transparency) { SetByteValue(GAMEOBJECT_FIELD_VISUAL_BYTES, 0, transparency); }
         static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
 
         void SetPhaseMask(uint32 newPhaseMask, bool update);

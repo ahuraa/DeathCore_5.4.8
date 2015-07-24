@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -89,14 +86,14 @@ class boss_alizabal : public CreatureScript
                 _intro = false;
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 _hate = false;
                 _skewer = false;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
@@ -104,27 +101,27 @@ class boss_alizabal : public CreatureScript
                 events.ScheduleEvent(EVENT_RANDOM_CAST, 10000);
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode() override
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 me->GetMotionMaster()->MoveTargetedHome();
                 _DespawnAtEvade();
             }
 
-            void DoAction(int32 action) OVERRIDE
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -138,7 +135,7 @@ class boss_alizabal : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 /*type*/, uint32 pointId) OVERRIDE
+            void MovementInform(uint32 /*type*/, uint32 pointId) override
             {
                 switch (pointId)
                 {
@@ -148,7 +145,7 @@ class boss_alizabal : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -260,7 +257,7 @@ class boss_alizabal : public CreatureScript
 
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetBaradinHoldAI<boss_alizabalAI>(creature);
         }

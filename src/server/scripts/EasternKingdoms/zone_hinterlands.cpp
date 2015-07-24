@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,17 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Hinterlands
-SD%Complete: 100
-SDComment: Quest support: 836
-SDCategory: The Hinterlands
-EndScriptData */
-
-/* ContentData
-npc_00x09hl
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -79,7 +65,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_00x09hlAI(creature);
     }
@@ -88,7 +74,7 @@ public:
     {
         npc_00x09hlAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void Reset() OVERRIDE { }
+        void Reset() override { }
 
         void WaypointReached(uint32 waypointId)
         {
@@ -141,7 +127,7 @@ public:
             Talk(SAY_OOX_AGGRO);
         }
 
-        void JustSummoned(Creature* summoned) OVERRIDE
+        void JustSummoned(Creature* summoned) override
         {
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
         }

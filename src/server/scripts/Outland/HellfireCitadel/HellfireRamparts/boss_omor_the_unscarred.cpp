@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -65,7 +65,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 Talk(SAY_WIPE);
 
@@ -82,13 +82,13 @@ class boss_omor_the_unscarred : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* /*victim*/) override
             {
                 if (rand()%2)
                     return;
@@ -96,7 +96,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 Talk(SAY_KILL_1);
             }
 
-            void JustSummoned(Creature* summoned) OVERRIDE
+            void JustSummoned(Creature* summoned) override
             {
                 Talk(SAY_SUMMON);
 
@@ -106,13 +106,13 @@ class boss_omor_the_unscarred : public CreatureScript
                 ++SummonedCount;
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DIE);
                 _JustDied();
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -224,7 +224,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 bool CanPullBack;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_omor_the_unscarredAI(creature);
         }

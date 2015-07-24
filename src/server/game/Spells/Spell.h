@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -97,11 +97,7 @@ class SpellCastTargets
 {
     public:
         SpellCastTargets();
-        SpellCastTargets(Unit* caster, uint32 targetMask, uint64 targetGuid, uint64 itemTargetGuid, uint64 srcTransportGuid, uint64 destTransportGuid, Position srcPos, Position destPos, float elevation, float missileSpeed, std::string targetString);
         ~SpellCastTargets();
-
-        void Read(ByteBuffer& data, Unit* caster);
-        void Write(ByteBuffer& data);
 
         uint32 GetTargetMask() const { return m_targetMask; }
         void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }
@@ -111,6 +107,7 @@ class SpellCastTargets
         uint64 GetUnitTargetGUID() const;
         Unit* GetUnitTarget() const;
         void SetUnitTarget(Unit* target);
+        void SetUnitTargetGUID(uint64 guid) { m_objectTargetGUID = guid; }
 
         uint64 GetGOTargetGUID() const;
         GameObject* GetGOTarget() const;
@@ -126,12 +123,14 @@ class SpellCastTargets
         uint64 GetItemTargetGUID() const { return m_itemTargetGUID; }
         Item* GetItemTarget() const { return m_itemTarget; }
         uint32 GetItemTargetEntry() const { return m_itemTargetEntry; }
+        void SetItemTargetGUID(uint64 guid) { m_itemTargetGUID = guid; }
         void SetItemTarget(Item* item);
         void SetTradeItemTarget(Player* caster);
         void UpdateTradeSlotItem();
 
         SpellDestination const* GetSrc() const;
         Position const* GetSrcPos() const;
+        void SetSrc(const SpellDestination& src);
         void SetSrc(float x, float y, float z);
         void SetSrc(Position const& pos);
         void SetSrc(WorldObject const& wObj);
@@ -139,6 +138,7 @@ class SpellCastTargets
         void RemoveSrc();
 
         SpellDestination const* GetDst() const;
+        void SetDst(const SpellDestination& dst);
         WorldLocation const* GetDstPos() const;
         void SetDst(float x, float y, float z, float orientation, uint32 mapId = MAPID_INVALID);
         void SetDst(Position const& pos);
@@ -209,6 +209,14 @@ enum SpellEffectHandleMode
     SPELL_EFFECT_HANDLE_LAUNCH_TARGET,
     SPELL_EFFECT_HANDLE_HIT,
     SPELL_EFFECT_HANDLE_HIT_TARGET
+};
+
+struct SpellResearchData
+{
+    uint32 keystoneItemId;
+    uint32 keystoneCount;
+    uint32 fragmentCurrencyId;
+    uint32 fragmentCount;
 };
 
 class Spell
@@ -282,6 +290,7 @@ class Spell
         void EffectApplyGlyph(SpellEffIndex effIndex);
         void EffectEnchantHeldItem(SpellEffIndex effIndex);
         void EffectSummonObject(SpellEffIndex effIndex);
+        void EffectSummonRaidMarker(SpellEffIndex effIndex);
         void EffectResurrect(SpellEffIndex effIndex);
         void EffectParry(SpellEffIndex effIndex);
         void EffectBlock(SpellEffIndex effIndex);
@@ -350,7 +359,7 @@ class Spell
         void EffectCreateAreaTrigger(SpellEffIndex effIndex);
         void EffectRemoveTalent(SpellEffIndex effIndex);
         void EffectBattlePetsUnlock(SpellEffIndex effIndex);
-
+        void EffectPetBar(SpellEffIndex effIndex);
         typedef std::set<Aura*> UsedSpellMods;
 
         Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID = 0, bool skipCheck = false);
@@ -463,6 +472,7 @@ class Spell
         SpellCastTargets m_targets;
         int8 m_comboPointGain;
         SpellCustomErrors m_customError;
+        SpellResearchData const* m_researchData;
 
         UsedSpellMods m_appliedMods;
 
@@ -474,6 +484,7 @@ class Spell
         bool IsTriggered() const { return _triggeredCastFlags & TRIGGERED_FULL_MASK; }
         bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_FIELD_CHANNEL_SPELL) != 0; }
         bool IsAutoActionResetSpell() const;
+        bool IsCritForTarget(Unit* target) const;
 
         bool IsDeletable() const { return !m_referencedFromCurrentSpell && !m_executedCurrently; }
         void SetReferencedFromCurrent(bool yes) { m_referencedFromCurrentSpell = yes; }
@@ -584,7 +595,7 @@ class Spell
             uint64 timeDelay;
             SpellMissInfo missCondition:8;
             SpellMissInfo reflectResult:8;
-            uint8  effectMask:8;
+            uint32  effectMask:32;
             bool   processed:1;
             bool   alive:1;
             bool   crit:1;
@@ -592,13 +603,13 @@ class Spell
             int32  damage;
         };
         std::list<TargetInfo> m_UniqueTargetInfo;
-        uint8 m_channelTargetEffectMask;                        // Mask req. alive targets
+        uint32 m_channelTargetEffectMask;                        // Mask req. alive targets
 
         struct GOTargetInfo
         {
             uint64 targetGUID;
             uint64 timeDelay;
-            uint8  effectMask:8;
+            uint32  effectMask:32;
             bool   processed:1;
         };
         std::list<GOTargetInfo> m_UniqueGOTargetInfo;
@@ -606,7 +617,7 @@ class Spell
         struct ItemTargetInfo
         {
             Item  *item;
-            uint8 effectMask;
+            uint32 effectMask;
         };
         std::list<ItemTargetInfo> m_UniqueItemInfo;
 

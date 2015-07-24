@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -50,7 +50,7 @@ class instance_halls_of_lightning : public InstanceMapScript
                 LokenGlobeGUID       = 0;
             }
 
-            void OnCreatureCreate(Creature* creature) OVERRIDE
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -71,7 +71,7 @@ class instance_halls_of_lightning : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -88,7 +88,7 @@ class instance_halls_of_lightning : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -102,7 +102,7 @@ class instance_halls_of_lightning : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 type, EncounterState state) OVERRIDE
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -121,7 +121,7 @@ class instance_halls_of_lightning : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            uint64 GetData64(uint32 type) const override
             {
                 switch (type)
                 {
@@ -139,7 +139,7 @@ class instance_halls_of_lightning : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData() OVERRIDE
+            std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -150,7 +150,7 @@ class instance_halls_of_lightning : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* str) OVERRIDE
+            void Load(const char* str) override
             {
                 if (!str)
                 {
@@ -191,7 +191,7 @@ class instance_halls_of_lightning : public InstanceMapScript
             uint64 LokenGlobeGUID;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_halls_of_lightning_InstanceMapScript(map);
         }

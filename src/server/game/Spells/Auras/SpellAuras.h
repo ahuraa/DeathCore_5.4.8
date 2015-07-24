@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,10 +41,10 @@ class ProcInfo;
 
 class AuraApplication
 {
-    friend void Unit::_ApplyAura(AuraApplication * aurApp, uint32 effMask);
+    friend void Unit::_ApplyAura(AuraApplication* aurApp, uint32 effMask);
     friend void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMode);
     friend void Unit::_ApplyAuraEffect(Aura* aura, uint8 effIndex);
-    friend void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode);
+    friend void Unit::RemoveAura(AuraApplication* aurApp, AuraRemoveMode mode);
     friend AuraApplication * Unit::_CreateAuraApplication(Aura* aura, uint32 effMask);
     private:
         Unit* const _target;
@@ -81,6 +81,7 @@ class AuraApplication
         void SetNeedClientUpdate() { _needClientUpdate = true;}
         bool IsNeedClientUpdate() const { return _needClientUpdate;}
         void ClientUpdate(bool remove = false);
+        void SendFakeAuraUpdate(uint32 auraId, bool remove);
 };
 
 class Aura
@@ -109,8 +110,8 @@ class Aura
 
         AuraObjectType GetType() const;
 
-        virtual void _ApplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp);
-        virtual void _UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp);
+        virtual void _ApplyForTarget(Unit* target, Unit* caster, AuraApplication* auraApp);
+        virtual void _UnapplyForTarget(Unit* target, Unit* caster, AuraApplication* auraApp);
         void _Remove(AuraRemoveMode removeMode);
         virtual void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) = 0;
 
@@ -219,6 +220,8 @@ class Aura
         void CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         void CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         bool CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp);
+        void CallScriptAuraUpdateHandlers(uint32 diff);
+        void CallScriptEffectUpdateHandlers(uint32 diff, AuraEffect* aurEff);
         void CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff);
         void CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated);
         void CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool & isPeriodic, int32 & amplitude);
@@ -228,6 +231,8 @@ class Aura
         void CallScriptEffectManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool & defaultPrevented);
         void CallScriptEffectAfterManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount);
         void CallScriptEffectSplitHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & splitAmount);
+        void SetScriptData(uint32 type, uint32 data);
+        void SetScriptGuid(uint32 type, uint64 data);
         // Spell Proc Hooks
         bool CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         bool CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);

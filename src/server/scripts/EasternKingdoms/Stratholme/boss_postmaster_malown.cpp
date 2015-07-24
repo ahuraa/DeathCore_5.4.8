@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,13 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: boss_postmaster_malown
-SD%Complete: 50
-SDComment:
-SDCategory: Stratholme
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -63,9 +53,9 @@ class boss_postmaster_malown : public CreatureScript
         {
             boss_postmaster_malownAI(Creature* creature) : BossAI(creature, TYPE_MALOWN) { }
 
-            void Reset() OVERRIDE { }
+            void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE
+            void EnterCombat(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_WAILINGDEAD, 19000);     // lasts 6 sec
                 events.ScheduleEvent(EVENT_BACKHAND, 8000);         // 2 sec stun
@@ -74,12 +64,12 @@ class boss_postmaster_malown : public CreatureScript
                 events.ScheduleEvent(EVENT_CALLOFTHEGRAVE, 25000);
             }
 
-            void KilledUnit(Unit* /*victim*/) OVERRIDE
+            void KilledUnit(Unit* /*victim*/) override
             {
                 Talk(SAY_KILL);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -126,7 +116,7 @@ class boss_postmaster_malown : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_postmaster_malownAI(creature);
         }

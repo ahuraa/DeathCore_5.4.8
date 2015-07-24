@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,21 +42,9 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
     CharacterNameData const* nameData = sWorld->GetCharacterNameData(GUID_LOPART(guid));
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE, 500);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[1]);
+    data.WriteGuidMask(guid, 3, 6, 7, 2, 5, 4, 0, 1);
 
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[2]);
+    data.WriteGuidBytes(guid, 5, 4, 7, 6, 1, 2);
 
     data << uint8(!nameData);
 
@@ -65,13 +53,12 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
         data << uint32(realmID); // realmIdSecond
         data << uint32(1); // AccID
         data << uint8(nameData->m_class);
-        data << uint8(nameData->m_race);
+		data << uint8(player ? player->getRace() : nameData->m_race);
         data << uint8(nameData->m_level);
         data << uint8(nameData->m_gender);
     }
 
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[3]);
+    data.WriteGuidBytes(guid, 0, 3);
 
     if (!nameData)
     {
@@ -79,42 +66,31 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
         return;
     }
 
-    data.WriteBit(guid2[2]);
-    data.WriteBit(guid2[7]);
-    data.WriteBit(guid3[7]);
-    data.WriteBit(guid3[2]);
-    data.WriteBit(guid3[0]);
+    data.WriteGuidMask(guid2, 2, 7);
+    data.WriteGuidMask(guid3, 7, 2, 0);
     data.WriteBit(0); //isDeleted ? Wod ?
     data.WriteBit(guid2[4]);
     data.WriteBit(guid3[5]);
-    data.WriteBit(guid2[1]);
-    data.WriteBit(guid2[3]);
-    data.WriteBit(guid2[0]);
+    data.WriteGuidMask(guid2, 1, 3, 0);
 
     DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL);
     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         data.WriteBits(names ? names->name[i].size() : 0, 7);
 
-    data.WriteBit(guid3[6]);
-    data.WriteBit(guid3[3]);
+    data.WriteGuidMask(guid3, 6, 3);
     data.WriteBit(guid2[5]);
-    data.WriteBit(guid3[1]);
-    data.WriteBit(guid3[4]);
+    data.WriteGuidMask(guid3, 1, 4);
     data.WriteBits(nameData->m_name.size(), 6);
     data.WriteBit(guid2[6]);
 
     data.FlushBits();
 
-    data.WriteByteSeq(guid3[6]);
-    data.WriteByteSeq(guid3[0]);
+    data.WriteGuidBytes(guid3, 6, 0);
     data.WriteString(nameData->m_name);
-    data.WriteByteSeq(guid2[5]);
-    data.WriteByteSeq(guid2[2]);
+    data.WriteGuidBytes(guid2, 5, 2);
     data.WriteByteSeq(guid3[3]);
-    data.WriteByteSeq(guid2[4]);
-    data.WriteByteSeq(guid2[3]);
-    data.WriteByteSeq(guid3[4]);
-    data.WriteByteSeq(guid3[2]);
+    data.WriteGuidBytes(guid2, 4, 3);
+    data.WriteGuidBytes(guid3, 4, 2);
     data.WriteByteSeq(guid2[7]);
 
     if (names)
@@ -122,8 +98,7 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
             data.WriteString(names->name[i]);
 
     data.WriteByteSeq(guid2[6]);
-    data.WriteByteSeq(guid3[7]);
-    data.WriteByteSeq(guid3[1]);
+    data.WriteGuidBytes(guid3, 7, 1);
     data.WriteByteSeq(guid2[1]);
     data.WriteByteSeq(guid3[5]);
     data.WriteByteSeq(guid2[0]);
@@ -140,23 +115,11 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
 
     guid[4] = recvData.ReadBit();
     bit14 = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
+    recvData.ReadGuidMask(guid, 6, 0, 7, 1);
     bit1C = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
+    recvData.ReadGuidMask(guid, 5, 2, 3);
 
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadGuidBytes(guid, 7, 5, 1, 2, 6, 3, 0, 4);
 
     // virtual and native realm Addresses
 
@@ -262,7 +225,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
 
         data.WriteBit(info->RacialLeader);
         data.WriteBits(info->IconName.length() + 1, 6);
-        data.FlushBits();
+        //data.FlushBits();
 
         data << uint32(info->KillCredit[0]);                  // New in 3.1, kill credit
         data << uint32(info->Modelid4);                       // Modelid4
@@ -308,23 +271,9 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
 
     recvData >> entry;
 
-    guid[5] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
+    recvData.ReadGuidMask(guid, 5, 3, 6, 2, 7, 1, 0, 4);
 
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadGuidBytes(guid, 1, 5, 3, 4, 6, 2, 7, 0);
 
     const GameObjectTemplate* info = sObjectMgr->GetGameObjectTemplate(entry);
 
@@ -435,15 +384,9 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
     ObjectGuid corpseGuid = corpse->GetGUID();
 
     WorldPacket data(SMSG_CORPSE_QUERY, 9 + 1 + (4 * 5));
-    data.WriteBit(corpseGuid[0]);
-    data.WriteBit(corpseGuid[3]);
-    data.WriteBit(corpseGuid[2]);
+    data.WriteGuidMask(corpseGuid, 0, 3, 2);
     data.WriteBit(1); // Corpse Found
-    data.WriteBit(corpseGuid[5]);
-    data.WriteBit(corpseGuid[4]);
-    data.WriteBit(corpseGuid[1]);
-    data.WriteBit(corpseGuid[7]);
-    data.WriteBit(corpseGuid[6]);
+    data.WriteGuidMask(corpseGuid, 5, 4, 1, 7, 6);
 
     data.FlushBits();
 
@@ -451,13 +394,9 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
     data << float(z);
     data.WriteByteSeq(corpseGuid[1]);
     data << uint32(corpseMapId);
-    data.WriteByteSeq(corpseGuid[6]);
-    data.WriteByteSeq(corpseGuid[4]);
+    data.WriteGuidBytes(corpseGuid, 6, 4);
     data << float(x);
-    data.WriteByteSeq(corpseGuid[3]);
-    data.WriteByteSeq(corpseGuid[7]);
-    data.WriteByteSeq(corpseGuid[2]);
-    data.WriteByteSeq(corpseGuid[0]);
+    data.WriteGuidBytes(corpseGuid, 3, 7, 2, 0);
     data << int32(mapId);
     data << float(y);
     SendPacket(&data);
@@ -472,23 +411,9 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
 
     TC_LOG_DEBUG("network", "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
 
-    guid[4] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
+    recvData.ReadGuidMask(guid, 4, 5, 1, 7, 0, 2, 6, 3);
 
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadGuidBytes(guid, 4, 0, 2, 5, 1, 7, 3, 6);
 
     GossipText const* pGossip = sObjectMgr->GetGossipText(textID);
 
@@ -499,8 +424,10 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
     for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; i++)
         data << float(pGossip ? pGossip->Options[i].Probability : 0);
 
-    for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; i++)
-        data << uint32(pGossip ? pGossip->Options[i].BroadcastTextID : 0);
+    data << textID;                                     // should be a broadcast id
+
+    for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS - 1; i++)
+        data << uint32(0);
 
     data.WriteBit(1);                                   // has data
     data.FlushBits();
@@ -630,90 +557,25 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
             }
             else
             {
-                data.WriteBits(0, 18);
-                data.FlushBits();
-
                 poiData << uint32(questId);
                 poiData << uint32(0);
+
+                data.WriteBits(0, 18);
             }
         }
         else
         {
-            data.WriteBits(0, 18);
-            data.FlushBits();
-
             poiData << uint32(questId);
             poiData << uint32(0);
+
+            data.WriteBits(0, 18);
         }
     }
 
-    data.FlushBits();
-    
     poiData << uint32(count);
-    
+
+    data.FlushBits();
     data.append(poiData);
 
     SendPacket(&data);
-}
-
-void WorldSession::HandleDBQueryBulk(WorldPacket& recvPacket)
-{
-    uint32 type, count;
-    recvPacket >> type;
-
-    DB2StorageBase const* store = GetDB2Storage(type);
-    if (!store)
-    {
-        TC_LOG_ERROR("network", "CMSG_DB_QUERY_BULK: Received unknown hotfix type: %u", type);
-        recvPacket.rfinish();
-        return;
-    }
-
-    count = recvPacket.ReadBits(21);
-
-    ObjectGuid* guids = new ObjectGuid[count];
-    for (uint32 i = 0; i < count; ++i)
-    {
-        guids[i][6] = recvPacket.ReadBit();
-        guids[i][3] = recvPacket.ReadBit();
-        guids[i][0] = recvPacket.ReadBit();
-        guids[i][1] = recvPacket.ReadBit();
-        guids[i][4] = recvPacket.ReadBit();
-        guids[i][5] = recvPacket.ReadBit();
-        guids[i][7] = recvPacket.ReadBit();
-        guids[i][2] = recvPacket.ReadBit();
-    }
-
-    uint32 entry;
-    for (uint32 i = 0; i < count; ++i)
-    {
-        recvPacket.ReadByteSeq(guids[i][1]);
-        recvPacket >> entry;
-        recvPacket.ReadByteSeq(guids[i][0]);
-        recvPacket.ReadByteSeq(guids[i][5]);
-        recvPacket.ReadByteSeq(guids[i][6]);
-        recvPacket.ReadByteSeq(guids[i][4]);
-        recvPacket.ReadByteSeq(guids[i][7]);
-        recvPacket.ReadByteSeq(guids[i][2]);
-        recvPacket.ReadByteSeq(guids[i][3]);
-
-        if (!store->HasRecord(entry))
-            continue;
-
-        ByteBuffer record;
-        store->WriteRecord(entry, (uint32)GetSessionDbcLocale(), record);
-
-        WorldPacket data(SMSG_DB_REPLY);
-        data << uint32(entry);
-        data << uint32(time(NULL));
-        data << uint32(type);
-        data << uint32(record.size());
-        data.append(record);
-
-        SendPacket(&data);
-
-        TC_LOG_DEBUG("network", "SMSG_DB_REPLY: Sent hotfix entry: %u type: %u", entry, type);
-    }
-
-    delete[] guids;
 }

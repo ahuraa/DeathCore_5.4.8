@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -169,12 +169,14 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP)
             { MoveJump(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speedXY, speedZ, id); };
         void MoveJump(float x, float y, float z, float speedXY, float speedZ, uint32 id = EVENT_JUMP);
+        void CustomJump(float x, float y, float z, float speedXY, float speedZ, uint32 id = 0);
         void MoveFall(uint32 id = 0);
 
         void MoveSeekAssistance(float x, float y, float z);
         void MoveSeekAssistanceDistract(uint32 timer);
         void MoveTaxiFlight(uint32 path, uint32 pathnode);
         void MoveDistract(uint32 time);
+        void MoveSplinePath(uint8 path_id, bool fly = false, bool walk = false, float speed = 0.0f, bool cyclic = false, bool catmullrom = true, bool uncompressed = true);
         void MovePath(uint32 path_id, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
 

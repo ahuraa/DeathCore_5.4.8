@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -228,14 +228,14 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
             continue;
 
         //Make sure that the spell uses the requested amount of power
-        if (powerCostMin && tempSpell->ManaCost < powerCostMin)
+        if (powerCostMin && tempSpell->GetSpellPowerCost(me->ToUnit()).ManaCost < powerCostMin)
             continue;
 
-        if (powerCostMax && tempSpell->ManaCost > powerCostMax)
+        if (powerCostMax && tempSpell->GetSpellPowerCost(me->ToUnit()).ManaCost > powerCostMax)
             continue;
 
         //Continue if we don't have the mana to actually cast this spell
-        if (tempSpell->ManaCost > (uint32)me->GetPower(Powers(tempSpell->PowerType)))
+        if (tempSpell->GetSpellPowerCost(me->ToUnit()).ManaCost > (uint32)me->GetPower(Powers(tempSpell->GetSpellPowerCost(me->ToUnit()).PowerType)))
             continue;
 
         //Check if the spell meets our range requirements
@@ -685,4 +685,16 @@ void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& list, WorldObject*
 void GetPlayerListInGrid(std::list<Player*>& list, WorldObject* source, float maxSearchRange)
 {
     source->GetPlayerListInGrid(list, maxSearchRange);
+}
+
+void GetPositionWithDistInOrientation(Unit* pUnit, float dist, float orientation, float& x, float& y)
+{
+    x = pUnit->GetPositionX() + (dist * cos(orientation));
+    y = pUnit->GetPositionY() + (dist * sin(orientation));
+}
+void GetRandPosFromCenterInDist(float centerX, float centerY, float dist, float& x, float& y)
+{
+    float randOrientation = frand(0, 2*M_PI);
+    x = centerX + (dist * cos(randOrientation));
+    y = centerY + (dist * sin(randOrientation));
 }

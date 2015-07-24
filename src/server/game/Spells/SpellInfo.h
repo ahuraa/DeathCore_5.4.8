@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -150,6 +150,7 @@ enum SpellSpecificType
 {
     SPELL_SPECIFIC_NORMAL                        = 0,
     SPELL_SPECIFIC_SEAL                          = 1,
+    SPELL_SPECIFIC_BLESSING                      = 2,
     SPELL_SPECIFIC_AURA                          = 3,
     SPELL_SPECIFIC_STING                         = 4,
     SPELL_SPECIFIC_CURSE                         = 5,
@@ -161,6 +162,7 @@ enum SpellSpecificType
     SPELL_SPECIFIC_MAGE_POLYMORPH                = 11,
     SPELL_SPECIFIC_JUDGEMENT                     = 13,
     SPELL_SPECIFIC_WARLOCK_CORRUPTION            = 17,
+    SPELL_SPECIFIC_WELL_FED                      = 18,
     SPELL_SPECIFIC_FOOD                          = 19,
     SPELL_SPECIFIC_DRINK                         = 20,
     SPELL_SPECIFIC_FOOD_AND_DRINK                = 21,
@@ -172,7 +174,8 @@ enum SpellSpecificType
     SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT          = 27,
     SPELL_SPECIFIC_HAND                          = 28,
     SPELL_SPECIFIC_PHASE                         = 29,
-    SPELL_SPECIFIC_BANE                          = 30
+    SPELL_SPECIFIC_BANE                          = 30,
+    SPELL_SPECIFIC_CHAKRA                        = 31,
 };
 
 enum SpellCustomAttributes
@@ -192,6 +195,8 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_IGNORE_ARMOR                  = 0x00008000,
     SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER      = 0x00010000,
     SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
+	SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILIENCE = 0x00200000, // Some triggered damage spells have to ignore RESILIENCE because it's already calculated in trigger spell (example: paladin's hand of light)
+
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2
 };
@@ -229,11 +234,28 @@ private:
     static StaticData _data[TOTAL_SPELL_TARGETS];
 };
 
+class SpellPowerCostInfo
+{
+    SpellInfo const* _spellInfo;
+    uint8 _index;
+public:
+    uint32 PowerType;
+    uint32 ManaCost;
+    uint32 ManaCostPerlevel;
+    uint32 ManaPerSecond;
+    uint32 ActiveAura;
+    float ManaCostPercentage;
+
+    SpellPowerCostInfo() { }
+    SpellPowerCostInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 index, SpellPowerEntry const* power);
+};
+
 class SpellEffectInfo
 {
     SpellInfo const* _spellInfo;
     uint8 _effIndex;
 public:
+    uint32    EffectIndex;
     uint32    Effect;
     uint32    ApplyAuraName;
     uint32    Amplitude;
@@ -241,9 +263,9 @@ public:
     float     RealPointsPerLevel;
     int32     BasePoints;
     float     PointsPerComboPoint;
+    float     SpellPowerCoeff;
     float     ValueMultiplier;
     float     DamageMultiplier;
-    float     BonusMultiplier;
     int32     MiscValue;
     int32     MiscValueB;
     Mechanics Mechanic;
@@ -260,6 +282,7 @@ public:
     float     ScalingMultiplier;
     float     DeltaScalingMultiplier;
     float     ComboScalingMultiplier;
+    uint32    activatedByAura;
 
     SpellEffectInfo() { }
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* effect);
@@ -348,11 +371,6 @@ public:
     uint32 BaseLevel;
     uint32 SpellLevel;
     SpellDurationEntry const* DurationEntry;
-    uint32 PowerType;
-    uint32 ManaCost;
-    uint32 ManaCostPerlevel;
-    uint32 ManaPerSecond;
-    float ManaCostPercentage;
     uint32 RuneCostID;
     SpellRangeEntry const* RangeEntry;
     float  Speed;
@@ -392,6 +410,7 @@ public:
     uint32 SpellShapeshiftId;
     uint32 SpellTargetRestrictionsId;
     uint32 SpellTotemsId;
+    uint32 ResearchProjectId;
     // SpellScalingEntry
     int32  CastTimeMin;
     int32  CastTimeMax;
@@ -400,8 +419,16 @@ public:
     float  CoefBase;
     int32  CoefLevelBase;
     SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
+    SpellPowerCostInfo PowerCosts[MAX_SPELL_POWERS_COST];
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
+
+    // SpecializationSpellsEntry
+    std::list<uint32> SpecializationIdList;
+    std::list<uint32> OverrideSpellList;
+
+    SpellPowerCostInfo const GetSpellPowerCost(Unit* caster = NULL) const;
+    SpellPowerCostInfo const GetSpellPowerCost(Unit const* caster) const;
 
     // struct access functions
     SpellTargetRestrictionsEntry const* GetSpellTargetRestrictions() const;
@@ -420,7 +447,7 @@ public:
     SpellShapeshiftEntry const* GetSpellShapeshift() const;
     SpellTotemsEntry const* GetSpellTotems() const;
 
-    SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effects);
+    SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effects, SpellPowerEntry const** powers);
     ~SpellInfo();
 
     uint32 GetCategory() const;
@@ -441,7 +468,7 @@ public:
     bool IsAffectingArea() const;
     bool IsTargetingArea() const;
     bool NeedsExplicitUnitTarget() const;
-    bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) const;
+    bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell = NULL) const;
 
     bool IsPassive() const;
     bool IsAutocastable() const;
@@ -459,6 +486,8 @@ public:
     bool IsChanneled() const;
     bool NeedsComboPoints() const;
     bool IsBreakingStealth() const;
+	bool IsBreakingCamouflage() const;
+	bool IsBreakingCamouflageAfterHit() const;
     bool IsRangedWeaponSpell() const;
     bool IsAutoRepeatRangedSpell() const;
 
@@ -471,6 +500,20 @@ public:
     bool IsSingleTarget() const;
     bool IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const;
     bool IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInfo) const;
+
+	inline bool HasAttribute(SpellAttr0 attribute) const { return Attributes & attribute; }
+	inline bool HasAttribute(SpellAttr1 attribute) const { return AttributesEx & attribute; }
+	inline bool HasAttribute(SpellAttr2 attribute) const { return AttributesEx2 & attribute; }
+	inline bool HasAttribute(SpellAttr3 attribute) const { return AttributesEx3 & attribute; }
+	inline bool HasAttribute(SpellAttr4 attribute) const { return AttributesEx4 & attribute; }
+	inline bool HasAttribute(SpellAttr5 attribute) const { return AttributesEx5 & attribute; }
+	inline bool HasAttribute(SpellAttr6 attribute) const { return AttributesEx6 & attribute; }
+	inline bool HasAttribute(SpellAttr7 attribute) const { return AttributesEx7 & attribute; }
+	inline bool HasAttribute(SpellAttr8 attribute) const { return AttributesEx8 & attribute; }
+	inline bool HasAttribute(SpellAttr9 attribute) const { return AttributesEx9 & attribute; }
+	inline bool HasAttribute(SpellAttr10 attribute) const { return AttributesEx10 & attribute; }
+	inline bool HasCustomAttribute(SpellCustomAttributes customAttribute) const { return AttributesCu & customAttribute; }
+
 
     SpellCastResult CheckShapeshift(uint32 form) const;
     SpellCastResult CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL) const;
@@ -516,11 +559,24 @@ public:
     bool IsDifferentRankOf(SpellInfo const* spellInfo) const;
     bool IsHighRankOf(SpellInfo const* spellInfo) const;
 
+    // Helpers
+    bool CanTriggerBladeFlurry() const;
+    bool IsAfflictionPeriodicDamage() const;
+    bool IsEmberstormGropSpells() const;
+
     // loading helpers
     void _InitializeExplicitTargetMask();
     bool _IsPositiveEffect(uint8 effIndex, bool deep) const;
     bool _IsPositiveSpell() const;
     static bool _IsPositiveTarget(uint32 targetA, uint32 targetB);
+    bool IsLethalPoison() const;
+	bool IsAffectedByResilience() const;
+    bool CanTriggerHotStreak() const;
+    bool IsCustomCheckedForHolyPower() const;
+    bool IsCustomCharged() const;
+
+    uint32 GetLossOfControlMechanic() const;
+    bool IsLossOfControlMechanic(uint32 mechanic) const;
 
     // unloading helpers
     void _UnloadImplicitTargetConditionLists();

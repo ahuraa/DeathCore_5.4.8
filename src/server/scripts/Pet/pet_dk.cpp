@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,7 +47,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
         {
             npc_pet_dk_ebon_gargoyleAI(Creature* creature) : CasterAI(creature) { }
 
-            void InitializeAI() OVERRIDE
+            void InitializeAI() override
             {
                 CasterAI::InitializeAI();
                 uint64 ownerGuid = me->GetOwnerGUID();
@@ -69,7 +69,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                     }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 // Stop Feeding Gargoyle when it dies
                 if (Unit* owner = me->GetOwner())
@@ -77,7 +77,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
             }
 
             // Fly away when dismissed
-            void SpellHit(Unit* source, SpellInfo const* spell) OVERRIDE
+            void SpellHit(Unit* source, SpellInfo const* spell) override
             {
                 if (spell->Id != SPELL_DK_DISMISS_GARGOYLE || !me->IsAlive())
                     return;
@@ -108,7 +108,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 _despawnTimer = 4 * IN_MILLISECONDS;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (_despawnTimer > 0)
                 {
@@ -126,7 +126,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
            uint32 _despawnTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_pet_dk_ebon_gargoyleAI(creature);
         }

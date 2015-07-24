@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,13 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Boss_Sulfuron_Harbringer
-SD%Complete: 80
-SDComment: Adds NYI
-SDCategory: Molten Core
-EndScriptData */
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -69,7 +59,7 @@ class boss_sulfuron : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim) OVERRIDE
+            void EnterCombat(Unit* victim) override
             {
                 BossAI::EnterCombat(victim);
                 events.ScheduleEvent(EVENT_DARK_STRIKE, 10000);
@@ -79,7 +69,7 @@ class boss_sulfuron : public CreatureScript
                 events.ScheduleEvent(EVENT_FLAMESPEAR, 2000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -129,7 +119,7 @@ class boss_sulfuron : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_sulfuronAI(creature);
         }
@@ -146,17 +136,17 @@ class npc_flamewaker_priest : public CreatureScript
             {
             }
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 events.Reset();
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 events.Reset();
             }
 
-            void EnterCombat(Unit* victim) OVERRIDE
+            void EnterCombat(Unit* victim) override
             {
                 ScriptedAI::EnterCombat(victim);
                 events.ScheduleEvent(EVENT_HEAL, urand(15000, 30000));
@@ -164,7 +154,7 @@ class npc_flamewaker_priest : public CreatureScript
                 events.ScheduleEvent(EVENT_IMMOLATE, 8000);
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -205,7 +195,7 @@ class npc_flamewaker_priest : public CreatureScript
             EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_flamewaker_priestAI(creature);
         }

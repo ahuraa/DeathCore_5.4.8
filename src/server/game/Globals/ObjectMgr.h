@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,6 +45,7 @@
 #include <functional>
 #include "PhaseMgr.h"
 #include "DB2Stores.h"
+#include "Containers.h"
 
 class Item;
 class PhaseMgr;
@@ -412,43 +413,6 @@ struct AreaTriggerStruct
     float  target_Orientation;
 };
 
-struct BroadcastText
-{
-    BroadcastText() : Id(0), Language(0), SoundId(0), EndEmoteId(0), Type(0)
-    {
-        MaleText.resize(DEFAULT_LOCALE + 1);
-        FemaleText.resize(DEFAULT_LOCALE + 1);
-    }
-
-    uint32 Id;
-    uint32 Language;
-    StringVector MaleText;
-    StringVector FemaleText;
-    QEmote Emotes[MAX_GOSSIP_TEXT_EMOTES];
-    uint32 SoundId;
-    uint32 EndEmoteId;
-    uint32 Type;
-    // uint32 VerifiedBuild;
-
-    std::string const& GetText(LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false) const
-    {
-        if (gender == GENDER_FEMALE && (forceGender || !FemaleText[DEFAULT_LOCALE].empty()))
-        {
-            if (FemaleText.size() > size_t(locale) && !FemaleText[locale].empty())
-                return FemaleText[locale];
-            return FemaleText[DEFAULT_LOCALE];
-        }
-        // else if (gender == GENDER_MALE)
-        {
-            if (MaleText.size() > size_t(locale) && !MaleText[locale].empty())
-                return MaleText[locale];
-            return MaleText[DEFAULT_LOCALE];
-        }
-    }
-};
-
-typedef UNORDERED_MAP<uint32, BroadcastText> BroadcastTextContainer;
-
 typedef std::set<uint32> CellGuidSet;
 typedef std::map<uint32/*player guid*/, uint32/*instance*/> CellCorpseSet;
 struct CellObjectGuids
@@ -566,7 +530,6 @@ struct GossipMenuItems
     uint32          OptionIndex;
     uint8           OptionIcon;
     std::string     OptionText;
-    uint32          OptionBroadcastTextId;
     uint32          OptionType;
     uint32          OptionNpcflag;
     uint32          ActionMenuId;
@@ -574,7 +537,6 @@ struct GossipMenuItems
     bool            BoxCoded;
     uint32          BoxMoney;
     std::string     BoxText;
-    uint32          BoxBroadcastTextId;
     ConditionList   Conditions;
 };
 
@@ -691,6 +653,37 @@ struct HotfixInfo
 typedef std::vector<HotfixInfo> HotfixData;
 typedef std::map<uint32, uint32> QuestObjectiveLookupMap;
 
+struct ResearchDigsiteInfo
+{
+    uint32 digsiteId;
+    uint32 branchId;
+    uint32 requiredSkillValue;
+    uint32 requiredLevel;
+};
+
+typedef std::list<ResearchDigsiteInfo> ResearchDigsiteList;
+typedef UNORDERED_MAP<uint32 /*mapId*/, ResearchDigsiteList> ResearchDigsiteContainer;
+
+struct ArchaeologyFindInfo
+{
+    uint32 guid;
+    uint32 goEntry;
+    float x;
+    float y;
+    float z;
+};
+
+typedef std::list<ArchaeologyFindInfo> ArchaeologyFindList;
+typedef UNORDERED_MAP<uint32 /*digsiteId*/, ArchaeologyFindList> ArchaeologyFindContainer;
+
+struct ResearchProjectRequirements
+{
+    uint32 requiredSkillValue;
+    float chance;
+};
+
+typedef UNORDERED_MAP<uint32, ResearchProjectRequirements> ResearchProjectRequirementContainer;
+
 class PlayerDumpReader;
 
 class ObjectMgr
@@ -737,7 +730,7 @@ class ObjectMgr
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId);
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32* displayID);
         static uint32 ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data = NULL);
-        static void ChooseCreatureFlags(CreatureTemplate const* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, CreatureData const* data = NULL);
+        static void ChooseCreatureFlags(CreatureTemplate const* cinfo, uint64& npcflag, uint32& unit_flags, uint32& dynamicflags, CreatureData const* data = NULL);
         EquipmentInfo const* GetEquipmentInfo(uint32 entry, int8& id);
         CreatureAddon const* GetCreatureAddon(uint32 lowguid);
         CreatureAddon const* GetCreatureTemplateAddon(uint32 entry);
@@ -949,9 +942,6 @@ class ObjectMgr
         bool LoadTrinityStrings(char const* table, int32 min_value, int32 max_value);
         bool LoadTrinityStrings() { return LoadTrinityStrings("trinity_string", MIN_TRINITY_STRING_ID, MAX_TRINITY_STRING_ID); }
         void LoadDbScriptStrings();
-
-        void LoadBroadcastTexts();
-        void LoadBroadcastTextLocales();
         void LoadCreatureClassLevelStats();
         void LoadCreatureLocales();
         void LoadGraveyardOrientations();
@@ -1098,14 +1088,6 @@ class ObjectMgr
             if (itr != _tempSummonDataStore.end())
                 return &itr->second;
 
-            return NULL;
-        }
-
-        BroadcastText const* GetBroadcastText(uint32 id) const
-        {
-            BroadcastTextContainer::const_iterator itr = _broadcastTextStore.find(id);
-            if (itr != _broadcastTextStore.end())
-                return &itr->second;
             return NULL;
         }
 
@@ -1330,6 +1312,63 @@ class ObjectMgr
         bool QuestObjectiveExists(uint32 objectiveId) const;
         uint32 GetQuestObjectiveQuestId(uint32 objectiveId) const;
 
+        void LoadResearchDigsiteInfo();
+        void LoadArchaeologyFindInfo();
+        void LoadResearchProjectRequirements();
+
+        ResearchDigsiteInfo const* GetResearchDigsiteInfo(uint32 digsiteId) const
+        {
+            for (ResearchDigsiteContainer::const_iterator itr = _researchDigsiteStore.begin(); itr != _researchDigsiteStore.end(); ++itr)
+            for (ResearchDigsiteList::const_iterator digsite = itr->second.begin(); digsite != itr->second.end(); ++digsite)
+            if (digsite->digsiteId == digsiteId)
+                return &(*digsite);
+
+            return NULL;
+        }
+
+        ResearchDigsiteList const* GetResearchDigsitesForContinent(uint32 mapId) const
+        {
+            ResearchDigsiteContainer::const_iterator iter = _researchDigsiteStore.find(mapId);
+            if (iter != _researchDigsiteStore.end())
+                return &iter->second;
+
+            return NULL;
+        }
+
+        ArchaeologyFindInfo const* GetArchaeologyFindInfo(uint32 findGUID, uint32 digsiteId)
+        {
+            ArchaeologyFindContainer::const_iterator itr = _archaeologyFindStore.find(digsiteId);
+            if (itr == _archaeologyFindStore.end())
+                return NULL;
+
+            for (ArchaeologyFindList::const_iterator find = itr->second.begin(); find != itr->second.end(); ++find)
+            if (find->guid == findGUID)
+                return &(*find);
+
+            return NULL;
+        }
+
+        ArchaeologyFindInfo const* GetRandomArchaeologyFindForDigsite(uint32 digsiteId)
+        {
+            ArchaeologyFindContainer::const_iterator itr = _archaeologyFindStore.find(digsiteId);
+            if (itr == _archaeologyFindStore.end())
+                return NULL;
+
+            if (itr->second.empty())
+                return NULL;
+
+            return &Trinity::Containers::SelectRandomContainerElement(itr->second);
+        }
+
+        ResearchProjectRequirements const* GetResearchProjectRequirements(uint32 projectId) const
+        {
+            ResearchProjectRequirementContainer::const_iterator iter = _researchProjectRequirementStore.find(projectId);
+            if (iter != _researchProjectRequirementStore.end())
+                return &iter->second;
+
+            return NULL;
+        }
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1461,7 +1500,6 @@ class ObjectMgr
         /// Stores temp summon data grouped by summoner's entry, summoner's type and group id
         TempSummonDataContainer _tempSummonDataStore;
 
-        BroadcastTextContainer _broadcastTextStore;
         ItemTemplateContainer _itemTemplateStore;
         ItemLocaleContainer _itemLocaleStore;
         QuestLocaleContainer _questLocaleStore;
@@ -1488,6 +1526,10 @@ class ObjectMgr
             GO_TO_CREATURE          // GO is dependant on creature
         };
         HotfixData _hotfixData;
+
+        ResearchDigsiteContainer _researchDigsiteStore;
+        ArchaeologyFindContainer _archaeologyFindStore;
+        ResearchProjectRequirementContainer _researchProjectRequirementStore;
 };
 
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()

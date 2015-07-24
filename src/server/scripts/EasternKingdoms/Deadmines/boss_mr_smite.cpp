@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
- * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,12 +14,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Boss Mr.Smite
-SD%Complete:
-SDComment: Timers and say taken from acid script
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -46,7 +37,7 @@ class boss_mr_smite : public CreatureScript
 public:
     boss_mr_smite() : CreatureScript("boss_mr_smite") { }
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_mr_smiteAI(creature);
     }
@@ -69,7 +60,7 @@ public:
         uint32 uiPhase;
         uint32 uiTimer;
 
-        void Reset() OVERRIDE
+        void Reset() override
         {
             uiTrashTimer = urand(5000, 9000);
             uiSlamTimer = 9000;
@@ -83,7 +74,7 @@ public:
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/) override
         {
            Talk(SAY_AGGRO);
         }
@@ -97,7 +88,7 @@ public:
                 return true;
         }
 
-        void UpdateAI(uint32 uiDiff) OVERRIDE
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -169,7 +160,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/) OVERRIDE
+        void MovementInform(uint32 uiType, uint32 /*uiId*/) override
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;

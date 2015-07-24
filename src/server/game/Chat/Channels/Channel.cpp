@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ *
+ * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,6 +25,8 @@
 #include "DatabaseEnv.h"
 #include "AccountMgr.h"
 #include "Player.h"
+#include "Group.h"
+#include "Guild.h"
 
 Channel::Channel(std::string const& name, uint32 channelId, uint32 team):
     _announce(true),
@@ -971,7 +973,7 @@ void Channel::MakeVoiceOff(WorldPacket* data, uint64 guid)
 
 void Channel::JoinNotify(uint64 guid)
 {
-    WorldPacket data(IsConstant() ? SMSG_USERLIST_ADD : SMSG_USERLIST_UPDATE, 8 + 1 + 1 + 4 + GetName().size());
+    WorldPacket data(IsConstant() ? SMSG_USER_LIST_ADD : SMSG_USER_LIST_UPDATE, 8 + 1 + 1 + 4 + GetName().size());
     data << uint64(guid);
     data << uint8(GetPlayerFlags(guid));
     data << uint8(GetFlags());
@@ -986,7 +988,7 @@ void Channel::JoinNotify(uint64 guid)
 
 void Channel::LeaveNotify(uint64 guid)
 {
-    WorldPacket data(SMSG_USERLIST_REMOVE, 8 + 1 + 4 + GetName().size());
+    WorldPacket data(SMSG_USER_LIST_REMOVE, 8 + 1 + 4 + GetName().size());
     data << uint64(guid);
     data << uint8(GetFlags());
     data << uint32(GetNumPlayers());
