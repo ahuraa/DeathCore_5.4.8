@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +16,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+Name: npc_commandscript
+%Complete: 100
+Comment: All npc related commands
+Category: commandscripts
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
@@ -37,7 +46,7 @@ struct EnumName
 
 #define NPCFLAG_COUNT   27
 
-EnumName<NPCFlags, int64> const npcFlagTexts[NPCFLAG_COUNT] =
+EnumName<NPCFlags, int32> const npcFlagTexts[NPCFLAG_COUNT] =
 {
     { UNIT_NPC_FLAG_AUCTIONEER,         LANG_NPCINFO_AUCTIONEER         },
     { UNIT_NPC_FLAG_BANKER,             LANG_NPCINFO_BANKER             },
@@ -65,9 +74,7 @@ EnumName<NPCFlags, int64> const npcFlagTexts[NPCFLAG_COUNT] =
     { UNIT_NPC_FLAG_VENDOR_AMMO,        LANG_NPCINFO_VENDOR_AMMO        },
     { UNIT_NPC_FLAG_VENDOR_FOOD,        LANG_NPCINFO_VENDOR_FOOD        },
     { UNIT_NPC_FLAG_VENDOR_POISON,      LANG_NPCINFO_VENDOR_POISON      },
-    { UNIT_NPC_FLAG_VENDOR_REAGENT,     LANG_NPCINFO_VENDOR_REAGENT     },
-    //{ UNIT_NPC_FLAG_UNK_BPET,           0                               },
-    //{ UNIT_NPC_FLAG_BLACKMARKET,        0                               },
+    { UNIT_NPC_FLAG_VENDOR_REAGENT,     LANG_NPCINFO_VENDOR_REAGENT     }
 };
 
 EnumName<Mechanics> const mechanicImmunes[MAX_MECHANIC] =
@@ -125,7 +132,7 @@ EnumName<UnitFlags> const unitFlags[MAX_UNIT_FLAGS] =
     CREATE_NAMED_ENUM(UNIT_FLAG_SILENCED),
     CREATE_NAMED_ENUM(UNIT_FLAG_UNK_14),
     CREATE_NAMED_ENUM(UNIT_FLAG_UNK_15),
-    CREATE_NAMED_ENUM(UNIT_FLAG_ON_TAXI),
+    CREATE_NAMED_ENUM(UNIT_FLAG_UNK_16),
     CREATE_NAMED_ENUM(UNIT_FLAG_PACIFIED),
     CREATE_NAMED_ENUM(UNIT_FLAG_STUNNED),
     CREATE_NAMED_ENUM(UNIT_FLAG_IN_COMBAT),
@@ -138,7 +145,7 @@ EnumName<UnitFlags> const unitFlags[MAX_UNIT_FLAGS] =
     CREATE_NAMED_ENUM(UNIT_FLAG_SKINNABLE),
     CREATE_NAMED_ENUM(UNIT_FLAG_MOUNT),
     CREATE_NAMED_ENUM(UNIT_FLAG_UNK_28),
-    CREATE_NAMED_ENUM(UNIT_FLAG_PREVENT_EMOTES),
+    CREATE_NAMED_ENUM(UNIT_FLAG_UNK_29),
     CREATE_NAMED_ENUM(UNIT_FLAG_SHEATHE),
     CREATE_NAMED_ENUM(UNIT_FLAG_UNK_31)
 };
@@ -148,7 +155,7 @@ class npc_commandscript : public CommandScript
 public:
     npc_commandscript() : CommandScript("npc_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    ChatCommand* GetCommands() const OVERRIDE
     {
         static ChatCommand npcAddCommandTable[] =
         {
@@ -596,8 +603,7 @@ public:
         // Update in memory..
         if (CreatureTemplate const* cinfo = creature->GetCreatureTemplate())
         {
-            const_cast<CreatureTemplate*>(cinfo)->faction_A = factionId;
-            const_cast<CreatureTemplate*>(cinfo)->faction_H = factionId;
+            const_cast<CreatureTemplate*>(cinfo)->faction = factionId;
         }
 
         // ..and DB
@@ -618,7 +624,7 @@ public:
         if (!*args)
             return false;
 
-        uint64 npcFlags = (uint64) atoi((char*)args);
+        uint32 npcFlags = (uint32) atoi((char*)args);
 
         Creature* creature = handler->getSelectedCreature();
 
@@ -629,11 +635,11 @@ public:
             return false;
         }
 
-        creature->SetUInt64Value(UNIT_FIELD_NPC_FLAGS, npcFlags);
+        creature->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, npcFlags);
 
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_NPCFLAG);
 
-        stmt->setUInt64(0, npcFlags);
+        stmt->setUInt32(0, npcFlags);
         stmt->setUInt32(1, creature->GetEntry());
 
         WorldDatabase.Execute(stmt);
@@ -710,7 +716,7 @@ public:
         CreatureTemplate const* cInfo = target->GetCreatureTemplate();
 
         uint32 faction = target->getFaction();
-        uint64 npcflags = target->GetUInt64Value(UNIT_FIELD_NPC_FLAGS);
+        uint32 npcflags = target->GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
         uint32 mechanicImmuneMask = cInfo->MechanicImmuneMask;
         uint32 displayid = target->GetDisplayId();
         uint32 nativeid = target->GetNativeDisplayId();

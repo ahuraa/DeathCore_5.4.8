@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,6 +46,7 @@ Copied events should probably have a new owner
 #include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
 #include "GuildMgr.h"
+#include "ArenaTeamMgr.h"
 #include "WorldSession.h"
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
@@ -207,6 +208,17 @@ void WorldSession::HandleCalendarGuildFilter(WorldPacket& recvData)
         guild->MassInviteToEvent(this, minLevel, maxLevel, minRank);
 
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_GUILD_FILTER: Min level [%d], Max level [%d], Min rank [%d]", minLevel, maxLevel, minRank);
+}
+
+void WorldSession::HandleCalendarArenaTeam(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "CMSG_CALENDAR_ARENA_TEAM [" UI64FMTD "]", _player->GetGUID());
+
+    uint32 arenaTeamId;
+    recvData >> arenaTeamId;
+
+    if (ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(arenaTeamId))
+        team->MassInviteToEvent(this);
 }
 
 void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)

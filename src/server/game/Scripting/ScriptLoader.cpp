@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,7 +32,6 @@ void AddSC_druid_spell_scripts();
 void AddSC_generic_spell_scripts();
 void AddSC_hunter_spell_scripts();
 void AddSC_mage_spell_scripts();
-void AddSC_monk_spell_scripts();
 void AddSC_paladin_spell_scripts();
 void AddSC_priest_spell_scripts();
 void AddSC_rogue_spell_scripts();
@@ -43,13 +42,13 @@ void AddSC_quest_spell_scripts();
 void AddSC_item_spell_scripts();
 void AddSC_example_spell_scripts();
 void AddSC_holiday_spell_scripts();
-void AddSC_masteries_spell_scripts();
 
 void AddSC_SmartSCripts();
 
 //Commands
 void AddSC_account_commandscript();
 void AddSC_achievement_commandscript();
+void AddSC_arena_commandscript();
 void AddSC_ban_commandscript();
 void AddSC_bf_commandscript();
 void AddSC_cast_commandscript();
@@ -660,147 +659,31 @@ void AddSC_zangarmarsh();
 // Maelstrom
 void AddSC_kezan();
 
-// new bg
-void AddSC_BattlegroundSMScripts();
-
 // Events
 void AddSC_event_childrens_week();
 
-// Pandaria World Bosses
+// Pandaria
 void AddSC_boss_ordos();
-void AddSC_boss_nalak_the_storm_lord();
-void AddSC_boss_oondasta();
-void AddSC_boss_sha_of_anger();
-void AddSC_boss_galion();
-// Pandaria Zones
-void AddSC_jade_forest();
-void AddSC_krasarang_wilds();
-void AddSC_kun_lai_summit();
-void AddSC_the_veiled_stair();
-void AddSC_townlong_steppes();
-void AddSC_vale_of_eternal_blossoms();
-void AddSC_valley_of_the_four_winds();
-void AddSC_WanderingIsland_East();
-void AddSC_WanderingIsland_North();
-void AddSC_WanderingIsland_South();
-void AddSC_WanderingIsland_West();
-// Timeless Isle
-void AddSC_zone_timeless_isle();
-void AddSC_timeless_isle();
-void AddSC_worldboss_chiji();
-// Pandaria Raids :: Throne of Thunder
-void AddSC_instance_ThroneOfThunder();
-void AddSC_boss_Council();
-void AddSC_boss_DarkAnimus();
-void AddSC_boss_Durumu();
-void AddSC_boss_Horridon();
-void AddSC_boss_IronQon();
-void AddSC_boss_JiKun();
-void AddSC_boss_Jinrokh();
-void AddSC_boss_LeiShen();
-void AddSC_boss_Megaera();
-void AddSC_boss_Primordius();
-void AddSC_boss_Raden();
-void AddSC_boss_Tortos();
-void AddSC_boss_TwinConsorts();
-// Pandaria Raids :: Terrace of the Endless Spring
-void AddSC_terrace_of_endless_spring();
-void AddSC_boss_lei_shi();
-void AddSC_boss_tsulong();
-//void AddSC_boss_sha_of_fear();
-void AddSC_boss_protectors_of_the_endless();
-// Pandaria Raids :: Siege of Orgrimmar
-void AddSC_instance_SiegeOfOrgrimmar();
-void AddSC_boss_Galakras();
-void AddSC_boss_GarroshHellscream();
-void AddSC_boss_GeneralNazgrim();
-void AddSC_boss_IronJuggernaut();
-void AddSC_boss_Immerseus();
-void AddSC_boss_KorKron();
-void AddSC_boss_Malkorok();
-void AddSC_boss_Norushen();
-void AddSC_boss_ParagonsOfTheKlaxxi();
-void AddSC_boss_ShaOfPride();
-void AddSC_boss_SiegecrafterBlackfuse();
-void AddSC_boss_SpoilsOfPandaria();
-void AddSC_boss_TheFallenProtectors();
-void AddSC_boss_Thok();
-// Pandaria Raids :: Mogushan Vault
-void AddSC_mogu_shan_vault();
-void AddSC_instance_mogu_shan_vault();
-void AddSC_boss_feng();
-void AddSC_boss_elegon();
-void AddSC_boss_garajal();
-void AddSC_boss_spirit_kings();
-void AddSC_boss_stone_guard();
-void AddSC_boss_will_of_emperor();
-// Pandaria Raids :: Heart of Fear
-void AddSC_instance_heart_of_fear();
-void AddSC_boss_ambershaper_unsok();
-void AddSC_boss_blade_lord_tayak();
-void AddSC_boss_garalon();
-void AddSC_boss_grand_empress_shekzeer();
-void AddSC_boss_imperial_vizier_zorlok();
-void AddSC_boss_wind_lord_meljarak();
-// Pandaria Dungeons:: Gate of the Setting Sun
-void AddSC_instance_gate_of_the_setting_sun();
-void AddSC_boss_commander_rimok();
-void AddSC_boss_raigonn();
-void AddSC_boss_saboteur_kiptilak();
-void AddSC_boss_striker_gadok();
-// Pandaria Dungeons:: Mogushan Palace
-void AddSC_instance_mogushan_palace();
-void AddSC_boss_xin_the_weaponmaster();
-void AddSC_boss_gekkan();
-void AddSC_boss_trial_of_king();
-// Pandaria Dungeons:: Scarlet Halls
-void AddSC_instance_scarlet_halls();
-void AddSC_boss_houndmaster_braun();
-void AddSC_boss_flameweaver_koegler();
-void AddSC_boss_armsmaster_harlan();
-// Pandaria Dungeons:: Scarlet Monastery
-void AddSC_boss_thalnos_the_souldrender();
-void AddSC_boss_high_inquisitor_whitemane();
-void AddSC_boss_brother_korloff();
-// Pandaria Dungeons:: Scholomance
-void AddSC_boss_rattlegore();
-void AddSC_boss_lilian_voss();
-void AddSC_boss_jandice_barov();
-void AddSC_boss_instructor_chillheart();
-// Pandaria Dungeons:: Shado'pan Monastery
-void AddSC_instance_shadopan_monastery();
-void AddSC_boss_taran_zhu();
-void AddSC_boss_sha_of_violence();
-void AddSC_boss_gu_cloudstrike();
-void AddSC_boss_master_snowdrift();
-// Pandaria Dungeons:: Siege of Niuzao Temple
-void AddSC_instance_siege_of_niuzao_temple();
-void AddSC_boss_wing_leader_neronok();
-void AddSC_boss_vizier_jinbak();
-void AddSC_boss_general_pavalak();
-void AddSC_boss_commander_vojak();
-// Pandaria Dungeons:: Stormstout Brewery
-void AddSC_instance_stormstout_brewery();
-void AddSC_boss_yan_zhu();
-void AddSC_boss_ook_ook();
-void AddSC_boss_hoptallus();
-// Pandaria Dungeons:: Temple of the Jade Serpent
-void AddSC_instance_temple_of_the_jade_serpent();
-void AddSC_boss_liu_flameheart();
-void AddSC_boss_lorewalker_stonestep();
-void AddSC_boss_sha_of_doubt();
-void AddSC_boss_wise_mari();
-
+//void AddSC_dread_wastes();
+//void AddSC_isle_of_giants();
+//void AddSC_isle_of_thunder();
+//void AddSC_krasarang_wilds();
+//void AddSC_kun_lai_summit();
+//void AddSC_the_jade_forest();
+//void AddSC_the_situation_in_dalaran();
+//void AddSC_the_veiled_stair();
+//void AddSC_timeless_isle();
+//void AddSC_townlong_steppes();
+//void AddSC_vale_of_eternal_blossoms();
+//void AddSC_valley_of_the_four_winds();
 
 // Pets
 void AddSC_deathknight_pet_scripts();
 void AddSC_generic_pet_scripts();
 void AddSC_hunter_pet_scripts();
 void AddSC_mage_pet_scripts();
-void AddSC_monk_pet_scripts();
 void AddSC_priest_pet_scripts();
 void AddSC_shaman_pet_scripts();
-void AddSC_warlock_pet_scripts();
 
 // battlegrounds
 
@@ -830,7 +713,7 @@ void AddScripts()
     AddNorthrendScripts();
     AddMaelstromScripts();
     AddEventScripts();
-    AddPandariaScripts();
+    //AddPandariaScripts();
     AddPetScripts();
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
@@ -854,7 +737,6 @@ void AddSpellScripts()
     AddSC_generic_spell_scripts();
     AddSC_hunter_spell_scripts();
     AddSC_mage_spell_scripts();
-    AddSC_monk_spell_scripts();
     AddSC_paladin_spell_scripts();
     AddSC_priest_spell_scripts();
     AddSC_rogue_spell_scripts();
@@ -865,13 +747,13 @@ void AddSpellScripts()
     AddSC_item_spell_scripts();
     AddSC_example_spell_scripts();
     AddSC_holiday_spell_scripts();
-    AddSC_masteries_spell_scripts();
 }
 
 void AddCommandScripts()
 {
     AddSC_account_commandscript();
     AddSC_achievement_commandscript();
+    AddSC_arena_commandscript();
     AddSC_ban_commandscript();
     AddSC_bf_commandscript();
     AddSC_cast_commandscript();
@@ -1032,6 +914,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_theolenkrastinov();
     AddSC_boss_illuciabarov();
     AddSC_boss_instructormalicia();
+    AddSC_boss_jandicebarov();
     AddSC_boss_kormok();
     AddSC_boss_lordalexeibarov();
     AddSC_boss_lorekeeperpolkelt();
@@ -1518,129 +1401,19 @@ void AddEventScripts()
 void AddPandariaScripts()
 {
 #ifdef SCRIPTS
-    // Pandaria World Bosses
     AddSC_boss_ordos();
-    AddSC_boss_nalak_the_storm_lord();
-    AddSC_boss_oondasta();
-    AddSC_boss_sha_of_anger();
-    AddSC_boss_galion();
-    // Pandaria Zones
-    AddSC_jade_forest();
-    AddSC_krasarang_wilds();
-    AddSC_kun_lai_summit();
-    AddSC_the_veiled_stair();
-    AddSC_townlong_steppes();
-    AddSC_vale_of_eternal_blossoms();
-    AddSC_valley_of_the_four_winds();
-    AddSC_WanderingIsland_East();
-    AddSC_WanderingIsland_North();
-    AddSC_WanderingIsland_South();
-    AddSC_WanderingIsland_West();
-    // Timeless Isle
-    AddSC_zone_timeless_isle();
-    AddSC_timeless_isle();
-    AddSC_worldboss_chiji();
-    // Pandaria Raids :: Throne of Thunder
-    AddSC_instance_ThroneOfThunder();
-    AddSC_boss_Council();
-    AddSC_boss_DarkAnimus();
-    AddSC_boss_Durumu();
-    AddSC_boss_Horridon();
-    AddSC_boss_IronQon();
-    AddSC_boss_JiKun();
-    AddSC_boss_Jinrokh();
-    AddSC_boss_LeiShen();
-    AddSC_boss_Megaera();
-    AddSC_boss_Primordius();
-    AddSC_boss_Raden();
-    AddSC_boss_Tortos();
-    AddSC_boss_TwinConsorts();
-    // Pandaria Raids :: Terrace of the Endless Spring
-    AddSC_terrace_of_endless_spring();
-    AddSC_boss_lei_shi();
-    AddSC_boss_tsulong();
-    //AddSC_boss_sha_of_fear();
-    AddSC_boss_protectors_of_the_endless();
-    // Pandaria Raids :: Siege of Orgrimmar
-    AddSC_instance_SiegeOfOrgrimmar();
-    AddSC_boss_Galakras();
-    AddSC_boss_GarroshHellscream();
-    AddSC_boss_GeneralNazgrim();
-    AddSC_boss_IronJuggernaut();
-    AddSC_boss_Immerseus();
-    AddSC_boss_KorKron();
-    AddSC_boss_Malkorok();
-    AddSC_boss_Norushen();
-    AddSC_boss_ParagonsOfTheKlaxxi();
-    AddSC_boss_ShaOfPride();
-    AddSC_boss_SiegecrafterBlackfuse();
-    AddSC_boss_SpoilsOfPandaria();
-    AddSC_boss_TheFallenProtectors();
-    AddSC_boss_Thok();
-    // Pandaria Raids :: Mogushan Vault
-    AddSC_mogu_shan_vault();
-    AddSC_instance_mogu_shan_vault();
-    AddSC_boss_feng();
-    AddSC_boss_elegon();
-    AddSC_boss_garajal();
-    AddSC_boss_spirit_kings();
-    AddSC_boss_stone_guard();
-    AddSC_boss_will_of_emperor();
-    // Pandaria Raids :: Heart of Fear
-    AddSC_instance_heart_of_fear();
-    AddSC_boss_ambershaper_unsok();
-    AddSC_boss_blade_lord_tayak();
-    AddSC_boss_garalon();
-    AddSC_boss_grand_empress_shekzeer();
-    AddSC_boss_imperial_vizier_zorlok();
-    AddSC_boss_wind_lord_meljarak();
-    // Pandaria Dungeons:: Gate of the Setting Sun
-    AddSC_instance_gate_of_the_setting_sun();
-    AddSC_boss_commander_rimok();
-    AddSC_boss_raigonn();
-    AddSC_boss_saboteur_kiptilak();
-    AddSC_boss_striker_gadok();
-    // Pandaria Dungeons:: Mogushan Palace
-    AddSC_instance_mogushan_palace();
-    AddSC_boss_xin_the_weaponmaster();
-    AddSC_boss_gekkan();
-    AddSC_boss_trial_of_king();
-    // Pandaria Dungeons:: Scarlet Halls
-    AddSC_instance_scarlet_halls();
-    AddSC_boss_houndmaster_braun();
-    AddSC_boss_flameweaver_koegler();
-    AddSC_boss_armsmaster_harlan();
-    // Pandaria Dungeons:: Scarlet Monastery
-    AddSC_boss_thalnos_the_souldrender();
-    AddSC_boss_high_inquisitor_whitemane();
-    AddSC_boss_brother_korloff();
-    // Pandaria Dungeons:: Scholomance
-    AddSC_boss_rattlegore();
-    AddSC_boss_lilian_voss();
-    AddSC_boss_instructor_chillheart();
-    // Pandaria Dungeons:: Shado'pan Monastery
-    AddSC_instance_shadopan_monastery();
-    AddSC_boss_taran_zhu();
-    AddSC_boss_sha_of_violence();
-    AddSC_boss_gu_cloudstrike();
-    AddSC_boss_master_snowdrift();
-    // Pandaria Dungeons:: Siege of Niuzao Temple
-    AddSC_instance_siege_of_niuzao_temple();
-    AddSC_boss_wing_leader_neronok();
-    AddSC_boss_vizier_jinbak();
-    AddSC_boss_general_pavalak();
-    AddSC_boss_commander_vojak();
-    // Pandaria Dungeons:: Stormstout Brewery
-    AddSC_instance_stormstout_brewery();
-    AddSC_boss_yan_zhu();
-    AddSC_boss_ook_ook();
-    AddSC_boss_hoptallus();
-    // Pandaria Dungeons:: Temple of the Jade Serpent
-    AddSC_instance_temple_of_the_jade_serpent();
-    AddSC_boss_liu_flameheart();
-    AddSC_boss_lorewalker_stonestep();
-    AddSC_boss_sha_of_doubt();
-    AddSC_boss_wise_mari();
+    //AddSC_dread_wastes();
+    //AddSC_isle_of_giants();
+    //AddSC_isle_of_thunder();
+    //AddSC_krasarang_wilds();
+    //AddSC_kun_lai_summit();
+    //AddSC_the_jade_forest();
+    //AddSC_the_situation_in_dalaran();
+    //AddSC_the_veiled_stair();
+    //AddSC_timeless_isle();
+    //AddSC_townlong_steppes();
+    //AddSC_vale_of_eternal_blossoms();
+    //AddSC_valley_of_the_four_winds();
 #endif
 }
 
@@ -1651,10 +1424,8 @@ void AddPetScripts()
     AddSC_generic_pet_scripts();
     AddSC_hunter_pet_scripts();
     AddSC_mage_pet_scripts();
-    AddSC_monk_pet_scripts();
     AddSC_priest_pet_scripts();
     AddSC_shaman_pet_scripts();
-    AddSC_warlock_pet_scripts();
 #endif
 }
 
@@ -1672,19 +1443,18 @@ void AddOutdoorPvPScripts()
 void AddBattlegroundScripts()
 {
 #ifdef SCRIPTS
-	AddSC_BattlegroundSMScripts();
 #endif
 }
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-void AddSC_player_start_spells();
+
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-	AddSC_player_start_spells();
+
 #endif
 }

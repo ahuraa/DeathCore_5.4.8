@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +16,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+Name: debug_commandscript
+%Complete: 100
+Comment: All debug related commands
+Category: commandscripts
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
@@ -34,7 +43,7 @@ class debug_commandscript : public CommandScript
 public:
     debug_commandscript() : CommandScript("debug_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    ChatCommand* GetCommands() const OVERRIDE
     {
         static ChatCommand debugPlayCommandTable[] =
         {
@@ -60,7 +69,6 @@ public:
         };
         static ChatCommand debugCommandTable[] =
         {
-            { "accdata",       rbac::RBAC_PERM_COMMAND_DEBUG_SETBIT,        false, &HandleDebugAccountData,             "", NULL },
             { "setbit",        rbac::RBAC_PERM_COMMAND_DEBUG_SETBIT,        false, &HandleDebugSet32BitCommand,         "", NULL },
             { "threat",        rbac::RBAC_PERM_COMMAND_DEBUG_THREAT,        false, &HandleDebugThreatListCommand,       "", NULL },
             { "hostil",        rbac::RBAC_PERM_COMMAND_DEBUG_HOSTIL,        false, &HandleDebugHostileRefListCommand,   "", NULL },
@@ -318,48 +326,7 @@ public:
             if (type == "")
                 break;
 
-            if (type == "flush")
-            {
-                data.FlushBits();
-            }
-            else if (type == "bit")
-            {
-                uint32 bit;
-                parsedStream >> bit;
-                
-            }
-            else if (type == "bitseq")
-            {
-                uint32 size, bit;
-                parsedStream >> size;
-                for (uint32 i = 0; i < size; i++) {
-                    parsedStream >> bit;
-                    data.WriteBit(bit);
-                }
-            }
-            else if (type == "bits")
-            {
-                uint32 bit, size;
-                parsedStream >> bit >> size;
-                data.WriteBits(bit, size_t(size));
-            }
-            else if (type == "byte")
-            {
-                uint8 byte;
-                parsedStream >> byte;
-                data.WriteByteSeq(uint8(byte));
-            }
-            else if (type == "byteseq")
-            {
-                uint16 byte;
-                uint32 size;
-                parsedStream >> size;
-                for (uint32 i = 0; i < size; i++) {
-                    parsedStream >> byte;
-                    data.WriteByteSeq(uint8(byte));
-                }
-            }
-            else if (type == "uint8")
+            if (type == "uint8")
             {
                 uint16 val1;
                 parsedStream >> val1;
@@ -1308,15 +1275,6 @@ public:
         unit->SetUInt32Value(updateIndex, value);
 
         return true;
-    }
-
-    static bool HandleDebugAccountData(ChatHandler* handler, char const* args)
-    {
-        AccountData* adata = handler->GetSession()->GetAccountData(AccountDataType(3));
-        
-        handler->GetSession()->GetPlayer()->Say(adata->Data, LANG_UNIVERSAL);
-        return true;
-
     }
 
     static bool HandleDebugSet32BitCommand(ChatHandler* handler, char const* args)

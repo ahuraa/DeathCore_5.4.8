@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ char const AuctionHouseEntryfmt[] = "niiix";
 char const BankBagSlotPricesEntryfmt[] = "ni";
 char const BannedAddOnsfmt[] = "nxxxxxxxxxx";
 char const BarberShopStyleEntryfmt[] = "nixxxiii";
-char const BattlemasterListEntryfmt[] = "niiiiiiiiiiiiiiiiixsiiiiixixxs";
+char const BattlemasterListEntryfmt[] = "niiiiiiiiiiiiiiiiixsiiiixxxxxx";
 char const CharStartOutfitEntryfmt[] = "dbbbXiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxii";
 char const CharTitlesEntryfmt[] = "nxsxix";
 char const ChatChannelsEntryfmt[] = "nixsx";
@@ -81,7 +81,6 @@ char const GtSpellScalingfmt[] = "df";
 char const GtOCTBaseHPByClassfmt[] = "df";
 char const GtOCTBaseMPByClassfmt[] = "df";
 char const GuildPerkSpellsfmt[] = "dii";
-char const GtResilienceDRfmt[] = "df";
 char const Holidaysfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
 char const ImportPriceArmorfmt[] = "nffff";
 char const ImportPriceQualityfmt[] = "nf";
@@ -118,13 +117,8 @@ char const OverrideSpellDatafmt[] = "niiiiiiiiiixx";
 char const QuestFactionRewardfmt[] = "niiiiiiiiii";
 char const QuestSortEntryfmt[] = "nx";
 char const QuestXPfmt[] = "niiiiiiiiii";
-char const QuestPOIPointfmt[] = "diii";
-char const PowerDisplayfmt[] = "nixxxx";
 char const PvPDifficultyfmt[] = "diiiii";
 char const RandomPropertiesPointsfmt[] = "niiiiiiiiiiiiiii";
-char const ResearchBranchfmt[] = "nxxxxx";
-char const ResearchProjectfmt[] = "nxxiixxxi";
-char const ResearchSitefmt[] = "niixx";
 char const ScalingStatDistributionfmt[] = "niiiiiiiiiiiiiiiiiiiixi";
 char const ScalingStatValuesfmt[] = "iniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const SkillLinefmt[] = "nisxixixx";
@@ -139,7 +133,7 @@ const std::string CustomSpellDifficultyfmt = "ppppp";
 const std::string CustomSpellDifficultyIndex = "id";
 char const SpellDurationfmt[] = "niii";
 //                                             0         10        20    26
-char const SpellEffectEntryfmt[] =            "niifiiiffiiiiiifiifiiiiifiiiii";
+char const SpellEffectEntryfmt[] =            "niifiiiffiiiiiifiifiiiiixiiiix";
 const std::string CustomSpellEffectEntryfmt = "papppppppppapppappppppppppp";
 const std::string CustomSpellEffectEntryIndex = "Id";
 char const SpellEntryfmt[] =            "nssxxixxiiiiiiiiiiiiiiiii";
@@ -148,14 +142,14 @@ char const SpellEntryfmt[] =            "nssxxixxiiiiiiiiiiiiiiiii";
 char const SpellMiscfmt[] = "nxxiiiiiiiiiiiiiiiiifiiiii";
 char const SpellEffectScalingfmt[] = "nfffxi";
 char const SpellFocusObjectfmt[] = "nx";
-char const SpellItemEnchantmentfmt[] = "niiiiiiiiiixiiiiiiiiiiifff";
-char const SpellItemEnchantmentConditionfmt[] = "nbbbbbiiiiibbbbbbbbbbiiiiibbbbb";
+char const SpellItemEnchantmentfmt[] = "nxiiiiiixxxiiisiiiiiiix";
+char const SpellItemEnchantmentConditionfmt[] = "nbbbbbxxxxxbbbbbbbbbbiiiiiXXXXX";
 char const SpellRadiusfmt[] = "nffxf";
 char const SpellRangefmt[] = "nffffixx";
 char const SpellScalingEntryfmt[] = "diiiifixx";
 char const SpellTotemsEntryfmt[] = "niiii";
 char const SpellTargetRestrictionsEntryfmt[] = "nxxxxiiii";
-char const SpellPowerEntryfmt[] = "dixiiiiixfxix";
+char const SpellPowerEntryfmt[] = "xdxiiiiixfxxx";
 char const SpellInterruptsEntryfmt[] = "dxxixixi";
 char const SpellEquippedItemsEntryfmt[] = "dxxiii";
 char const SpellAuraOptionsEntryfmt[] = "nxxiiiixx";
@@ -169,7 +163,7 @@ char const SpellShapeshiftEntryfmt[] = "nixixx";
 char const SpellShapeshiftFormfmt[] = "nxxiixiiixxiiiiiiiixx";
 char const StableSlotPricesfmt[] = "ni";
 char const SummonPropertiesfmt[] = "niiiii";
-char const TalentEntryfmt[] = "nxiiixxxiix";
+char const TalentEntryfmt[] = "nxiiixxxixx";
 char const TaxiNodesEntryfmt[] = "nifffsiixixx";
 char const TaxiPathEntryfmt[] = "niii";
 char const TaxiPathNodeEntryfmt[] = "diiifffiiii";

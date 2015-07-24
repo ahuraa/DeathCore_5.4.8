@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -92,7 +95,7 @@ class npc_unworthy_initiate : public CreatureScript
 public:
     npc_unworthy_initiate() : CreatureScript("npc_unworthy_initiate") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_unworthy_initiateAI(creature);
     }
@@ -114,7 +117,7 @@ public:
 
         EventMap events;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             anchorGUID = 0;
             phase = PHASE_CHAINED;
@@ -125,7 +128,7 @@ public:
             me->LoadEquipment(0, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_ICY_TOUCH, 1000, GCD_CAST);
             events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 3000, GCD_CAST);
@@ -133,7 +136,7 @@ public:
             events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
         }
 
-        void MovementInform(uint32 type, uint32 id) override
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -166,7 +169,7 @@ public:
             Talk(SAY_EVENT_START);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             switch (phase)
             {
@@ -281,7 +284,7 @@ class npc_unworthy_initiate_anchor : public CreatureScript
 public:
     npc_unworthy_initiate_anchor() : CreatureScript("npc_unworthy_initiate_anchor") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_unworthy_initiate_anchorAI(creature);
     }
@@ -292,13 +295,13 @@ public:
 
         uint64 prisonerGUID;
 
-        void SetGUID(uint64 guid, int32 /*id*/) override
+        void SetGUID(uint64 guid, int32 /*id*/) OVERRIDE
         {
             if (!prisonerGUID)
                 prisonerGUID = guid;
         }
 
-        uint64 GetGUID(int32 /*id*/) const override
+        uint64 GetGUID(int32 /*id*/) const OVERRIDE
         {
             return prisonerGUID;
         }
@@ -310,7 +313,7 @@ class go_acherus_soul_prison : public GameObjectScript
 public:
     go_acherus_soul_prison() : GameObjectScript("go_acherus_soul_prison") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
     {
         if (Creature* anchor = go->FindNearestCreature(29521, 15))
             if (uint64 prisonerGUID = anchor->AI()->GetGUID())
@@ -352,7 +355,7 @@ class npc_death_knight_initiate : public CreatureScript
 public:
     npc_death_knight_initiate() : CreatureScript("npc_death_knight_initiate") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF)
@@ -379,7 +382,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && creature->IsFullHealth())
         {
@@ -395,7 +398,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_death_knight_initiateAI(creature);
     }
@@ -412,7 +415,7 @@ public:
         uint32 m_uiDuelTimer;
         bool m_bIsDuelInProgress;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             lose = false;
             me->RestoreFaction();
@@ -425,7 +428,7 @@ public:
             m_bIsDuelInProgress = false;
         }
 
-        void SpellHit(Unit* pCaster, const SpellInfo* pSpell) override
+        void SpellHit(Unit* pCaster, const SpellInfo* pSpell) OVERRIDE
         {
             if (!m_bIsDuelInProgress && pSpell->Id == SPELL_DUEL)
             {
@@ -434,7 +437,7 @@ public:
             }
         }
 
-       void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
+       void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) OVERRIDE
         {
             if (m_bIsDuelInProgress && pDoneBy->IsControlledByPlayer())
             {
@@ -457,7 +460,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!UpdateVictim())
             {
@@ -520,7 +523,7 @@ class npc_dark_rider_of_acherus : public CreatureScript
         {
             npc_dark_rider_of_acherusAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() override
+            void Reset() OVERRIDE
             {
                 PhaseTimer = 4000;
                 Phase = 0;
@@ -528,7 +531,7 @@ class npc_dark_rider_of_acherus : public CreatureScript
                 TargetGUID = 0;
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!Intro || !TargetGUID)
                     return;
@@ -584,7 +587,7 @@ class npc_dark_rider_of_acherus : public CreatureScript
             uint64 TargetGUID;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_dark_rider_of_acherusAI(creature);
         }
@@ -608,7 +611,7 @@ class npc_salanar_the_horseman : public CreatureScript
 public:
     npc_salanar_the_horseman() : CreatureScript("npc_salanar_the_horseman") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_salanar_the_horsemanAI(creature);
     }
@@ -617,7 +620,7 @@ public:
     {
         npc_salanar_the_horsemanAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
         {
             if (spell->Id == SPELL_DELIVER_STOLEN_HORSE)
             {
@@ -639,7 +642,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* who) override
+        void MoveInLineOfSight(Unit* who) OVERRIDE
         {
             ScriptedAI::MoveInLineOfSight(who);
 
@@ -680,7 +683,7 @@ class npc_ros_dark_rider : public CreatureScript
 public:
     npc_ros_dark_rider() : CreatureScript("npc_ros_dark_rider") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_ros_dark_riderAI(creature);
     }
@@ -689,12 +692,12 @@ public:
     {
         npc_ros_dark_riderAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             me->ExitVehicle();
         }
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             Creature* deathcharger = me->FindNearestCreature(28782, 30);
             if (!deathcharger)
@@ -707,7 +710,7 @@ public:
                 me->EnterVehicle(deathcharger);
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* killer) OVERRIDE
         {
             Creature* deathcharger = me->FindNearestCreature(28782, 30);
             if (!deathcharger)
@@ -735,7 +738,7 @@ class npc_dkc1_gothik : public CreatureScript
 public:
     npc_dkc1_gothik() : CreatureScript("npc_dkc1_gothik") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_dkc1_gothikAI(creature);
     }
@@ -744,7 +747,7 @@ public:
     {
         npc_dkc1_gothikAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void MoveInLineOfSight(Unit* who) override
+        void MoveInLineOfSight(Unit* who) OVERRIDE
 
         {
             ScriptedAI::MoveInLineOfSight(who);
@@ -779,7 +782,7 @@ class npc_scarlet_ghoul : public CreatureScript
 public:
     npc_scarlet_ghoul() : CreatureScript("npc_scarlet_ghoul") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_scarlet_ghoulAI(creature);
     }
@@ -815,7 +818,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) OVERRIDE
         {
             if (!me->IsInCombat())
             {
@@ -881,7 +884,7 @@ class npc_scarlet_miner_cart : public CreatureScript
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1); // Modelid2 is a horse.
             }
 
-            void JustSummoned(Creature* summon) override
+            void JustSummoned(Creature* summon) OVERRIDE
             {
                 if (summon->GetEntry() == NPC_MINER)
                 {
@@ -890,13 +893,13 @@ class npc_scarlet_miner_cart : public CreatureScript
                 }
             }
 
-            void SummonedCreatureDespawn(Creature* summon) override
+            void SummonedCreatureDespawn(Creature* summon) OVERRIDE
             {
                 if (summon->GetEntry() == NPC_MINER)
                     _minerGUID = 0;
             }
 
-            void DoAction(int32 /*param*/) override
+            void DoAction(int32 /*param*/) OVERRIDE
             {
                 if (Creature* miner = ObjectAccessor::GetCreature(*me, _minerGUID))
                 {
@@ -910,7 +913,7 @@ class npc_scarlet_miner_cart : public CreatureScript
                 }
             }
 
-            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
+            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) OVERRIDE
             {
                 if (apply)
                 {
@@ -930,7 +933,7 @@ class npc_scarlet_miner_cart : public CreatureScript
             uint64 _playerGUID;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_scarlet_miner_cartAI(creature);
         }
@@ -962,14 +965,14 @@ class npc_scarlet_miner : public CreatureScript
             uint32 IntroPhase;
             uint64 carGUID;
 
-            void Reset() override
+            void Reset() OVERRIDE
             {
                 carGUID = 0;
                 IntroTimer = 0;
                 IntroPhase = 0;
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* summoner) OVERRIDE
             {
                 carGUID = summoner->GetGUID();
             }
@@ -1007,14 +1010,14 @@ class npc_scarlet_miner : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 guid, int32 /*id = 0*/) override
+            void SetGUID(uint64 guid, int32 /*id = 0*/) OVERRIDE
             {
                 InitWaypoint();
                 Start(false, false, guid);
                 SetDespawnAtFar(false);
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId) OVERRIDE
             {
                 switch (waypointId)
                 {
@@ -1041,7 +1044,7 @@ class npc_scarlet_miner : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (IntroPhase)
                 {
@@ -1068,7 +1071,7 @@ class npc_scarlet_miner : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new npc_scarlet_minerAI(creature);
         }

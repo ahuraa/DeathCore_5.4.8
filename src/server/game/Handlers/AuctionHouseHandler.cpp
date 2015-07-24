@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,9 +38,23 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
 
     ObjectGuid guid;                                            //NPC guid
 
-    recvData.ReadGuidMask(guid, 1, 5, 2, 0, 3, 6, 4, 7);
+    guid[1] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
 
-    recvData.ReadGuidBytes(guid, 2, 7, 1, 3, 5, 0, 4, 6);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[6]);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!unit)
@@ -70,14 +84,26 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
         return;
 
     WorldPacket data(SMSG_AUCTION_HELLO, 1 + 1 + 8 + 4);
-    data.WriteGuidMask(guid, 6, 7, 3);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[3]);
     data.WriteBit(1);            // 1 - AH enabled, 0 - AH disabled
-    data.WriteGuidMask(guid, 4, 2, 5, 0, 1);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[1]);
     data.FlushBits();
 
     data.WriteByteSeq(guid[3]);
     data << uint32(ahEntry->houseId);
-    data.WriteGuidBytes(guid, 4, 2, 7, 1, 0, 6, 5);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[5]);
 
     SendPacket(&data);
 }
@@ -92,10 +118,24 @@ void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action
     data.WriteBit(1);
     data.WriteBit(1);
 
-    data.WriteGuidMask(guid, 1, 4, 0, 6, 3, 5, 2, 7);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[7]);
     data.FlushBits();
 
-    data.WriteGuidBytes(guid, 3, 0, 7, 1, 4, 6, 5, 2);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[2]);
 
     data << uint32(errorCode);
     data << uint32(action);
@@ -131,15 +171,26 @@ void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auction
     ObjectGuid guid = bidder;
 
     WorldPacket data(SMSG_AUCTION_BIDDER_NOTIFICATION, 1 + 8 + 4 + 4 + 4 + 4 + 4);
-    data.WriteGuidMask(guid, 5, 4, 7, 6, 0, 1, 2, 3);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[3]);
 
-    data.WriteGuidBytes(guid, 7, 3);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[3]);
     data << uint32(itemEntry);
-    data.WriteGuidBytes(guid, 1, 2);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[2]);
     data << uint32(location);
     data.WriteByteSeq(guid[0]);
     data << uint32(0);
-    data.WriteGuidBytes(guid, 5, 4, 6);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[6]);
     data << uint32(0);
     data << uint32(auctionId);
 
@@ -215,16 +266,34 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
 
     for (uint8 i = 0; i < itemCount; i++)
     {
-        recvData.ReadGuidMask(itemGuids[i], 4, 6, 2, 3, 5, 7, 1, 0);
+        itemGuids[i][4] = recvData.ReadBit();
+        itemGuids[i][6] = recvData.ReadBit();
+        itemGuids[i][2] = recvData.ReadBit();
+        itemGuids[i][3] = recvData.ReadBit();
+        itemGuids[i][5] = recvData.ReadBit();
+        itemGuids[i][7] = recvData.ReadBit();
+        itemGuids[i][1] = recvData.ReadBit();
+        itemGuids[i][0] = recvData.ReadBit();
     }
 
-    recvData.ReadGuidMask(auctioneer, 6, 2, 1, 4, 5, 7);
+    auctioneer[6] = recvData.ReadBit();
+    auctioneer[2] = recvData.ReadBit();
+    auctioneer[1] = recvData.ReadBit();
+    auctioneer[4] = recvData.ReadBit();
+    auctioneer[5] = recvData.ReadBit();
+    auctioneer[7] = recvData.ReadBit();
 
     for (uint8 i = 0; i < itemCount; i++)
     {
-        recvData.ReadGuidBytes(itemGuids[i], 3, 1);
+        recvData.ReadByteSeq(itemGuids[i][3]);
+        recvData.ReadByteSeq(itemGuids[i][1]);
         recvData >> count[i];
-        recvData.ReadGuidBytes(itemGuids[i], 6, 4, 5, 0, 2, 7);
+        recvData.ReadByteSeq(itemGuids[i][6]);
+        recvData.ReadByteSeq(itemGuids[i][4]);
+        recvData.ReadByteSeq(itemGuids[i][5]);
+        recvData.ReadByteSeq(itemGuids[i][0]);
+        recvData.ReadByteSeq(itemGuids[i][2]);
+        recvData.ReadByteSeq(itemGuids[i][7]);
 
         if (!itemGuids[i] || !count[i] || count[i] > 1000)
         {
@@ -233,7 +302,14 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         }
     }
 
-    recvData.ReadGuidBytes(auctioneer, 3, 7, 2, 5, 6, 1, 0, 4);
+    recvData.ReadByteSeq(auctioneer[3]);
+    recvData.ReadByteSeq(auctioneer[7]);
+    recvData.ReadByteSeq(auctioneer[2]);
+    recvData.ReadByteSeq(auctioneer[5]);
+    recvData.ReadByteSeq(auctioneer[6]);
+    recvData.ReadByteSeq(auctioneer[1]);
+    recvData.ReadByteSeq(auctioneer[0]);
+    recvData.ReadByteSeq(auctioneer[4]);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -458,9 +534,23 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
     recvData >> auctionId;
     recvData >> price;
 
-    recvData.ReadGuidMask(auctioneer, 1, 6, 3, 7, 2, 4, 0, 5);
+    auctioneer[1] = recvData.ReadBit();
+    auctioneer[6] = recvData.ReadBit();
+    auctioneer[3] = recvData.ReadBit();
+    auctioneer[7] = recvData.ReadBit();
+    auctioneer[2] = recvData.ReadBit();
+    auctioneer[4] = recvData.ReadBit();
+    auctioneer[0] = recvData.ReadBit();
+    auctioneer[5] = recvData.ReadBit();
 
-    recvData.ReadGuidBytes(auctioneer, 3, 2, 1, 4, 6, 5, 7, 0);
+    recvData.ReadByteSeq(auctioneer[3]);
+    recvData.ReadByteSeq(auctioneer[2]);
+    recvData.ReadByteSeq(auctioneer[1]);
+    recvData.ReadByteSeq(auctioneer[4]);
+    recvData.ReadByteSeq(auctioneer[6]);
+    recvData.ReadByteSeq(auctioneer[5]);
+    recvData.ReadByteSeq(auctioneer[7]);
+    recvData.ReadByteSeq(auctioneer[0]);
 
     if (!auctionId || !price)
         return;                                             // check for cheaters
@@ -589,9 +679,23 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
 
     recvData >> auctionId;
 
-    recvData.ReadGuidMask(auctioneer, 6, 4, 2, 3, 7, 5, 1, 0);
+    auctioneer[6] = recvData.ReadBit();
+    auctioneer[4] = recvData.ReadBit();
+    auctioneer[2] = recvData.ReadBit();
+    auctioneer[3] = recvData.ReadBit();
+    auctioneer[7] = recvData.ReadBit();
+    auctioneer[5] = recvData.ReadBit();
+    auctioneer[1] = recvData.ReadBit();
+    auctioneer[0] = recvData.ReadBit();
 
-    recvData.ReadGuidBytes(auctioneer, 3, 2, 6, 5, 4, 7, 0, 1);
+    recvData.ReadByteSeq(auctioneer[3]);
+    recvData.ReadByteSeq(auctioneer[2]);
+    recvData.ReadByteSeq(auctioneer[6]);
+    recvData.ReadByteSeq(auctioneer[5]);
+    recvData.ReadByteSeq(auctioneer[4]);
+    recvData.ReadByteSeq(auctioneer[7]);
+    recvData.ReadByteSeq(auctioneer[0]);
+    recvData.ReadByteSeq(auctioneer[1]);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -670,16 +774,28 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& recvData)
 
     recvData >> listFrom;                                       // not used in fact (this list not have page control in client)
 
-    recvData.ReadGuidMask(auctioneer, 3, 4, 1, 5, 6, 2);
+    auctioneer[3] = recvData.ReadBit();
+    auctioneer[4] = recvData.ReadBit();
+    auctioneer[1] = recvData.ReadBit();
+    auctioneer[5] = recvData.ReadBit();
+    auctioneer[6] = recvData.ReadBit();
+    auctioneer[2] = recvData.ReadBit();
     outbiddedCount = recvData.ReadBits(7);
-    recvData.ReadGuidMask(auctioneer, 7, 0);
+    auctioneer[7] = recvData.ReadBit();
+    auctioneer[0] = recvData.ReadBit();
 
-    recvData.ReadGuidBytes(auctioneer, 3, 4, 1, 0, 2, 5);
+    recvData.ReadByteSeq(auctioneer[3]);
+    recvData.ReadByteSeq(auctioneer[4]);
+    recvData.ReadByteSeq(auctioneer[1]);
+    recvData.ReadByteSeq(auctioneer[0]);
+    recvData.ReadByteSeq(auctioneer[2]);
+    recvData.ReadByteSeq(auctioneer[5]);
 
     for (uint8 i = 0; i < outbiddedCount; i++)
         recvData >> outbiddedAuctionIds[i];
 
-    recvData.ReadGuidBytes(auctioneer, 7, 6);
+    recvData.ReadByteSeq(auctioneer[7]);
+    recvData.ReadByteSeq(auctioneer[6]);
 
     /*if (recvData.size() != (16 + outbiddedCount * 4))
     {
@@ -734,9 +850,23 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket& recvData)
 
     recvData >> listfrom;                                       // not used in fact (this list not have page control in client)
 
-    recvData.ReadGuidMask(auctioneer, 4, 5, 2, 1, 7, 0, 3, 6);
+    auctioneer[4] = recvData.ReadBit();
+    auctioneer[5] = recvData.ReadBit();
+    auctioneer[2] = recvData.ReadBit();
+    auctioneer[1] = recvData.ReadBit();
+    auctioneer[7] = recvData.ReadBit();
+    auctioneer[0] = recvData.ReadBit();
+    auctioneer[3] = recvData.ReadBit();
+    auctioneer[6] = recvData.ReadBit();
 
-    recvData.ReadGuidBytes(auctioneer, 5, 7, 3, 6, 4, 2, 0, 1);
+    recvData.ReadByteSeq(auctioneer[5]);
+    recvData.ReadByteSeq(auctioneer[7]);
+    recvData.ReadByteSeq(auctioneer[3]);
+    recvData.ReadByteSeq(auctioneer[6]);
+    recvData.ReadByteSeq(auctioneer[4]);
+    recvData.ReadByteSeq(auctioneer[2]);
+    recvData.ReadByteSeq(auctioneer[0]);
+    recvData.ReadByteSeq(auctioneer[1]);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -788,16 +918,27 @@ void WorldSession::HandleAuctionListItems(WorldPacket& recvData)
     for (uint8 i = 0; i < sortCount; i++)
         recvData.read_skip<uint8>();                    // sorts currently unhandled
 
-    recvData.ReadGuidMask(auctioneer, 3, 4, 5, 2);
+    auctioneer[3] = recvData.ReadBit();
+    auctioneer[4] = recvData.ReadBit();
+    auctioneer[5] = recvData.ReadBit();
+    auctioneer[2] = recvData.ReadBit();
     exactMatch = recvData.ReadBit();
     usableItems = recvData.ReadBit();
-    recvData.ReadGuidMask(auctioneer, 7, 0);
+    auctioneer[7] = recvData.ReadBit();
+    auctioneer[0] = recvData.ReadBit();
     searchStringLen = recvData.ReadBits(8);
-    recvData.ReadGuidMask(auctioneer, 1, 6);
+    auctioneer[1] = recvData.ReadBit();
+    auctioneer[6] = recvData.ReadBit();
 
-    recvData.ReadGuidBytes(auctioneer, 6, 3, 4, 0, 7, 2);
+    recvData.ReadByteSeq(auctioneer[6]);
+    recvData.ReadByteSeq(auctioneer[3]);
+    recvData.ReadByteSeq(auctioneer[4]);
+    recvData.ReadByteSeq(auctioneer[0]);
+    recvData.ReadByteSeq(auctioneer[7]);
+    recvData.ReadByteSeq(auctioneer[2]);
     searchString = recvData.ReadString(searchStringLen);
-    recvData.ReadGuidBytes(auctioneer, 1, 5);
+    recvData.ReadByteSeq(auctioneer[1]);
+    recvData.ReadByteSeq(auctioneer[5]);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)

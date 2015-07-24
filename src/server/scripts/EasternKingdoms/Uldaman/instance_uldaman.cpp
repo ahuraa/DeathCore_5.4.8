@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +17,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+/* ScriptData
+SDName: instance_uldaman
+SD%Complete: 99
+SDComment: Need some cosmetics updates when archeadas door are closing (Guardians Waypoints).
+SDCategory: Uldaman
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -39,7 +48,7 @@ class instance_uldaman : public InstanceMapScript
         {
             instance_uldaman_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
-            void Initialize() override
+            void Initialize() OVERRIDE
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -59,7 +68,7 @@ class instance_uldaman : public InstanceMapScript
                 keystoneCheck = false;
             }
 
-            bool IsEncounterInProgress() const override
+            bool IsEncounterInProgress() const OVERRIDE
             {
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (m_auiEncounter[i] == IN_PROGRESS)
@@ -91,7 +100,7 @@ class instance_uldaman : public InstanceMapScript
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             std::string str_data;
 
-            void OnGameObjectCreate(GameObject* go) override
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {
@@ -300,7 +309,7 @@ class instance_uldaman : public InstanceMapScript
                     }
                 }
             }
-            void Update(uint32 diff) override
+            void Update(uint32 diff) OVERRIDE
             {
                 if (!keystoneCheck)
                     return;
@@ -319,7 +328,7 @@ class instance_uldaman : public InstanceMapScript
                     ironayaSealDoorTimer -= diff;
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 switch (type)
                 {
@@ -385,7 +394,7 @@ class instance_uldaman : public InstanceMapScript
                 }
             }
 
-            void SetData64(uint32 type, uint64 data) override
+            void SetData64(uint32 type, uint64 data) OVERRIDE
             {
                 // Archaedas
                 if (type == 0)
@@ -395,12 +404,12 @@ class instance_uldaman : public InstanceMapScript
                 }
             }
 
-            std::string GetSaveData() override
+            std::string GetSaveData() OVERRIDE
             {
                 return str_data;
             }
 
-            void Load(const char* in) override
+            void Load(const char* in) OVERRIDE
             {
                 if (!in)
                 {
@@ -422,7 +431,7 @@ class instance_uldaman : public InstanceMapScript
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
-            void OnCreatureCreate(Creature* creature) override
+            void OnCreatureCreate(Creature* creature) OVERRIDE
             {
                 switch (creature->GetEntry())
                 {
@@ -461,7 +470,7 @@ class instance_uldaman : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier) const override
+            uint64 GetData64(uint32 identifier) const OVERRIDE
             {
                 switch (identifier)
                 {
@@ -486,7 +495,7 @@ class instance_uldaman : public InstanceMapScript
                 return 0;
             } // end GetData64
 
-            void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId) override
+            void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId) OVERRIDE
             {
                 switch (eventId)
                 {
@@ -499,7 +508,7 @@ class instance_uldaman : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const override
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_uldaman_InstanceMapScript(map);
         }

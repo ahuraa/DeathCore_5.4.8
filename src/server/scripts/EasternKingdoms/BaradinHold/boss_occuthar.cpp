@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -63,7 +66,7 @@ class boss_occuthar : public CreatureScript
                 ASSERT(_vehicle);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -73,20 +76,20 @@ class boss_occuthar : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 5 * MINUTE * IN_MILLISECONDS);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode() OVERRIDE
             {
                 BossAI::EnterEvadeMode();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 _DespawnAtEvade();
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void JustSummoned(Creature* summon) override
+            void JustSummoned(Creature* summon) OVERRIDE
             {
                 summons.Summon(summon);
 
@@ -102,7 +105,7 @@ class boss_occuthar : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -144,7 +147,7 @@ class boss_occuthar : public CreatureScript
             Vehicle* _vehicle;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return GetBaradinHoldAI<boss_occutharAI>(creature);
         }
@@ -163,20 +166,20 @@ class npc_eyestalk : public CreatureScript
                 _damageCount = 0;
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
             {
                 // player is the spellcaster so register summon manually
                 if (Creature* occuthar = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_OCCUTHAR)))
                     occuthar->AI()->JustSummoned(me);
             }
 
-            void Reset() override
+            void Reset() OVERRIDE
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_FOCUSED_FIRE_FIRST_DAMAGE, 0);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 _events.Update(diff);
 
@@ -188,7 +191,7 @@ class npc_eyestalk : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override { } // Never evade
+            void EnterEvadeMode() OVERRIDE { } // Never evade
 
         private:
             InstanceScript* _instance;
@@ -196,7 +199,7 @@ class npc_eyestalk : public CreatureScript
             uint8 _damageCount;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return GetBaradinHoldAI<npc_eyestalkAI>(creature);
         }
@@ -243,13 +246,13 @@ class spell_occuthar_focused_fire : public SpellScriptLoader
                 targets.push_back(target);
             }
 
-            void Register() override
+            void Register() OVERRIDE
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_occuthar_focused_fire_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
-        SpellScript* GetSpellScript() const override
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_occuthar_focused_fire_SpellScript();
         }
@@ -265,14 +268,14 @@ class spell_occuthar_eyes_of_occuthar : public SpellScriptLoader
         {
             PrepareSpellScript(spell_occuthar_eyes_of_occuthar_SpellScript);
 
-            bool Validate(SpellInfo const* spellInfo) override
+            bool Validate(SpellInfo const* spellInfo) OVERRIDE
             {
                 if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()))
                     return false;
                 return true;
             }
 
-            bool Load() override
+            bool Load() OVERRIDE
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
@@ -292,14 +295,14 @@ class spell_occuthar_eyes_of_occuthar : public SpellScriptLoader
                 GetHitUnit()->CastSpell(GetCaster(), GetEffectValue(), true);
             }
 
-            void Register() override
+            void Register() OVERRIDE
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_occuthar_eyes_of_occuthar_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
                 OnEffectHitTarget += SpellEffectFn(spell_occuthar_eyes_of_occuthar_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const override
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_occuthar_eyes_of_occuthar_SpellScript();
         }
@@ -315,7 +318,7 @@ class spell_occuthar_eyes_of_occuthar_vehicle : public SpellScriptLoader
         {
             PrepareSpellScript(spell_occuthar_eyes_of_occuthar_vehicle_SpellScript);
 
-            bool Load() override
+            bool Load() OVERRIDE
             {
                 return GetCaster()->GetInstanceScript() != NULL;
             }
@@ -332,13 +335,13 @@ class spell_occuthar_eyes_of_occuthar_vehicle : public SpellScriptLoader
                 }
             }
 
-            void Register() override
+            void Register() OVERRIDE
             {
                 AfterHit += SpellHitFn(spell_occuthar_eyes_of_occuthar_vehicle_SpellScript::HandleScript);
             }
         };
 
-        SpellScript* GetSpellScript() const override
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_occuthar_eyes_of_occuthar_vehicle_SpellScript();
         }
@@ -354,7 +357,7 @@ class spell_occuthar_occuthars_destruction : public SpellScriptLoader
         {
             PrepareAuraScript(spell_occuthar_occuthars_destruction_AuraScript);
 
-            bool Load() override
+            bool Load() OVERRIDE
             {
                 return GetCaster() && GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -370,13 +373,13 @@ class spell_occuthar_occuthars_destruction : public SpellScriptLoader
                 }
             }
 
-            void Register() override
+            void Register() OVERRIDE
             {
                 OnEffectRemove += AuraEffectRemoveFn(spell_occuthar_occuthars_destruction_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const override
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_occuthar_occuthars_destruction_AuraScript();
         }

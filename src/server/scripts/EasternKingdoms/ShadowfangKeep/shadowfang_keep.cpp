@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +17,17 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+SDName: Shadowfang_Keep
+SD%Complete: 75
+SDComment: npc_shadowfang_prisoner using escortAI for movement to door. Might need additional code in case being attacked. Add proper texts/say().
+SDCategory: Shadowfang Keep
+EndScriptData */
+
+/* ContentData
+npc_shadowfang_prisoner
+EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -58,12 +72,12 @@ class npc_shadowfang_prisoner : public CreatureScript
 public:
     npc_shadowfang_prisoner() : CreatureScript("npc_shadowfang_prisoner") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_shadowfang_prisonerAI(creature);
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -76,7 +90,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         InstanceScript* instance = creature->GetInstanceScript();
 
@@ -97,7 +111,7 @@ public:
 
         InstanceScript* instance;
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId) OVERRIDE
         {
             switch (waypointId)
             {
@@ -133,8 +147,8 @@ public:
             }
         }
 
-        void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void Reset() OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
     };
 
 };
@@ -144,7 +158,7 @@ class npc_arugal_voidwalker : public CreatureScript
 public:
     npc_arugal_voidwalker() : CreatureScript("npc_arugal_voidwalker") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_arugal_voidwalkerAI(creature);
     }
@@ -160,12 +174,12 @@ public:
 
         uint32 uiDarkOffering;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             uiDarkOffering = urand(200, 1000);
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
@@ -182,7 +196,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
                 instance->SetData(TYPE_FENRUS, instance->GetData(TYPE_FENRUS) + 1);
@@ -216,7 +230,7 @@ class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
                 aurEff->CalculatePeriodic(GetCaster());
             }
 
-            void Register() override
+            void Register() OVERRIDE
             {
                 DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_shadowfang_keep_haunting_spirits_AuraScript::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_shadowfang_keep_haunting_spirits_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_DUMMY);
@@ -224,7 +238,7 @@ class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const override
+        AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_shadowfang_keep_haunting_spirits_AuraScript();
         }

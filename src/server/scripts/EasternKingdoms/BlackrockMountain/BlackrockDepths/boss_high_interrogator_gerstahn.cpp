@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,7 +34,7 @@ class boss_high_interrogator_gerstahn : public CreatureScript
 public:
     boss_high_interrogator_gerstahn() : CreatureScript("boss_high_interrogator_gerstahn") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_high_interrogator_gerstahnAI(creature);
     }
@@ -45,7 +48,7 @@ public:
         uint32 PsychicScream_Timer;
         uint32 ShadowShield_Timer;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             ShadowWordPain_Timer = 4000;
             ManaBurn_Timer = 14000;
@@ -53,9 +56,9 @@ public:
             ShadowShield_Timer = 8000;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -464,17 +464,38 @@ WorldPacket Battlefield::BuildWarningAnnPacket(std::string const& msg)
     data.WriteBit(1);
     data.WriteBit(1);
 
-    data.WriteGuidMask(unkGuid, 0, 1, 5, 4, 3, 2, 6, 7);
+    data.WriteBit(unkGuid[0]);
+    data.WriteBit(unkGuid[1]);
+    data.WriteBit(unkGuid[5]);
+    data.WriteBit(unkGuid[4]);
+    data.WriteBit(unkGuid[3]);
+    data.WriteBit(unkGuid[2]);
+    data.WriteBit(unkGuid[6]);
+    data.WriteBit(unkGuid[7]);
 
     data.WriteBit(0);
 
-    data.WriteGuidMask(source, 7, 6, 1, 4, 0, 2, 3, 5);
+    data.WriteBit(source[7]);
+    data.WriteBit(source[6]);
+    data.WriteBit(source[1]);
+    data.WriteBit(source[4]);
+    data.WriteBit(source[0]);
+    data.WriteBit(source[2]);
+    data.WriteBit(source[3]);
+    data.WriteBit(source[5]);
 
     data.WriteBit(0);
     data.WriteBit(0); // Send Language
     data.WriteBit(1);
 
-    data.WriteGuidMask(target, 0, 3, 7, 2, 1, 5, 4, 6);
+    data.WriteBit(target[0]);
+    data.WriteBit(target[3]);
+    data.WriteBit(target[7]);
+    data.WriteBit(target[2]);
+    data.WriteBit(target[1]);
+    data.WriteBit(target[5]);
+    data.WriteBit(target[4]);
+    data.WriteBit(target[6]);
 
     data.WriteBit(1);
     data.WriteBit(0);
@@ -483,19 +504,54 @@ WorldPacket Battlefield::BuildWarningAnnPacket(std::string const& msg)
     data.WriteBit(1);
     data.WriteBit(0);
 
-    data.WriteGuidMask(unkGuid2, 2, 5, 7, 4, 0, 1, 3, 6);
+    data.WriteBit(unkGuid2[2]);
+    data.WriteBit(unkGuid2[5]);
+    data.WriteBit(unkGuid2[7]);
+    data.WriteBit(unkGuid2[4]);
+    data.WriteBit(unkGuid2[0]);
+    data.WriteBit(unkGuid2[1]);
+    data.WriteBit(unkGuid2[3]);
+    data.WriteBit(unkGuid2[6]);
 
     data.FlushBits();
 
-    data.WriteGuidBytes(unkGuid2, 4, 5, 7, 3, 2, 6, 0, 1);
+    data.WriteByteSeq(unkGuid2[4]);
+    data.WriteByteSeq(unkGuid2[5]);
+    data.WriteByteSeq(unkGuid2[7]);
+    data.WriteByteSeq(unkGuid2[3]);
+    data.WriteByteSeq(unkGuid2[2]);
+    data.WriteByteSeq(unkGuid2[6]);
+    data.WriteByteSeq(unkGuid2[0]);
+    data.WriteByteSeq(unkGuid2[1]);
 
-    data.WriteGuidBytes(target, 4, 7, 1, 5, 0, 6, 2, 3);
+    data.WriteByteSeq(target[4]);
+    data.WriteByteSeq(target[7]);
+    data.WriteByteSeq(target[1]);
+    data.WriteByteSeq(target[5]);
+    data.WriteByteSeq(target[0]);
+    data.WriteByteSeq(target[6]);
+    data.WriteByteSeq(target[2]);
+    data.WriteByteSeq(target[3]);
 
     data << uint8(CHAT_MSG_RAID_BOSS_EMOTE);
 
-    data.WriteGuidBytes(unkGuid, 1, 3, 4, 6, 0, 2, 5, 7);
+    data.WriteByteSeq(unkGuid[1]);
+    data.WriteByteSeq(unkGuid[3]);
+    data.WriteByteSeq(unkGuid[4]);
+    data.WriteByteSeq(unkGuid[6]);
+    data.WriteByteSeq(unkGuid[0]);
+    data.WriteByteSeq(unkGuid[2]);
+    data.WriteByteSeq(unkGuid[5]);
+    data.WriteByteSeq(unkGuid[7]);
 
-    data.WriteGuidBytes(source, 2, 5, 3, 6, 7, 4, 1, 0);
+    data.WriteByteSeq(source[2]);
+    data.WriteByteSeq(source[5]);
+    data.WriteByteSeq(source[3]);
+    data.WriteByteSeq(source[6]);
+    data.WriteByteSeq(source[7]);
+    data.WriteByteSeq(source[4]);
+    data.WriteByteSeq(source[1]);
+    data.WriteByteSeq(source[0]);
 
     data << uint8(LANG_UNIVERSAL);
     data.WriteString(msg);
@@ -686,21 +742,32 @@ void Battlefield::RemovePlayerFromResurrectQueue(uint64 playerGuid)
     }
 }
 
-void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid guid)
+void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid)
 {
     uint32 time = m_LastResurectTimer;  // resurrect every 30 seconds
+    ObjectGuid oGuid = guid;
 
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
-    
-    uint8 bitOrder[8] = {5, 2, 7, 6, 1, 0, 3, 4};
-    data.WriteBitInOrder(guid, bitOrder);
 
-    data.WriteGuidBytes(guid, 2, 3, 5, 4, 6);
+    data.WriteBit(oGuid[5]);  // 21
+    data.WriteBit(oGuid[2]);  // 18
+    data.WriteBit(oGuid[7]);  // 23
+    data.WriteBit(oGuid[6]);  // 22
+    data.WriteBit(oGuid[1]);  // 17
+    data.WriteBit(oGuid[0]);  // 16
+    data.WriteBit(oGuid[3]);  // 19
+    data.WriteBit(oGuid[4]);  // 20
 
+    data.WriteByteSeq(oGuid[2]);  // 18
+    data.WriteByteSeq(oGuid[3]);  // 19
+    data.WriteByteSeq(oGuid[5]);  // 21
+    data.WriteByteSeq(oGuid[4]);  // 20
+    data.WriteByteSeq(oGuid[6]);  // 22
     data << time;
-
-    data.WriteGuidBytes(guid, 7, 0, 1);
-
+    data.WriteByteSeq(oGuid[7]);  // 23
+    data.WriteByteSeq(oGuid[0]);  // 16
+    data.WriteByteSeq(oGuid[1]);  // 17
+    
     ASSERT(player && player->GetSession());
     player->GetSession()->SendPacket(&data);
 }

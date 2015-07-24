@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +17,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+SDName: Boss_Dathrohan_Balnazzar
+SD%Complete: 95
+SDComment: Possibly need to fix/improve summons after death
+SDCategory: Stratholme
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -66,7 +76,7 @@ class boss_dathrohan_balnazzar : public CreatureScript
 public:
     boss_dathrohan_balnazzar() : CreatureScript("boss_dathrohan_balnazzar") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_dathrohan_balnazzarAI(creature);
     }
@@ -85,7 +95,7 @@ public:
         uint32 m_uiMindControl_Timer;
         bool m_bTransformed;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             m_uiCrusadersHammer_Timer = 8000;
             m_uiCrusaderStrike_Timer = 12000;
@@ -101,7 +111,7 @@ public:
                 me->UpdateEntry(NPC_DATHROHAN);
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             static uint32 uiCount = sizeof(m_aSummonPoint)/sizeof(SummonDef);
 
@@ -111,11 +121,11 @@ public:
                 TEMPSUMMON_TIMED_DESPAWN, HOUR*IN_MILLISECONDS);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void UpdateAI(uint32 uiDiff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

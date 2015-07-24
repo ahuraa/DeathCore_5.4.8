@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +16,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+Name: reload_commandscript
+%Complete: 100
+Comment: All reload related commands
+Category: commandscripts
+EndScriptData */
 
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
@@ -128,6 +137,7 @@ public:
             { "smart_scripts",                 rbac::RBAC_PERM_COMMAND_RELOAD_SMART_SCRIPTS, true,  &HandleReloadSmartScripts,                      "", NULL },
             { "spell_required",                rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_REQUIRED, true,  &HandleReloadSpellRequiredCommand,              "", NULL },
             { "spell_area",                    rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_AREA, true,  &HandleReloadSpellAreaCommand,                  "", NULL },
+            { "spell_bonus_data",              rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_BONUS_DATA, true,  &HandleReloadSpellBonusesCommand,               "", NULL },
             { "spell_group",                   rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP, true,  &HandleReloadSpellGroupsCommand,                "", NULL },
             { "spell_learn_spell",             rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_LEARN_SPELL, true,  &HandleReloadSpellLearnSpellCommand,            "", NULL },
             { "spell_loot_template",           rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesSpellCommand,         "", NULL },
@@ -269,6 +279,7 @@ public:
         HandleReloadSpellLinkedSpellCommand(handler, "a");
         HandleReloadSpellProcEventCommand(handler, "a");
         HandleReloadSpellProcsCommand(handler, "a");
+        HandleReloadSpellBonusesCommand(handler, "a");
         HandleReloadSpellTargetPositionCommand(handler, "a");
         HandleReloadSpellThreatsCommand(handler, "a");
         HandleReloadSpellGroupStackRulesCommand(handler, "a");
@@ -417,87 +428,85 @@ public:
 
             TC_LOG_INFO("misc", "Reloading creature template entry %u", entry);
 
-            uint8 index = 0;
             Field* fields = result->Fetch();
 
             for (uint8 i = 0; i < MAX_DIFFICULTY - 1; ++i)
-                cInfo->DifficultyEntry[i] = fields[index++].GetUInt32();
+                cInfo->DifficultyEntry[i] = fields[0 + i].GetUInt32();
 
             for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
-                cInfo->KillCredit[i] = fields[index++].GetUInt32();
+                cInfo->KillCredit[i] = fields[3 + i].GetUInt32();
 
-            cInfo->Modelid1           = fields[index++].GetUInt32();
-            cInfo->Modelid2           = fields[index++].GetUInt32();
-            cInfo->Modelid3           = fields[index++].GetUInt32();
-            cInfo->Modelid4           = fields[index++].GetUInt32();
-            cInfo->Name               = fields[index++].GetString();
-            cInfo->SubName            = fields[index++].GetString();
-            cInfo->IconName           = fields[index++].GetString();
-            cInfo->GossipMenuId       = fields[index++].GetUInt32();
-            cInfo->minlevel           = fields[index++].GetUInt8();
-            cInfo->maxlevel           = fields[index++].GetUInt8();
-            cInfo->expansion          = fields[index++].GetUInt16();
-            cInfo->expansionUnknown   = fields[index++].GetUInt16();
-            cInfo->faction_A          = fields[index++].GetUInt16();
-            cInfo->faction_H          = fields[index++].GetUInt16();
-            cInfo->npcflag            = fields[index++].GetUInt64();
-            cInfo->speed_walk         = fields[index++].GetFloat();
-            cInfo->speed_run          = fields[index++].GetFloat();
-            cInfo->scale              = fields[index++].GetFloat();
-            cInfo->rank               = fields[index++].GetUInt8();
-            cInfo->mindmg             = fields[index++].GetFloat();
-            cInfo->maxdmg             = fields[index++].GetFloat();
-            cInfo->dmgschool          = fields[index++].GetUInt8();
-            cInfo->attackpower        = fields[index++].GetUInt32();
-            cInfo->dmg_multiplier     = fields[index++].GetFloat();
-            cInfo->baseattacktime     = fields[index++].GetUInt32();
-            cInfo->rangeattacktime    = fields[index++].GetUInt32();
-            cInfo->unit_class         = fields[index++].GetUInt8();
-            cInfo->unit_flags         = fields[index++].GetUInt32();
-            cInfo->unit_flags2        = fields[index++].GetUInt32();
-            cInfo->dynamicflags       = fields[index++].GetUInt32();
-            cInfo->family             = fields[index++].GetUInt8();
-            cInfo->trainer_type       = fields[index++].GetUInt8();
-            cInfo->trainer_class      = fields[index++].GetUInt8();
-            cInfo->trainer_race       = fields[index++].GetUInt8();
-            cInfo->minrangedmg        = fields[index++].GetFloat();
-            cInfo->maxrangedmg        = fields[index++].GetFloat();
-            cInfo->rangedattackpower  = fields[index++].GetUInt16();
-            cInfo->type               = fields[index++].GetUInt8();
-            cInfo->type_flags         = fields[index++].GetUInt32();
-            cInfo->type_flags2        = fields[index++].GetUInt32();
-            cInfo->lootid             = fields[index++].GetUInt32();
-            cInfo->pickpocketLootId   = fields[index++].GetUInt32();
-            cInfo->SkinLootId         = fields[index++].GetUInt32();
+            cInfo->Modelid1           = fields[5].GetUInt32();
+            cInfo->Modelid2           = fields[6].GetUInt32();
+            cInfo->Modelid3           = fields[7].GetUInt32();
+            cInfo->Modelid4           = fields[8].GetUInt32();
+            cInfo->Name               = fields[9].GetString();
+            cInfo->SubName            = fields[10].GetString();
+            cInfo->IconName           = fields[11].GetString();
+            cInfo->GossipMenuId       = fields[12].GetUInt32();
+            cInfo->minlevel           = fields[13].GetUInt8();
+            cInfo->maxlevel           = fields[14].GetUInt8();
+            cInfo->expansion          = fields[15].GetUInt16();
+            cInfo->expansionUnknown   = fields[16].GetUInt16();
+            cInfo->faction            = fields[17].GetUInt16();
+            cInfo->npcflag            = fields[18].GetUInt16();
+            cInfo->speed_walk         = fields[19].GetUInt32();
+            cInfo->speed_run          = fields[20].GetFloat();
+            cInfo->scale              = fields[21].GetFloat();
+            cInfo->rank               = fields[22].GetFloat();
+            cInfo->mindmg             = fields[23].GetUInt8();
+            cInfo->maxdmg             = fields[24].GetFloat();
+            cInfo->dmgschool          = fields[25].GetFloat();
+            cInfo->attackpower        = fields[26].GetUInt8();
+            cInfo->dmg_multiplier     = fields[27].GetUInt32();
+            cInfo->baseattacktime     = fields[28].GetFloat();
+            cInfo->rangeattacktime    = fields[29].GetUInt32();
+            cInfo->unit_class         = fields[30].GetUInt32();
+            cInfo->unit_flags         = fields[31].GetUInt8();
+            cInfo->unit_flags2        = fields[32].GetUInt32();
+            cInfo->dynamicflags       = fields[33].GetUInt32();
+            cInfo->family             = fields[34].GetUInt32();
+            cInfo->trainer_type       = fields[35].GetUInt8();
+            cInfo->trainer_class      = fields[36].GetUInt8();
+            cInfo->trainer_race       = fields[37].GetUInt8();
+            cInfo->minrangedmg        = fields[38].GetUInt8();
+            cInfo->maxrangedmg        = fields[39].GetFloat();
+            cInfo->rangedattackpower  = fields[40].GetFloat();
+            cInfo->type               = fields[41].GetUInt16();
+            cInfo->type_flags         = fields[42].GetUInt8();
+            cInfo->type_flags2        = fields[43].GetUInt32();
+            cInfo->lootid             = fields[44].GetUInt32();
+            cInfo->pickpocketLootId   = fields[45].GetUInt32();
+            cInfo->SkinLootId         = fields[46].GetUInt32();
 
             for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-                cInfo->resistance[i] = fields[index++].GetUInt16();
+                cInfo->resistance[i] = fields[47 + i -1].GetUInt16();
 
             for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
-                cInfo->spells[i] = fields[index++].GetUInt32();
+                cInfo->spells[i] = fields[53 + i].GetUInt32();
 
-            cInfo->PetSpellDataId     = fields[index++].GetUInt32();
-            cInfo->VehicleId          = fields[index++].GetUInt32();
-            cInfo->mingold            = fields[index++].GetUInt32();
-            cInfo->maxgold            = fields[index++].GetUInt32();
-            cInfo->AIName             = fields[index++].GetString();
-            cInfo->MovementType       = fields[index++].GetUInt8();
-            cInfo->InhabitType        = fields[index++].GetUInt8();
-            cInfo->HoverHeight        = fields[index++].GetFloat();
-            cInfo->ModHealth          = fields[index++].GetFloat();
-            cInfo->ModMana            = fields[index++].GetFloat();
-            cInfo->ModManaExtra       = fields[index++].GetFloat();
-            cInfo->ModArmor           = fields[index++].GetFloat();
-            cInfo->RacialLeader       = fields[index++].GetBool();
+            cInfo->PetSpellDataId     = fields[61].GetUInt32();
+            cInfo->VehicleId          = fields[62].GetUInt32();
+            cInfo->mingold            = fields[63].GetUInt32();
+            cInfo->maxgold            = fields[64].GetUInt32();
+            cInfo->AIName             = fields[65].GetString();
+            cInfo->MovementType       = fields[66].GetUInt8();
+            cInfo->InhabitType        = fields[67].GetUInt8();
+            cInfo->HoverHeight        = fields[68].GetFloat();
+            cInfo->ModHealth          = fields[69].GetFloat();
+            cInfo->ModMana            = fields[70].GetFloat();
+            cInfo->ModManaExtra       = fields[71].GetFloat();
+            cInfo->ModArmor           = fields[72].GetFloat();
+            cInfo->RacialLeader       = fields[73].GetBool();
 
             for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-                cInfo->questItems[i] = fields[index++].GetUInt32();
+                cInfo->questItems[i] = fields[74 + i].GetUInt32();
 
-            cInfo->movementId         = fields[index++].GetUInt32();
-            cInfo->RegenHealth        = fields[index++].GetBool();
-            cInfo->MechanicImmuneMask = fields[index++].GetUInt32();
-            cInfo->flags_extra        = fields[index++].GetUInt32();
-            cInfo->ScriptID           = sObjectMgr->GetScriptId(fields[index++].GetCString());
+            cInfo->movementId         = fields[80].GetUInt32();
+            cInfo->RegenHealth        = fields[81].GetBool();
+            cInfo->MechanicImmuneMask = fields[82].GetUInt32();
+            cInfo->flags_extra        = fields[83].GetUInt32();
+            cInfo->ScriptID           = sObjectMgr->GetScriptId(fields[84].GetCString());
 
             sObjectMgr->CheckCreatureTemplate(cInfo);
         }
@@ -868,6 +877,14 @@ public:
         TC_LOG_INFO("misc", "Re-Loading Spell Proc conditions and data...");
         sSpellMgr->LoadSpellProcs();
         handler->SendGlobalGMSysMessage("DB table `spell_proc` (spell proc conditions and data) reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadSpellBonusesCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Re-Loading Spell Bonus Data...");
+        sSpellMgr->LoadSpellBonusess();
+        handler->SendGlobalGMSysMessage("DB table `spell_bonus_data` (spell damage/healing coefficients) reloaded.");
         return true;
     }
 

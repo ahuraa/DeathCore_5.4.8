@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,7 +29,7 @@ class pet_commandscript : public CommandScript
 public:
     pet_commandscript() : CommandScript("pet_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    ChatCommand* GetCommands() const OVERRIDE
     {
         static ChatCommand petCommandTable[] =
         {
@@ -153,7 +155,7 @@ public:
             return false;
         }
 
-        pet->learnSpell(spellId);
+        pet->LearnSpell(spellId);
 
         handler->PSendSysMessage("Pet has learned spell %u", spellId);
         return true;
@@ -176,7 +178,7 @@ public:
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
 
         if (pet->HasSpell(spellId))
-            pet->removeSpell(spellId, false);
+            pet->RemoveSpell(spellId, false);
         else
             handler->PSendSysMessage("Pet doesn't have that spell");
 

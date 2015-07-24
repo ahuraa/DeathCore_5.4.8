@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +16,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+Name: modify_commandscript
+%Complete: 100
+Comment: All modify related commands
+Category: commandscripts
+EndScriptData */
 
 #include "Chat.h"
 #include <stdlib.h>
@@ -30,7 +39,7 @@ class modify_commandscript : public CommandScript
 public:
     modify_commandscript() : CommandScript("modify_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    ChatCommand* GetCommands() const OVERRIDE
     {
         static ChatCommand modifyspeedCommandTable[] =
         {
@@ -49,7 +58,7 @@ public:
             { "energy",       rbac::RBAC_PERM_COMMAND_MODIFY_ENERGY,       false, &HandleModifyEnergyCommand,        "", NULL },
             { "faction",      rbac::RBAC_PERM_COMMAND_MODIFY_FACTION,      false, &HandleModifyFactionCommand,       "", NULL },
             { "gender",       rbac::RBAC_PERM_COMMAND_MODIFY_GENDER,       false, &HandleModifyGenderCommand,        "", NULL },
-            { "currency",     rbac::RBAC_PERM_COMMAND_MODIFY_HONOR,        false, &HandleModifyCurrencyCommand,      "", NULL },
+            { "honor",        rbac::RBAC_PERM_COMMAND_MODIFY_HONOR,        false, &HandleModifyHonorCommand,         "", NULL },
             { "hp",           rbac::RBAC_PERM_COMMAND_MODIFY_HP,           false, &HandleModifyHPCommand,            "", NULL },
             { "mana",         rbac::RBAC_PERM_COMMAND_MODIFY_MANA,         false, &HandleModifyManaCommand,          "", NULL },
             { "money",        rbac::RBAC_PERM_COMMAND_MODIFY_MONEY,        false, &HandleModifyMoneyCommand,         "", NULL },
@@ -303,7 +312,7 @@ public:
         {
             uint32 factionid = target->getFaction();
             uint32 flag      = target->GetUInt32Value(UNIT_FIELD_FLAGS);
-            uint64 npcflag   = target->GetUInt64Value(UNIT_FIELD_NPC_FLAGS);
+            uint32 npcflag   = target->GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
             uint32 dyflag    = target->GetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS);
             handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUIDLow(), factionid, flag, npcflag, dyflag);
             return true;
@@ -320,9 +329,9 @@ public:
 
         char* pnpcflag = strtok(NULL, " ");
 
-        uint64 npcflag;
+        uint32 npcflag;
         if (!pnpcflag)
-            npcflag = target->GetUInt64Value(UNIT_FIELD_NPC_FLAGS);
+            npcflag = target->GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
         else
             npcflag = atoi(pnpcflag);
 
@@ -345,7 +354,7 @@ public:
 
         target->setFaction(factionid);
         target->SetUInt32Value(UNIT_FIELD_FLAGS, flag);
-        target->SetUInt64Value(UNIT_FIELD_NPC_FLAGS, npcflag);
+        target->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, npcflag);
         target->SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, dyflag);
 
         return true;
@@ -447,11 +456,11 @@ public:
         if (handler->needReportToTarget(target))
             ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_ASPEED_CHANGED, handler->GetNameLink().c_str(), ASpeed);
 
-        target->SetSpeed(MOVE_WALK,     ASpeed, true);
-        target->SetSpeed(MOVE_RUN,      ASpeed, true);
-        target->SetSpeed(MOVE_SWIM,     ASpeed, true);
+        target->SetSpeed(MOVE_WALK,    ASpeed, true);
+        target->SetSpeed(MOVE_RUN,     ASpeed, true);
+        target->SetSpeed(MOVE_SWIM,    ASpeed, true);
         //target->SetSpeed(MOVE_TURN,    ASpeed, true);
-        target->SetSpeed(MOVE_FLIGHT,   ASpeed, true);
+        target->SetSpeed(MOVE_FLIGHT,     ASpeed, true);
         return true;
     }
 
@@ -955,7 +964,7 @@ public:
         {
             int64 newmoney = int64(targetMoney) + moneyToAdd;
 
-            TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_MONEY), uint32(targetMoney), int32(moneyToAdd), int32(newmoney));
+            TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(newmoney));
             if (newmoney <= 0)
             {
                 handler->PSendSysMessage(LANG_YOU_TAKE_ALL_MONEY, handler->GetNameLink(target).c_str());
@@ -967,7 +976,7 @@ public:
             else
             {
                 uint32 moneyToAddMsg = moneyToAdd * -1;
-                if (newmoney > MAX_MONEY_AMOUNT)
+                if (newmoney > int64(MAX_MONEY_AMOUNT))
                     newmoney = MAX_MONEY_AMOUNT;
 
                 handler->PSendSysMessage(LANG_YOU_TAKE_MONEY, moneyToAddMsg, handler->GetNameLink(target).c_str());
@@ -978,17 +987,20 @@ public:
         }
         else
         {
-            handler->PSendSysMessage(LANG_YOU_GIVE_MONEY, int32(moneyToAdd), handler->GetNameLink(target).c_str());
+            handler->PSendSysMessage(LANG_YOU_GIVE_MONEY, uint32(moneyToAdd), handler->GetNameLink(target).c_str());
             if (handler->needReportToTarget(target))
-                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_GIVEN, handler->GetNameLink().c_str(), int32(moneyToAdd));
+                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_GIVEN, handler->GetNameLink().c_str(), uint32(moneyToAdd));
 
-            if (targetMoney + moneyToAdd >= MAX_MONEY_AMOUNT)
-                target->SetMoney(MAX_MONEY_AMOUNT);
-            else
-                target->ModifyMoney(moneyToAdd);
+            if (moneyToAdd >= int64(MAX_MONEY_AMOUNT))
+                moneyToAdd = MAX_MONEY_AMOUNT;
+
+            if (targetMoney >= uint64(MAX_MONEY_AMOUNT) - moneyToAdd)
+                moneyToAdd -= targetMoney;
+
+            target->ModifyMoney(moneyToAdd);
         }
 
-        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_NEW_MONEY), int32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));
+        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_NEW_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));
 
         return true;
     }
@@ -1048,7 +1060,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyCurrencyCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyHonorCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
             return false;
@@ -1056,21 +1068,21 @@ public:
         Player* target = handler->getSelectedPlayer();
         if (!target)
         {
-            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        uint32 currencyId = atoi(strtok((char*)args, " "));
-        const CurrencyTypesEntry* currencyType = sCurrencyTypesStore.LookupEntry(currencyId);
-        if (!currencyType)
+        // check online security
+        if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        uint32 amount = atoi(strtok(NULL, " "));
-        if (!amount)
-            return false;
+        int32 amount = (uint32)atoi(args);
 
-        target->ModifyCurrency(currencyId, amount, true, true, false);
+        target->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, amount, true, true);
+
+        handler->PSendSysMessage(LANG_COMMAND_MODIFY_HONOR, handler->GetNameLink(target).c_str(), target->GetCurrency(CURRENCY_TYPE_HONOR_POINTS, false));
+
         return true;
     }
 
@@ -1316,6 +1328,33 @@ public:
             return false;
 
         target->DeMorph();
+
+        return true;
+    }
+
+    static bool HandleModifyCurrencyCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* target = handler->getSelectedPlayer();
+        if (!target)
+        {
+            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 currencyId = atoi(strtok((char*)args, " "));
+        const CurrencyTypesEntry* currencyType =  sCurrencyTypesStore.LookupEntry(currencyId);
+        if (!currencyType)
+            return false;
+
+        uint32 amount = atoi(strtok(NULL, " "));
+        if (!amount)
+            return false;
+
+        target->ModifyCurrency(currencyId, amount, true, true);
 
         return true;
     }

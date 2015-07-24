@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +17,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+SDName: Instance_Sunken_Temple
+SD%Complete: 100
+SDComment:Place Holder
+SDCategory: Sunken Temple
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -43,7 +53,7 @@ class instance_sunken_temple : public InstanceMapScript
 public:
     instance_sunken_temple() : InstanceMapScript("instance_sunken_temple", 109) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_sunken_temple_InstanceMapScript(map);
     }
@@ -71,7 +81,7 @@ public:
         bool s5;
         bool s6;
 
-        void Initialize() override
+        void Initialize() OVERRIDE
         {
             GOAtalaiStatue1 = 0;
             GOAtalaiStatue2 = 0;
@@ -91,7 +101,7 @@ public:
             s6 = false;
         }
 
-        void OnGameObjectCreate(GameObject* go) override
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -185,13 +195,13 @@ public:
          }
          */
 
-         void SetData(uint32 type, uint32 data) override
+         void SetData(uint32 type, uint32 data) OVERRIDE
          {
             if (type == EVENT_STATE)
                 State = data;
          }
 
-         uint32 GetData(uint32 type) const override
+         uint32 GetData(uint32 type) const OVERRIDE
          {
             if (type == EVENT_STATE)
                 return State;

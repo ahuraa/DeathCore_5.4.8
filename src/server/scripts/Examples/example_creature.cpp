@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,7 +17,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
+/* ScriptData
+SDName: Example_Creature
+SD%Complete: 100
+SDComment: Short custom scripting example
+SDCategory: Script Examples
+EndScriptData */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -103,7 +113,7 @@ class example_creature : public CreatureScript
 
             // *** HANDLED FUNCTION ***
             //This is called after spawn and whenever the core decides we need to evade
-            void Reset() override
+            void Reset() OVERRIDE
             {
                 m_uiPhase = 1;                                      // Start in phase 1
                 m_uiPhaseTimer = 60000;                             // 60 seconds
@@ -117,7 +127,7 @@ class example_creature : public CreatureScript
 
             // *** HANDLED FUNCTION ***
             // Enter Combat called once per combat
-            void EnterCombat(Unit* who) override
+            void EnterCombat(Unit* who) OVERRIDE
             {
                 //Say some stuff
                 Talk(SAY_AGGRO, who);
@@ -126,21 +136,21 @@ class example_creature : public CreatureScript
             // *** HANDLED FUNCTION ***
             // Attack Start is called when victim change (including at start of combat)
             // By default, attack who and start movement toward the victim.
-            //void AttackStart(Unit* who) override
+            //void AttackStart(Unit* who) OVERRIDE
             //{
             //    ScriptedAI::AttackStart(who);
             //}
 
             // *** HANDLED FUNCTION ***
             // Called when going out of combat. Reset is called just after.
-            void EnterEvadeMode() override
+            void EnterEvadeMode() OVERRIDE
             {
                 Talk(SAY_EVADE);
             }
 
             // *** HANDLED FUNCTION ***
             //Our Receive emote function
-            void ReceiveEmote(Player* /*player*/, uint32 uiTextEmote) override
+            void ReceiveEmote(Player* /*player*/, uint32 uiTextEmote) OVERRIDE
             {
                 me->HandleEmoteCommand(uiTextEmote);
 
@@ -157,7 +167,7 @@ class example_creature : public CreatureScript
 
             // *** HANDLED FUNCTION ***
             //Update AI is called Every single map update (roughly once every 50ms if a player is within the grid)
-            void UpdateAI(uint32 uiDiff) override
+            void UpdateAI(uint32 uiDiff) OVERRIDE
             {
                 //Out of combat timers
                 if (!me->GetVictim())
@@ -254,12 +264,12 @@ class example_creature : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new example_creatureAI(creature);
         }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             player->SEND_GOSSIP_MENU(907, creature->GetGUID());
@@ -267,7 +277,7 @@ class example_creature : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
         {
             player->PlayerTalkClass->ClearMenus();
             if (action == GOSSIP_ACTION_INFO_DEF+1)

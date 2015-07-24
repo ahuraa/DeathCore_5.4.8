@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,7 +39,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
     if (iter != realmNameStore.end()) // Add local realm
         realmNamesToSend[realmID] = iter->second;
 
-    TC_LOG_DEBUG("network", "SMSG_AUTH_RESPONSE");
+    TC_LOG_ERROR("network", "SMSG_AUTH_RESPONSE");
     WorldPacket packet(SMSG_AUTH_RESPONSE, 80);
 
     packet.WriteBit(code == AUTH_OK);

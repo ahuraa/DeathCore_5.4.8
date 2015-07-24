@@ -1,4 +1,4 @@
-/* Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+// Copyright 2006 Nemanja Trifunovic
 
 /*
 Permission is hereby granted, free of charge, to any person or organization

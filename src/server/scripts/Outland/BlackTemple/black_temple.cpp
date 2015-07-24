@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -68,7 +68,7 @@ public:
     {
         npc_spirit_of_olumAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) override
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) OVERRIDE
         {
             if (action == 1)
             {
@@ -79,7 +79,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_spirit_of_olumAI(creature);
     }
@@ -101,22 +101,22 @@ public:
             instance = creature->GetInstanceScript();
         }
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             events.ScheduleEvent(EVENT_GET_CHANNELERS, 3000);
             enteredCombat = false;
         }
 
-        void JustDied(Unit* /*killer*/) override { }
+        void JustDied(Unit* /*killer*/) OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_CLEAVE, 5000);
             events.ScheduleEvent(EVENT_IGNORED, 7000);
             enteredCombat = true;
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
 
             if (!enteredCombat)
@@ -208,7 +208,7 @@ public:
             bool enteredCombat;
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_wrathbone_flayerAI(creature);
     }

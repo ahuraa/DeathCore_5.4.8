@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,6 +25,7 @@
 #include <cassert>
 
 #define MAX_CREATURE_BASE_HP 5
+#define CURRENT_CONTENT_EXP 4
 
 enum SpellEffIndex
 {
@@ -60,57 +61,6 @@ enum SpellEffIndex
     EFFECT_29 = 29,
     EFFECT_30 = 30,
     EFFECT_31 = 31
-};
-
-enum Roles
-{
-    ROLES_DEFAULT = 0,
-    ROLES_HEALER = 1,
-    ROLES_DPS = 2,
-    ROLES_TANK = 3,
-};
-
-enum TalentSpecialization
-{
-    CHAR_SPECIALIZATION_NONE                    = 0,
-    PET_SPECIALIZATION_NONE                     = 1,
-    CHAR_SPECIALIZATION_MAGE_ARCANE             = 62,
-    CHAR_SPECIALIZATION_MAGE_FIRE               = 63,
-    CHAR_SPECIALIZATION_MAGE_FROST              = 64,
-    CHAR_SPECIALIZATION_PALADIN_HOLY            = 65,
-    CHAR_SPECIALIZATION_PALADIN_PROTECTION      = 66,
-    CHAR_SPECIALIZATION_PALADIN_RETRIBUTION     = 70,
-    CHAR_SPECIALIZATION_WARRIOR_ARMS            = 71,
-    CHAR_SPECIALIZATION_WARRIOR_FURY            = 72,
-    CHAR_SPECIALIZATION_WARRIOR_PROTECTION      = 73,
-    PET_SPECIALIZATION_FEROCITY                 = 74,
-    PET_SPECIALIZATION_TENACITY                 = 81,
-    PET_SPECIALIZATION_CUNNING                  = 79,
-    CHAR_SPECIALIZATION_DRUID_BALANCE           = 102,
-    CHAR_SPECIALIZATION_DRUID_FERAL             = 103,
-    CHAR_SPECIALIZATION_DRUID_GUARDIAN          = 104,
-    CHAR_SPECIALIZATION_DRUID_RESTORATION       = 105,
-    CHAR_SPECIALIZATION_DEATH_KNIGHT_BLOOD      = 250,
-    CHAR_SPECIALIZATION_DEATH_KNIGHT_FROST      = 251,
-    CHAR_SPECIALIZATION_DEATH_KNIGHT_UNHOLY     = 252,
-    CHAR_SPECIALIZATION_HUNTER_BEAST_MASTERY    = 253,
-    CHAR_SPECIALIZATION_HUNTER_MARKSMANSHIP     = 254,
-    CHAR_SPECIALIZATION_HUNTER_SURVIVAL         = 255,
-    CHAR_SPECIALIZATION_PRIEST_DISCIPLINE       = 256,
-    CHAR_SPECIALIZATION_PRIEST_HOLY             = 257,
-    CHAR_SPECIALIZATION_PRIEST_SHADOW           = 258,
-    CHAR_SPECIALIZATION_ROGUE_ASSASSINATION     = 259,
-    CHAR_SPECIALIZATION_ROGUE_COMBAT            = 260,
-    CHAR_SPECIALIZATION_ROGUE_SUBTLETY          = 261,
-    CHAR_SPECIALIZATION_SHAMAN_ELEMENTAL        = 262,
-    CHAR_SPECIALIZATION_SHAMAN_ENHANCEMENT      = 263,
-    CHAR_SPECIALIZATION_SHAMAN_RESTORATION      = 264,
-    CHAR_SPECIALIZATION_WARLOCK_AFFLICTION      = 265,
-    CHAR_SPECIALIZATION_WARLOCK_DEMONOLOGY      = 266,
-    CHAR_SPECIALIZATION_WARLOCK_DESTRUCTION     = 267,
-    CHAR_SPECIALIZATION_MONK_BREWMASTER         = 268,
-    CHAR_SPECIALIZATION_MONK_WINDWALKER         = 269,
-    CHAR_SPECIALIZATION_MONK_MISTWEAVER         = 270
 };
 
 // used in script definitions
@@ -260,13 +210,6 @@ enum Stats
 
 #define MAX_STATS                        5
 
-enum eclipseState
-{
-    ECLIPSE_NONE,
-    ECLIPSE_LUNAR,
-    ECLIPSE_SOLAR,
-};
-
 enum Powers
 {
     POWER_MANA                          = 0,
@@ -292,23 +235,6 @@ enum Powers
 };
 
 #define MAX_POWERS_PER_CLASS            5
-
-enum BattlePayDistribution
-{
-    // character boost
-    CHARACTER_BOOST                     = 2,
-    CHARACTER_BOOST_ALLOW               = 1,
-    CHARACTER_BOOST_CHOOSED             = 2,
-    CHARACTER_BOOST_ITEMS               = 3,
-    CHARACTER_BOOST_APPLIED             = 4,
-    CHARACTER_BOOST_TEXT_ID             = 88,
-    CHARACTER_BOOST_SPEC_MASK           = 0xFFF,
-    CHARACTER_BOOST_FACTION_ALLIANCE    = 0x1000000
-
-};
-
-#define CHARACTER_BOOST_BONUS_TEXT      "Boost your character to level 90!"
-#define CHARACTER_BOOST_BONUS_TEXT2     "Level 90 Character Boost"
 
 enum SpellSchools
 {
@@ -515,7 +441,7 @@ enum SpellAttr3
     SPELL_ATTR3_MAIN_HAND                        = 0x00000400, // 10 Main hand weapon required
     SPELL_ATTR3_BATTLEGROUND                     = 0x00000800, // 11 Can casted only on battleground
     SPELL_ATTR3_ONLY_TARGET_GHOSTS               = 0x00001000, // 12
-    SPELL_ATTR3_DONT_DISPLAY_CHANNEL_BAR         = 0x00002000, // 13 Clientside attribute - will not display channeling bar
+    SPELL_ATTR3_UNK13                            = 0x00002000, // 13
     SPELL_ATTR3_IS_HONORLESS_TARGET              = 0x00004000, // 14 "Honorless Target" only this spells have this flag
     SPELL_ATTR3_UNK15                            = 0x00008000, // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
     SPELL_ATTR3_CANT_TRIGGER_PROC                = 0x00010000, // 16 confirmed with many patchnotes
@@ -788,12 +714,53 @@ enum SpellAttr10
     SPELL_ATTR10_UNK31                            = 0x80000000  // 31
 };
 
+enum Specializations
+{
+    SPEC_NONE                           = 0,
+    SPEC_MAGE_ARCANE                    = 62,
+    SPEC_MAGE_FIRE                      = 63,
+    SPEC_MAGE_FROST                     = 64,
+    SPEC_PALADIN_HOLY                   = 65,
+    SPEC_PALADIN_PROTECTION             = 66,
+    SPEC_PALADIN_RETRIBUTION            = 70,
+    SPEC_WARRIOR_ARMS                   = 71,
+    SPEC_WARRIOR_FURY                   = 72,
+    SPEC_WARRIOR_PROTECTION             = 73,
+    SPEC_PET_FEROCITY                   = 74,
+    SPEC_PET_CUNNING                    = 79,
+    SPEC_PET_TENACITY                   = 81,
+    SPEC_DRUID_BALANCE                  = 102,
+    SPEC_DRUID_FERAL                    = 103,
+    SPEC_DRUID_GUARDIAN                 = 104,
+    SPEC_DRUID_RESTORATION              = 105,
+    SPEC_DEATH_KNIGHT_BLOOD             = 250,
+    SPEC_DEATH_KNIGHT_FROST             = 251,
+    SPEC_DEATH_KNIGHT_UNHOLY            = 252,
+    SPEC_HUNTER_BEAST_MASTERY           = 253,
+    SPEC_HUNTER_MARKSMANSHIP            = 254,
+    SPEC_HUNTER_SURVIVAL                = 255,
+    SPEC_PRIEST_DISCIPLINE              = 256,
+    SPEC_PRIEST_HOLY                    = 257,
+    SPEC_PRIEST_SHADOW                  = 258,
+    SPEC_ROGUE_ASSASSINATION            = 259,
+    SPEC_ROGUE_COMBAT                   = 260,
+    SPEC_ROGUE_SUBTLETY                 = 261,
+    SPEC_SHAMAN_ELEMENTAL               = 262,
+    SPEC_SHAMAN_ENHANCEMENT             = 263,
+    SPEC_SHAMAN_RESTORATION             = 264,
+    SPEC_WARLOCK_AFFLICTION             = 265,
+    SPEC_WARLOCK_DEMONOLOGY             = 266,
+    SPEC_WARLOCK_DESTRUCTION            = 267,
+    SPEC_MONK_BREWMASTER                = 268,
+    SPEC_MONK_WINDWALKER                = 269,
+    SPEC_MONK_MISTWEAVER                = 270
+};
+
 #define MIN_TALENT_SPEC         0
 #define MAX_TALENT_SPEC         1
 #define MIN_TALENT_SPECS        1
 #define MAX_TALENT_SPECS        2
 #define MAX_GLYPH_SLOT_INDEX    6
-#define MAX_SPECIALIZATIONS     4
 
 // Custom values
 enum SpellClickUserTypes
@@ -892,13 +859,12 @@ enum Team
 {
     HORDE               = 67,
     ALLIANCE            = 469,
-    //TEAM_STEAMWHEEDLE_CARTEL = 169,                   // not used in code
+    //TEAM_STEAMWHEEDLE_CARTEL = 169,                       // not used in code
     //TEAM_ALLIANCE_FORCES     = 891,
     //TEAM_HORDE_FORCES        = 892,
     //TEAM_SANCTUARY           = 936,
     //TEAM_OUTLAND             = 980,
-    PANDAREN_NEUTRAL     = 1249,                        // Pandaren is neutral on start
-    TEAM_OTHER           = 0                            // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
+    TEAM_OTHER               = 0                            // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
 };
 
 enum SpellEffects
@@ -1006,10 +972,10 @@ enum SpellEffects
     SPELL_EFFECT_FEED_PET                           = 101,
     SPELL_EFFECT_DISMISS_PET                        = 102,
     SPELL_EFFECT_REPUTATION                         = 103,
-    SPELL_EFFECT_SUMMON_OBJECT_SLOT                 = 104,
-    SPELL_EFFECT_SURVEY                             = 105,
-    SPELL_EFFECT_SUMMON_RAID_MARKER                 = 106,
-    SPELL_EFFECT_LOOT_CORPSE                        = 107,
+    SPELL_EFFECT_SUMMON_OBJECT_SLOT1                = 104,
+    SPELL_EFFECT_SUMMON_OBJECT_SLOT2                = 105,
+    SPELL_EFFECT_SUMMON_OBJECT_SLOT3                = 106,
+    SPELL_EFFECT_SUMMON_OBJECT_SLOT4                = 107,
     SPELL_EFFECT_DISPEL_MECHANIC                    = 108,
     SPELL_EFFECT_RESURRECT_PET                      = 109,
     SPELL_EFFECT_DESTROY_ALL_TOTEMS                 = 110,
@@ -1070,7 +1036,7 @@ enum SpellEffects
     SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT         = 165,
     SPELL_EFFECT_GIVE_CURRENCY                      = 166,
     SPELL_EFFECT_167                                = 167,
-    SPELL_EFFECT_PET_BAR                            = 168, // This is to activate the Pet Control Bar
+    SPELL_EFFECT_168                                = 168,
     SPELL_EFFECT_DESTROY_ITEM                       = 169,
     SPELL_EFFECT_170                                = 170,
     SPELL_EFFECT_171                                = 171, // Summons gamebject
@@ -1085,37 +1051,6 @@ enum SpellEffects
     SPELL_EFFECT_180                                = 180, // Unused (4.3.4)
     SPELL_EFFECT_REMOVE_TALENT                      = 181, // Eg: Tome of the Clear Mind
     SPELL_EFFECT_182                                = 182,
-    SPELL_EFFECT_183                                = 183,
-    SPELL_EFFECT_REPUTATION_REWARD                  = 184, // add 400 (normal) 800 (10/25 player mode) Avengers of Hyjal (TDF ?) see 73843
-    SPELL_EFFECT_185                                = 185, // Scene related
-    SPELL_EFFECT_186                                = 186, // Scene related
-    SPELL_EFFECT_RANDOM_DIGSITE                     = 187, // 126957 only
-    SPELL_EFFECT_STAMPEDE                           = 188, // Stampede 121818
-    SPELL_EFFECT_LOOT_BONUS                         = 189, // Boss loot bonus ?
-    SPELL_EFFECT_190                                = 190, // 1 internal spell
-    SPELL_EFFECT_TELEPORT_TO_DIGSITE                = 191, // Teleport player to an random digsite (Archaeology)
-    SPELL_EFFECT_UNCAGE_PET                         = 192, // Battle pet exchange (123302)
-    SPELL_EFFECT_193                                = 193, // Unused (5.0.5)
-    SPELL_EFFECT_194                                = 194, // Unused (5.0.5)
-    SPELL_EFFECT_195                                = 195, // Scene related
-    SPELL_EFFECT_196                                = 196, // summon multi NPC
-    SPELL_EFFECT_197                                = 197, // 130243 only
-    SPELL_EFFECT_198                                = 198, // Mini scene event
-    SPELL_EFFECT_199                                = 199, // 129857
-    SPELL_EFFECT_HEAL_BATTLEPET_PCT                 = 200, // Battle pet Healing  125439, 125801
-    SPELL_EFFECT_BATTLE_PET                         = 201, // Battle pet first slot and track
-    SPELL_EFFECT_202                                = 202,
-    SPELL_EFFECT_TRIGGER_MISSILE2                   = 203,
-    SPELL_EFFECT_204                                = 204,
-    SPELL_EFFECT_205                                = 205,
-    SPELL_EFFECT_206                                = 206,
-    SPELL_EFFECT_207                                = 207,
-    SPELL_EFFECT_208                                = 208,
-    SPELL_EFFECT_209                                = 209,
-    SPELL_EFFECT_210                                = 210,
-    SPELL_EFFECT_211                                = 211,
-    SPELL_EFFECT_212                                = 212,
-    SPELL_EFFECT_213                                = 213,
     TOTAL_SPELL_EFFECTS                             = 214,
 };
 
@@ -1775,22 +1710,6 @@ enum Targets
     TARGET_UNK_125                     = 125,
     TARGET_UNK_126                     = 126,
     TARGET_UNK_127                     = 127,
-    TARGET_UNK_128                     = 128, // not used (5.4.8)
-    TARGET_UNIT_CONE_ENEMY_129         = 129,
-    TARGET_UNK_130                     = 130,
-    TARGET_UNK_131                     = 131,
-    TARGET_UNK_132                     = 132,
-    TARGET_UNK_133                     = 133, // not used (5.4.8)
-    TARGET_UNK_134                     = 134,
-    TARGET_UNK_135                     = 135, // 2 spells
-    TARGET_UNK_136                     = 136, // 2 spells
-    TARGET_DEST_DYN_MOV_FLAGS          = 137,
-    TARGET_UNIT_CONE_ANY_138           = 138,
-    TARGET_UNK_139                     = 139,
-    TARGET_UNK_140                     = 140,
-    TARGET_UNK_141                     = 141,
-    TARGET_UNK_142                     = 142,
-    TARGET_UNK_143                     = 143,
     TOTAL_SPELL_TARGETS
 };
 
@@ -3206,7 +3125,7 @@ enum CreatureTypeFlags
     CREATURE_TYPEFLAGS_DEAD_INTERACT    = 0x00000080,         // Player can interact with the creature if its dead (not player dead)
     CREATURE_TYPEFLAGS_HERBLOOT         = 0x00000100,         // Can be looted by herbalist
     CREATURE_TYPEFLAGS_MININGLOOT       = 0x00000200,         // Can be looted by miner
-    CREATURE_TYPEFLAGS_DONT_LOG_DEATH   = 0x00000400,         // Death event will not show up in combat log
+    CREATURE_TYPEFLAGS_UNK10            = 0x00000400,
     CREATURE_TYPEFLAGS_MOUNTED_COMBAT   = 0x00000800,         // Creature can remain mounted when entering combat
     CREATURE_TYPEFLAGS_AID_PLAYERS      = 0x00001000,         // ? Can aid any player in combat if in range?
     CREATURE_TYPEFLAGS_UNK13            = 0x00002000,
@@ -3289,10 +3208,7 @@ enum HolidayIds
     HOLIDAY_RATED_BG_25_VS_25        = 443,
     HOLIDAY_ANNIVERSARY_7_YEARS      = 467,
     HOLIDAY_DARKMOON_FAIRE_TEROKKAR  = 479,
-    HOLIDAY_ANNIVERSARY_8_YEARS      = 484,
-    HOLIDAY_CALL_TO_ARMS_SM          = 488,
-    HOLIDAY_CALL_TO_ARMS_TOK         = 489,
-    HOLIDAY_CALL_TO_ARMS_DG          = 515
+    HOLIDAY_ANNIVERSARY_8_YEARS      = 484
 };
 
 // values based at QuestInfo.dbc
@@ -3698,31 +3614,31 @@ enum ChatMsg
 {
     CHAT_MSG_ADDON                  = 0xFFFFFFFF, // -1
     CHAT_MSG_SYSTEM                 = 0x00,
-    CHAT_MSG_SAY                    = 0x01, // ok
-    CHAT_MSG_PARTY                  = 0x02, // ok
-    CHAT_MSG_RAID                   = 0x03, // ok
-    CHAT_MSG_GUILD                  = 0x04, // ok
-    CHAT_MSG_OFFICER                = 0x05, // ok
-    CHAT_MSG_YELL                   = 0x06, // ok
-    CHAT_MSG_WHISPER                = 0x07, // ok
+    CHAT_MSG_SAY                    = 0x01,
+    CHAT_MSG_PARTY                  = 0x02,
+    CHAT_MSG_RAID                   = 0x03,
+    CHAT_MSG_GUILD                  = 0x04,
+    CHAT_MSG_OFFICER                = 0x05,
+    CHAT_MSG_YELL                   = 0x06,
+    CHAT_MSG_WHISPER                = 0x07,
     CHAT_MSG_WHISPER_FOREIGN        = 0x08,
-    CHAT_MSG_WHISPER_INFORM         = 0x09, // ok
-    CHAT_MSG_EMOTE                  = 0x0A, // ok
-    CHAT_MSG_TEXT_EMOTE             = 0x0B, // ok
-    CHAT_MSG_MONSTER_SAY            = 0x0C, // ok
+    CHAT_MSG_WHISPER_INFORM         = 0x09,
+    CHAT_MSG_EMOTE                  = 0x0A,
+    CHAT_MSG_TEXT_EMOTE             = 0x0B,
+    CHAT_MSG_MONSTER_SAY            = 0x0C,
     CHAT_MSG_MONSTER_PARTY          = 0x0D,
     CHAT_MSG_MONSTER_YELL           = 0x0E,
     CHAT_MSG_MONSTER_WHISPER        = 0x0F,
     CHAT_MSG_MONSTER_EMOTE          = 0x10,
-    CHAT_MSG_CHANNEL                = 0x11, // ok
-    CHAT_MSG_CHANNEL_JOIN           = 0x12, // ok
-    CHAT_MSG_CHANNEL_LEAVE          = 0x13, // ok
+    CHAT_MSG_CHANNEL                = 0x11,
+    CHAT_MSG_CHANNEL_JOIN           = 0x12,
+    CHAT_MSG_CHANNEL_LEAVE          = 0x13,
     CHAT_MSG_CHANNEL_LIST           = 0x14,
     CHAT_MSG_CHANNEL_NOTICE         = 0x15,
     CHAT_MSG_CHANNEL_NOTICE_USER    = 0x16,
     // CHAT_MSG_TARGETICONS
-    CHAT_MSG_AFK                    = 0x17, // ok
-    CHAT_MSG_DND                    = 0x18, // ok
+    CHAT_MSG_AFK                    = 0x17,
+    CHAT_MSG_DND                    = 0x18,
     CHAT_MSG_IGNORED                = 0x19,
     CHAT_MSG_SKILL                  = 0x1A,
     CHAT_MSG_LOOT                   = 0x1B,
@@ -3744,13 +3660,12 @@ enum ChatMsg
     CHAT_MSG_FILTERED               = 0x2B,
     CHAT_MSG_BATTLEGROUND           = 0x2C,
     CHAT_MSG_BATTLEGROUND_LEADER    = 0x2D,
-    CHAT_MSG_ACHIEVEMENT            = 0x2E, // ok
-    CHAT_MSG_GUILD_ACHIEVEMENT      = 0x2F, // ok
-    CHAT_MSG_RESTRICTED             = 0x30,
-    CHAT_MSG_PARTY_LEADER           = 0x31, // ok
+    CHAT_MSG_RESTRICTED             = 0x2E,
+    CHAT_MSG_BATTLENET              = 0x2F,
+    CHAT_MSG_ACHIEVEMENT            = 0x30,
+    CHAT_MSG_GUILD_ACHIEVEMENT      = 0x31,
     CHAT_MSG_ARENA_POINTS           = 0x32,
-    CHAT_MSG_BATTLENET              = 0x33
-    
+    CHAT_MSG_PARTY_LEADER           = 0x33
 };
 
 #define MSG_NULL_ACTION 0x34
@@ -4029,13 +3944,15 @@ enum BattlegroundTypeId
     BATTLEGROUND_RATED_25_VS_25 = 102, // Rated BG 25 vs 25
     BATTLEGROUND_TP             = 108, // Twin Peaks
     BATTLEGROUND_BFG            = 120, // Battle For Gilneas
-    BATTLEGROUND_RATED_EY       = 656, // Rated Eye of The Storm
-    BATTLEGROUND_TOK            = 699, // Temple of Kotmogu
-    BATTLEGROUND_CTF            = 706, // CTF3
-    BATTLEGROUND_SM             = 708, // Silvershard Mines
-    BATTLEGROUND_TA             = 719, // Tol'Viron Arena
-    BATTLEGROUND_DG             = 754, // Deepwind Gorge
-    BATTLEGROUND_TTP            = 757, // The Tiger's Peak
+    // 441 = "Icecrown Citadel"
+    // 443 = "The Ruby Sanctum"
+    // 656 = "Rated Eye of the Storm"
+    BATTLEGROUND_TOK           = 699, // 5.x Temple of Kotmogu
+    BATTLEGROUND_CTF           = 706, // 5.x CTF3
+    BATTLEGROUND_SM            = 708, // 5.x Silvershard Mines
+    BATTLEGROUND_TA            = 719, // 5.x Tol'Vir Arena
+    BATTLEGROUND_DG            = 754, // 5.x Deepwind Gorge
+    BATTLEGROUND_TTP           = 757, // 5.x The Tiger's Peak
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 758
@@ -4089,37 +4006,36 @@ enum SpellFamilyNames
     // 16 - unused
     SPELLFAMILY_PET         = 17,
     SPELLFAMILY_UNK3        = 50,
-    SPELLFAMILY_MONK        = 53,
 };
 
 enum TradeStatus
 {
-    TRADE_STATUS_FAILED                = 0,
-    TRADE_STATUS_TARGET_STUNNED        = 1,
-    TRADE_STATUS_INITIATED             = 2,
-    TRADE_STATUS_CURRENCY_NOT_TRADABLE = 3,
-    TRADE_STATUS_PLAYER_NOT_FOUND      = 4,
-    TRADE_STATUS_TOO_FAR_AWAY          = 5,
-    TRADE_STATUS_ACCEPTED              = 6,
-    TRADE_STATUS_DEAD                  = 7,
-    TRADE_STATUS_STATE_CHANGED         = 9,
-    TRADE_STATUS_WRONG_FACTION         = 10,
-    TRADE_STATUS_ALREADY_TRADING       = 11,
-    TRADE_STATUS_RESTRICTED_ACCOUNT    = 13, // not implemented
-    TRADE_STATUS_COMPLETE              = 14,
-    TRADE_STATUS_LOGGING_OUT           = 15,
-    TRADE_STATUS_PLAYER_IGNORED        = 16, // not implemented
-    TRADE_STATUS_TARGET_LOGGING_OUT    = 17,
-    TRADE_STATUS_PETITION              = 18, // not implemented
-    TRADE_STATUS_STUNNED               = 20,
-    TRADE_STATUS_PLAYER_BUSY           = 21, // not implemented
-    TRADE_STATUS_WRONG_REALM           = 22,
-    TRADE_STATUS_NOT_ENOUGH_CURRENCY   = 23,
-    TRADE_STATUS_PROPOSED              = 24,
-    TRADE_STATUS_UNACCEPTED            = 27,
-    TRADE_STATUS_TARGET_DEAD           = 28,
-    TRADE_STATUS_CANCELLED             = 30,
-    TRADE_STATUS_NOT_ON_TAPLIST        = 31,
+    TRADE_STATUS_FAILED                 = 0,
+    TRADE_STATUS_TARGET_STUNNED         = 1,
+    TRADE_STATUS_INITIATED              = 2,
+    TRADE_STATUS_CURRENCY_NOT_TRADABLE  = 3,
+    TRADE_STATUS_PLAYER_NOT_FOUND       = 4,
+    TRADE_STATUS_TOO_FAR_AWAY           = 5,
+    TRADE_STATUS_ACCEPTED               = 6,
+    TRADE_STATUS_DEAD                   = 7,
+    TRADE_STATUS_STATE_CHANGED          = 9,
+    TRADE_STATUS_WRONG_FACTION          = 10,
+    TRADE_STATUS_ALREADY_TRADING        = 11,
+    TRADE_STATUS_RESTRICTED_ACCOUNT     = 13, // not implemented
+    TRADE_STATUS_COMPLETE               = 14,
+    TRADE_STATUS_LOGGING_OUT            = 15,
+    TRADE_STATUS_PLAYER_IGNORED         = 16, // not implemented
+    TRADE_STATUS_TARGET_LOGGING_OUT     = 17,
+    TRADE_STATUS_PETITION               = 18, // not implemented
+    TRADE_STATUS_STUNNED                = 20,
+    TRADE_STATUS_PLAYER_BUSY            = 21, // not implemented
+    TRADE_STATUS_WRONG_REALM            = 22,
+    TRADE_STATUS_NOT_ENOUGH_CURRENCY    = 23,
+    TRADE_STATUS_PROPOSED               = 24,
+    TRADE_STATUS_UNACCEPTED             = 27,
+    TRADE_STATUS_TARGET_DEAD            = 28,
+    TRADE_STATUS_CANCELLED              = 30,
+    TRADE_STATUS_NOT_ON_TAPLIST         = 31,
 };
 
 enum XPColorChar
@@ -4180,14 +4096,10 @@ enum BattlegroundQueueTypeId
     BATTLEGROUND_QUEUE_IC       = 6,
     BATTLEGROUND_QUEUE_TP       = 7,
     BATTLEGROUND_QUEUE_BFG      = 8,
-    BATTLEGROUND_QUEUE_TOK      = 9,
-    BATTLEGROUND_QUEUE_DG       = 10,
-    BATTLEGROUND_QUEUE_SM       = 11,
-    BATTLEGROUND_QUEUE_RB       = 12,
-    BATTLEGROUND_QUEUE_2v2      = 13,
-    BATTLEGROUND_QUEUE_3v3      = 14,
-    BATTLEGROUND_QUEUE_5v5      = 15,
-    BATTLEGROUND_QUEUE_10v10    = 16,
+    BATTLEGROUND_QUEUE_RB       = 9,
+    BATTLEGROUND_QUEUE_2v2      = 10,
+    BATTLEGROUND_QUEUE_3v3      = 11,
+    BATTLEGROUND_QUEUE_5v5      = 12,
     MAX_BATTLEGROUND_QUEUE_TYPES
 };
 
@@ -4311,7 +4223,7 @@ enum PartyResult
 };
 
 const uint32 MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
-#define MMAP_VERSION 6
+#define MMAP_VERSION 4
 
 struct MmapTileHeader
 {

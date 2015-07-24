@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +17,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+SDName: Boss_High_Inquisitor_Fairbanks
+SD%Complete: 100
+SDComment: @todo if this guy not involved in some special event, remove (and let ACID script)
+SDCategory: Scarlet Monastery
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -33,7 +43,7 @@ class boss_high_inquisitor_fairbanks : public CreatureScript
 public:
     boss_high_inquisitor_fairbanks() : CreatureScript("boss_high_inquisitor_fairbanks") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_high_inquisitor_fairbanksAI(creature);
     }
@@ -50,7 +60,7 @@ public:
         uint32 Dispel_Timer;
         bool PowerWordShield;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             CurseOfBlood_Timer = 10000;
             DispelMagic_Timer = 30000;
@@ -63,13 +73,13 @@ public:
             me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 7);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             me->SetStandState(UNIT_STAND_STATE_STAND);
             me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

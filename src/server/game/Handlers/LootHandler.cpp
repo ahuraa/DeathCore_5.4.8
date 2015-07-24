@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,12 +44,26 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
 
     for (int i = 0; i < lootCount; i++)
     {
-        recvData.ReadGuidMask((guids[i]), 2, 7, 0, 6, 5, 3, 1, 4);
+        (guids[i])[2] = recvData.ReadBit();
+        (guids[i])[7] = recvData.ReadBit();
+        (guids[i])[0] = recvData.ReadBit();
+        (guids[i])[6] = recvData.ReadBit();
+        (guids[i])[5] = recvData.ReadBit();
+        (guids[i])[3] = recvData.ReadBit();
+        (guids[i])[1] = recvData.ReadBit();
+        (guids[i])[4] = recvData.ReadBit();
     }
 
     for (int i = 0; i < lootCount; i++)
     {
-        recvData.ReadGuidBytes((guids[i]), 0, 4, 1, 7, 6, 5, 3, 2);
+        recvData.ReadByteSeq((guids[i])[0]);
+        recvData.ReadByteSeq((guids[i])[4]);
+        recvData.ReadByteSeq((guids[i])[1]);
+        recvData.ReadByteSeq((guids[i])[7]);
+        recvData.ReadByteSeq((guids[i])[6]);
+        recvData.ReadByteSeq((guids[i])[5]);
+        recvData.ReadByteSeq((guids[i])[3]);
+        recvData.ReadByteSeq((guids[i])[2]);
         uint8 lootSlot;
         recvData >> lootSlot;
 
@@ -250,9 +264,23 @@ void WorldSession::HandleLootOpcode(WorldPacket& recvData)
 
     ObjectGuid guid;
 
-    recvData.ReadGuidMask(guid, 4, 5, 2, 7, 0, 1, 3, 6);
+    guid[4] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
 
-    recvData.ReadGuidBytes(guid, 3, 5, 0, 6, 4, 1, 7, 2);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[2]);
 
     // Check possible cheat
     if (!_player->IsAlive())
@@ -273,9 +301,23 @@ void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
     // use internal stored guid
 
     ObjectGuid guid;
-    recvData.ReadGuidMask(guid, 7, 4, 2, 3, 0, 5, 6, 1);
+    guid[7] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
 
-    recvData.ReadGuidBytes(guid, 0, 6, 4, 2, 5, 3, 7, 1);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[1]);
 
     if (uint64 lootGuid = GetPlayer()->GetLootGUID())
         if (lootGuid == guid)

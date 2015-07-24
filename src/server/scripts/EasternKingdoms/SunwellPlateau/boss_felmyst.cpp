@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +17,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+SDName: Boss_Felmyst
+SD%Complete: 0
+SDComment:
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -106,7 +115,7 @@ class boss_felmyst : public CreatureScript
 public:
     boss_felmyst() : CreatureScript("boss_felmyst") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_felmystAI(creature);
     }
@@ -127,7 +136,7 @@ public:
 
         float breathX, breathY;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             phase = PHASE_NONE;
 
@@ -146,7 +155,7 @@ public:
                 instance->SetData(DATA_FELMYST_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             events.ScheduleEvent(EVENT_BERSERK, 600000);
 
@@ -160,30 +169,30 @@ public:
                 instance->SetData(DATA_FELMYST_EVENT, IN_PROGRESS);
         }
 
-        void AttackStart(Unit* who) override
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (phase != PHASE_FLIGHT)
                 ScriptedAI::AttackStart(who);
         }
 
-        void MoveInLineOfSight(Unit* who) override
+        void MoveInLineOfSight(Unit* who) OVERRIDE
 
         {
             if (phase != PHASE_FLIGHT)
                 ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void KilledUnit(Unit* /*victim*/) override
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(YELL_KILL);
         }
 
-        void JustRespawned() override
+        void JustRespawned() OVERRIDE
         {
             Talk(YELL_BIRTH);
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             Talk(YELL_DEATH);
 
@@ -191,7 +200,7 @@ public:
                 instance->SetData(DATA_FELMYST_EVENT, DONE);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
         {
             // workaround for linked aura
             /*if (spell->Id == SPELL_VAPOR_FORCE)
@@ -214,7 +223,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summon) override
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             if (summon->GetEntry() == NPC_DEAD)
             {
@@ -224,13 +233,13 @@ public:
             }
         }
 
-        void MovementInform(uint32, uint32) override
+        void MovementInform(uint32, uint32) OVERRIDE
         {
             if (phase == PHASE_FLIGHT)
                 events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
         }
 
-        void DamageTaken(Unit*, uint32 &damage) override
+        void DamageTaken(Unit*, uint32 &damage) OVERRIDE
         {
             if (phase != PHASE_GROUND && damage >= me->GetHealth())
                 damage = 0;
@@ -399,7 +408,7 @@ public:
             ++uiFlightCount;
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
             {
@@ -513,7 +522,7 @@ class npc_felmyst_vapor : public CreatureScript
 public:
     npc_felmyst_vapor() : CreatureScript("npc_felmyst_vapor") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_felmyst_vaporAI(creature);
     }
@@ -525,13 +534,13 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetSpeed(MOVE_RUN, 0.8f);
         }
-        void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override
+        void Reset() OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             DoZoneInCombat();
             //DoCast(me, SPELL_VAPOR_FORCE, true); core bug
         }
-        void UpdateAI(uint32 /*diff*/) override
+        void UpdateAI(uint32 /*diff*/) OVERRIDE
         {
             if (!me->GetVictim())
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -545,7 +554,7 @@ class npc_felmyst_trail : public CreatureScript
 public:
     npc_felmyst_trail() : CreatureScript("npc_felmyst_trail") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_felmyst_trailAI(creature);
     }
@@ -559,12 +568,12 @@ public:
             me->SetTarget(me->GetGUID());
             me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 0.01f); // core bug
         }
-        void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
-        void AttackStart(Unit* /*who*/) override { }
-        void MoveInLineOfSight(Unit* /*who*/) override { }
+        void Reset() OVERRIDE { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
-        void UpdateAI(uint32 /*diff*/) override { }
+        void UpdateAI(uint32 /*diff*/) OVERRIDE { }
     };
 };
 

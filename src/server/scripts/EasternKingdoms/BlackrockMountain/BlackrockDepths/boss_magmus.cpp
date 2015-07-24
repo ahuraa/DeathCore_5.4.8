@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,7 +37,7 @@ class boss_magmus : public CreatureScript
 public:
     boss_magmus() : CreatureScript("boss_magmus") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_magmusAI(creature);
     }
@@ -46,15 +49,15 @@ public:
         uint32 FieryBurst_Timer;
         uint32 WarStomp_Timer;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             FieryBurst_Timer = 5000;
             WarStomp_Timer =0;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -80,7 +83,7 @@ public:
             DoMeleeAttackIfReady();
         }
         // When he die open door to last chamber
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* killer) OVERRIDE
         {
             if (InstanceScript* instance = killer->GetInstanceScript())
                 instance->HandleGameObject(instance->GetData64(DATA_THRONE_DOOR), true);

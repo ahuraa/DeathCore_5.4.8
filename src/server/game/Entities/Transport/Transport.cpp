@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -452,12 +452,24 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 
             switch (obj->GetTypeId())
             {
+                case TYPEID_UNIT:
+                    if (!IS_PLAYER_GUID(obj->ToUnit()->GetOwnerGUID()))  // pets should be teleported with player
+                        obj->ToCreature()->FarTeleportTo(newMap, destX, destY, destZ, destO);
+                    break;
+                case TYPEID_GAMEOBJECT:
+                {
+                    GameObject* go = obj->ToGameObject();
+                    go->GetMap()->RemoveFromMap(go, false);
+                    go->Relocate(destX, destY, destZ, destO);
+                    go->SetMap(newMap);
+                    newMap->AddToMap(go);
+                    break;
+                }
                 case TYPEID_PLAYER:
                     if (!obj->ToPlayer()->TeleportTo(newMapid, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
                         _passengers.erase(obj);
                     break;
                 default:
-                    RemovePassenger(obj);
                     break;
             }
         }
@@ -468,6 +480,19 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     }
     else
     {
+        // Teleport players, they need to know it
+        for (std::set<WorldObject*>::iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
+        {
+            if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+            {
+                float destX, destY, destZ, destO;
+                (*itr)->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
+                TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, GetOrientation());
+
+                (*itr)->ToUnit()->NearTeleportTo(destX, destY, destZ, destO);
+            }
+        }
+
         UpdatePosition(x, y, z, GetOrientation());
         return false;
     }

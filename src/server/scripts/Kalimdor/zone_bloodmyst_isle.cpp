@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -47,7 +47,7 @@ class npc_webbed_creature : public CreatureScript
 public:
     npc_webbed_creature() : CreatureScript("npc_webbed_creature") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_webbed_creatureAI(creature);
     }
@@ -56,11 +56,11 @@ public:
     {
         npc_webbed_creatureAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() override { }
+        void Reset() OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* killer) OVERRIDE
         {
             uint32 spawnCreatureID = 0;
 
@@ -102,7 +102,7 @@ class npc_captured_sunhawk_agent : public CreatureScript
 public:
     npc_captured_sunhawk_agent() : CreatureScript("npc_captured_sunhawk_agent") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) OVERRIDE
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -135,7 +135,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) OVERRIDE
     {
         if (player->HasAura(31609) && player->GetQuestStatus(9756) == QUEST_STATUS_INCOMPLETE)
         {
@@ -168,7 +168,7 @@ class go_princess_stillpines_cage : public GameObjectScript
 public:
     go_princess_stillpines_cage() : GameObjectScript("go_princess_stillpines_cage") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
     {
         go->SetGoState(GO_STATE_READY);
         if (Creature* stillpine = go->FindNearestCreature(NPC_PRINCESS_STILLPINE, 25, true))
@@ -189,7 +189,7 @@ public:
     {
         npc_princess_stillpineAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void MovementInform(uint32 type, uint32 id) override
+        void MovementInform(uint32 type, uint32 id) OVERRIDE
         {
             if (type == POINT_MOTION_TYPE && id == 1)
             {
@@ -199,7 +199,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_princess_stillpineAI(creature);
     }

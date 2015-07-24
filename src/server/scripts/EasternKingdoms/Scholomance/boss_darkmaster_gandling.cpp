@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +17,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/*
+Name: Boss_Darkmaster_Gandling
+%Complete: 90
+Comment: Doors Not yet reopening.
+Category: Scholomance
+*/
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "scholomance.h"
@@ -48,21 +59,21 @@ class boss_darkmaster_gandling : public CreatureScript
         {
             boss_darkmaster_gandlingAI(Creature* creature) : BossAI(creature, DATA_DARKMASTERGANDLING) { }
 
-            void Reset() override
+            void Reset() OVERRIDE
             {
                 _Reset();
                 if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_ACTIVE);
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* /*killer*/) OVERRIDE
             {
                 _JustDied();
                 if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_ACTIVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/) OVERRIDE
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_ARCANEMISSILES, 4500);
@@ -74,13 +85,13 @@ class boss_darkmaster_gandling : public CreatureScript
                     gate->SetGoState(GO_STATE_READY);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
             {
                 Talk(YELL_SUMMONED);
                 me->GetMotionMaster()->MoveRandom(5);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -118,7 +129,7 @@ class boss_darkmaster_gandling : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_darkmaster_gandlingAI(creature);
         }
@@ -203,13 +214,13 @@ class spell_shadow_portal : public SpellScriptLoader
                 }
             }
 
-            void Register() override
+            void Register() OVERRIDE
             {
                 OnEffectHitTarget += SpellEffectFn(spell_shadow_portal_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const override
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_shadow_portal_SpellScript();
         }
@@ -333,13 +344,13 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                 }
             }
 
-            void Register() override
+            void Register() OVERRIDE
             {
                 OnEffectHit += SpellEffectFn(spell_shadow_portal_rooms_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
         };
 
-        SpellScript* GetSpellScript() const override
+        SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_shadow_portal_rooms_SpellScript();
         }

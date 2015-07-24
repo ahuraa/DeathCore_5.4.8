@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,7 +71,7 @@ class instance_blackrock_depths : public InstanceMapScript
 public:
     instance_blackrock_depths() : InstanceMapScript("instance_blackrock_depths", 230) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_blackrock_depths_InstanceMapScript(map);
     }
@@ -114,7 +117,7 @@ public:
         uint32 TombTimer;
         uint32 TombEventCounter;
 
-        void Initialize() override
+        void Initialize() OVERRIDE
         {
             memset(&encounter, 0, sizeof(encounter));
 
@@ -155,7 +158,7 @@ public:
                 TombBossGUIDs[i] = 0;
         }
 
-        void OnCreatureCreate(Creature* creature) override
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -177,7 +180,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go) override
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -211,7 +214,7 @@ public:
             }
         }
 
-        void SetData64(uint32 type, uint64 data) override
+        void SetData64(uint32 type, uint64 data) OVERRIDE
         {
             TC_LOG_DEBUG("scripts", "Instance Blackrock Depths: SetData64 update (Type: %u Data " UI64FMTD ")", type, data);
 
@@ -227,7 +230,7 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 data) override
+        void SetData(uint32 type, uint32 data) OVERRIDE
         {
             TC_LOG_DEBUG("scripts", "Instance Blackrock Depths: SetData update (Type: %u Data %u)", type, data);
 
@@ -274,7 +277,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const override
+        uint32 GetData(uint32 type) const OVERRIDE
         {
             switch (type)
             {
@@ -299,7 +302,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data) const override
+        uint64 GetData64(uint32 data) const OVERRIDE
         {
             switch (data)
             {
@@ -341,12 +344,12 @@ public:
             return 0;
         }
 
-        std::string GetSaveData() override
+        std::string GetSaveData() OVERRIDE
         {
             return str_data;
         }
 
-        void Load(const char* in) override
+        void Load(const char* in) OVERRIDE
         {
             if (!in)
             {
@@ -428,7 +431,7 @@ public:
             TombEventStarterGUID = 0;
             SetData(TYPE_TOMB_OF_SEVEN, DONE);
         }
-        void Update(uint32 diff) override
+        void Update(uint32 diff) OVERRIDE
         {
             if (TombEventStarterGUID && GhostKillCount < 7)
             {

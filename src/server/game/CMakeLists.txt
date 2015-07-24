@@ -1,4 +1,5 @@
 # Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -16,13 +17,11 @@ file(GLOB_RECURSE sources_AuctionHouse AuctionHouse/*.cpp AuctionHouse/*.h)
 file(GLOB_RECURSE sources_Battlefield Battlefield/*.cpp Battlefield/*.h)
 file(GLOB_RECURSE sources_Battlegrounds Battlegrounds/*.cpp Battlegrounds/*.h)
 file(GLOB_RECURSE sources_BattlePet BattlePet/*.cpp BattlePet/*.h)
-file(GLOB_RECURSE sources_BattleShop BattleShop/*.cpp BattleShop/*.h)
 file(GLOB_RECURSE sources_BlackMarket BlackMarket/*.cpp BlackMarket/*.h)
 file(GLOB_RECURSE sources_Calendar Calendar/*.cpp Calendar/*.h)
 file(GLOB_RECURSE sources_Chat Chat/*.cpp Chat/*.h)
 file(GLOB_RECURSE sources_Combat Combat/*.cpp Combat/*.h)
 file(GLOB_RECURSE sources_Conditions Conditions/*.cpp Conditions/*.h)
-file(GLOB_RECURSE sources_CrossFactionBattlegrounds CrossFactionBattlegrounds/*.cpp CrossFactionBattlegrounds/*.h)
 file(GLOB_RECURSE sources_DataStores DataStores/*.cpp DataStores/*.h)
 file(GLOB_RECURSE sources_DungeonFinding DungeonFinding/*.cpp DungeonFinding/*.h)
 file(GLOB_RECURSE sources_Entities Entities/*.cpp Entities/*.h)
@@ -39,7 +38,6 @@ file(GLOB_RECURSE sources_Maps Maps/*.cpp Maps/*.h)
 file(GLOB_RECURSE sources_Miscellaneous Miscellaneous/*.cpp Miscellaneous/*.h)
 file(GLOB_RECURSE sources_Movement Movement/*.cpp Movement/*.h)
 file(GLOB_RECURSE sources_OutdoorPvP OutdoorPvP/*.cpp OutdoorPvP/*.h)
-file(GLOB_RECURSE sources_OnlineShop OnlineShop/*.cpp OnlineShop/*.h)
 file(GLOB_RECURSE sources_Pools Pools/*.cpp Pools/*.h)
 file(GLOB_RECURSE sources_PrecompiledHeaders PrecompiledHeaders/*.cpp PrecompiledHeaders/*.h)
 file(GLOB_RECURSE sources_Quests Quests/*.cpp Quests/*.h)
@@ -64,7 +62,6 @@ source_group(AuctionHouse FILES ${sources_AuctionHouse})
 source_group(Battlefield FILES ${sources_Battlefield})
 source_group(Battlegrounds FILES ${sources_Battlegrounds})
 source_group(BattlePet FILES ${sources_BattlePet})
-source_group(BattleShop FILES ${sources_BattleShop})
 source_group(BlackMarket FILES ${sources_BlackMarket})
 source_group(Calendar FILES ${sources_Calendar})
 source_group(Chat FILES ${sources_Chat})
@@ -86,7 +83,6 @@ source_group(Maps FILES ${sources_Maps})
 source_group(Miscellaneous FILES ${sources_Miscellaneous})
 source_group(Movement FILES ${sources_Movement})
 source_group(OutdoorPvP FILES ${sources_OutdoorPvP})
-source_group(OnlineShop FILES ${sources_OnlineShop})
 source_group(Pools FILES ${sources_Pools})
 source_group(PrecompiledHeaders FILES ${sources_PrecompiledHeaders})
 source_group(Quests FILES ${sources_Quests})
@@ -118,13 +114,11 @@ set(game_STAT_SRCS
   ${sources_Battlefield}
   ${sources_Battlegrounds}
   ${sources_BattlePet}
-  ${sources_BattleShop}
   ${sources_BlackMarket}
   ${sources_Calendar}
   ${sources_Chat}
   ${sources_Combat}
   ${sources_Conditions}
-  ${sources_CrossFactionBattlegrounds}
   ${sources_DataStores}
   ${sources_DungeonFinding}
   ${sources_Entities}
@@ -141,7 +135,6 @@ set(game_STAT_SRCS
   ${sources_Miscellaneous}
   ${sources_Movement}
   ${sources_OutdoorPvP}
-  ${sources_OnlineShop}
   ${sources_Pools}
   ${sources_Quests}
   ${sources_Reputation}
@@ -195,14 +188,12 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlegrounds
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlegrounds/Zones
   ${CMAKE_CURRENT_SOURCE_DIR}/BattlePet
-  ${CMAKE_CURRENT_SOURCE_DIR}/BattleShop
   ${CMAKE_CURRENT_SOURCE_DIR}/BlackMarket
   ${CMAKE_CURRENT_SOURCE_DIR}/Calendar
   ${CMAKE_CURRENT_SOURCE_DIR}/Chat
   ${CMAKE_CURRENT_SOURCE_DIR}/Chat/Channels
   ${CMAKE_CURRENT_SOURCE_DIR}/Combat
   ${CMAKE_CURRENT_SOURCE_DIR}/Conditions
-  ${CMAKE_CURRENT_SOURCE_DIR}/CrossFactionBattlegrounds
   ${CMAKE_CURRENT_SOURCE_DIR}/DataStores
   ${CMAKE_CURRENT_SOURCE_DIR}/DungeonFinding
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities
@@ -239,7 +230,6 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Movement/MovementGenerators
   ${CMAKE_CURRENT_SOURCE_DIR}/Movement/Waypoints
   ${CMAKE_CURRENT_SOURCE_DIR}/OutdoorPvP
-  ${CMAKE_CURRENT_SOURCE_DIR}/OnlineShop
   ${CMAKE_CURRENT_SOURCE_DIR}/Pools
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
   ${CMAKE_CURRENT_SOURCE_DIR}/Quests

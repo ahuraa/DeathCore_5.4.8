@@ -1,6 +1,9 @@
 #!/usr/bin/perl -w
 
-# Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/> 
+# Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+# Author: leak
+# Date: 2010-12-06
+# Note: Based on conf file format of rev 10507
 
 use strict;
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,6 @@
 #include "DatabaseEnv.h"
 #include "ReputationMgr.h"
 #include "DBCStores.h"
-#include "Guild.h"
 #include "Player.h"
 #include "WorldPacket.h"
 #include "World.h"
@@ -181,8 +180,8 @@ void ReputationMgr::SendState(FactionState const* faction)
 
     _sendFactionIncreased = false; // Reset
 
-    data << uint32(faction->Standing);
     data << uint32(faction->ReputationListID);
+    data << uint32(faction->Standing);
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
@@ -403,13 +402,7 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
             SetAtWar(&itr->second, true);
 
         if (new_rank > old_rank)
-        {
             _sendFactionIncreased = true;
-
-            if (factionEntry->ID == GUILD_FACTION_ID)
-                if (Guild* guild = _player->GetGuild())
-                    guild->GetAchievementMgr().CheckAllAchievementCriteria(_player);
-        }
 
         UpdateRankCounters(old_rank, new_rank);
 
@@ -526,32 +519,6 @@ void ReputationMgr::SetInactive(FactionState* faction, bool inactive) const
 
     faction->needSend = true;
     faction->needSave = true;
-}
-
-void ReputationMgr::UpdateReputationFlags()
-{
-    _visibleFactionCount = 0;
-
-    for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); itr++)
-    {
-        FactionState* faction = &itr->second;
-        if (!faction)
-            continue;
-
-        FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction->ID);
-        if (!factionEntry)
-            continue;
-
-        if (faction->Flags != GetDefaultStateFlags(factionEntry))
-        {
-            faction->Flags |= GetDefaultStateFlags(factionEntry); // Bitwise OR in case of some DB flags
-            faction->needSave = true;
-            faction->needSend = true;
-        }
-        
-        if (faction->Flags & FACTION_FLAG_VISIBLE)
-            _visibleFactionCount++;
-    }
 }
 
 void ReputationMgr::LoadFromDB(PreparedQueryResult result)

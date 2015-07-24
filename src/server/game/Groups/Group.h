@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,7 +25,6 @@
 #include "LootMgr.h"
 #include "QueryResult.h"
 #include "SharedDefines.h"
-#include "RatedInfo.h"
 
 class Battlefield;
 class Battleground;
@@ -45,7 +44,6 @@ struct MapEntry;
 #define MAXRAIDSIZE 40
 #define MAX_RAID_SUBGROUPS MAXRAIDSIZE/MAXGROUPSIZE
 #define TARGETICONCOUNT 8
-#define WORLD_MARKER_COUNT 5
 
 enum RollVote
 {
@@ -176,13 +174,6 @@ class Group
             uint8       roles;
             bool        readyCheckHasResponded;
         };
-
-        struct WorldMarkerPosition
-        {
-            Position    position;
-            uint32      mapID;
-        };
-
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
 
@@ -262,19 +253,13 @@ class Group
         void SetBattlegroundGroup(Battleground* bg);
         void SetBattlefieldGroup(Battlefield* bf);
         GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
-        GroupRatedStats GetRatedStats(RatedType ratedType);
 
         void ChangeMembersGroup(uint64 guid, uint8 group);
         void ChangeMembersGroup(Player* player, uint8 group);
-        void SetTargetIcon(uint8 iconID, ObjectGuid whoGuid, ObjectGuid targetGuid);
-        
-        // Raid Markers
-        void SetWorldMarker(uint8 slot, const Position& pos, uint32 mapID);
-        void ClearWorldMarker(uint8 slot);
-        void SendWorldMarkerUpdate();
-
+        void SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid);
         void SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
+
         void SetMemberRole(uint64 guid, uint32 role);
         uint32 GetMemberRole(uint64 guid) const;
 
@@ -373,8 +358,5 @@ class Group
         uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
         bool                _readyCheckInProgress;
-
-        std::map<uint8, WorldMarkerPosition*> m_worldMarkers;
 };
-
 #endif

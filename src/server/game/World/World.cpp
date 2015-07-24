@@ -1,9 +1,11 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 /** \file
     \ingroup world
@@ -38,6 +39,7 @@
 #include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
 #include "ObjectMgr.h"
+#include "ArenaTeamMgr.h"
 #include "GuildMgr.h"
 #include "GuildFinderMgr.h"
 #include "TicketMgr.h"
@@ -51,7 +53,6 @@
 #include "MapManager.h"
 #include "CreatureAIRegistry.h"
 #include "BattlegroundMgr.h"
-#include "RatedMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "TemporarySummon.h"
 #include "WaypointMovementGenerator.h"
@@ -283,8 +284,6 @@ void World::AddSession_(WorldSession* s)
     s->SendAuthResponse(AUTH_OK, false);
     s->SendAddonsInfo();
     s->SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
-    if (s->HasBoost())
-        s->SendBattlePayDistributionUpdate(0, CHARACTER_BOOST, CHARACTER_BOOST_ALLOW, CHARACTER_BOOST_TEXT_ID, CHARACTER_BOOST_BONUS_TEXT, CHARACTER_BOOST_BONUS_TEXT2);
     s->SendTutorialsData();
     s->SendTimezoneInformation();
 
@@ -1070,8 +1069,6 @@ void World::LoadConfigSettings(bool reload)
 
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = sConfigMgr->GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
 
-    m_bool_configs[BATTLEGROUND_CROSSFACTION_ENABLED]                = sConfigMgr->GetBoolDefault("CrossFactionBG.Enable", true);
-	
     if (int32 clientCacheId = sConfigMgr->GetIntDefault("ClientCacheVersion", 0))
     {
         // overwrite DB/old value
@@ -1108,6 +1105,11 @@ void World::LoadConfigSettings(bool reload)
         TC_LOG_ERROR("server.loading", "BattlePet.InitialLevel (%i) can't be loaded. Set to 1.", m_int_configs[CONFIG_BATTLE_PET_INITIAL_LEVEL]);
         m_int_configs[CONFIG_BATTLE_PET_INITIAL_LEVEL] = 1;
     }
+
+    m_int_configs[CONFIG_BLACK_MARKET_OPEN] = sConfigMgr->GetIntDefault("BlackMarket.Open", 1);
+    m_int_configs[CONFIG_BLACK_MARKET_MAX_AUCTIONS] = sConfigMgr->GetIntDefault("BlackMarket.MaxAuctions", 12);
+    m_int_configs[CONFIG_BLACK_MARKET_AUCTION_DELAY] = sConfigMgr->GetIntDefault("BlackMarket.AuctionDelay", 120);
+    m_int_configs[CONFIG_BLACK_MARKET_AUCTION_DELAY_MOD] = sConfigMgr->GetIntDefault("BlackMarket.AuctionDelayMod", 60);
 
     //visibility on continents
     m_MaxVisibleDistanceOnContinents = sConfigMgr->GetFloatDefault("Visibility.Distance.Continents", DEFAULT_VISIBILITY_DISTANCE);
@@ -1255,9 +1257,9 @@ void World::LoadConfigSettings(bool reload)
 
     // Random Battleground Rewards
     m_int_configs[CONFIG_BG_REWARD_WINNER_HONOR_FIRST] = sConfigMgr->GetIntDefault("Battleground.RewardWinnerHonorFirst", 27000);
-    m_int_configs[CONFIG_BG_REWARD_WINNER_CONQUEST_FIRST] = sConfigMgr->GetIntDefault("Battleground.RewardWinnerConquestFirst", 15000);
+    m_int_configs[CONFIG_BG_REWARD_WINNER_CONQUEST_FIRST] = sConfigMgr->GetIntDefault("Battleground.RewardWinnerConquestFirst", 10000);
     m_int_configs[CONFIG_BG_REWARD_WINNER_HONOR_LAST]  = sConfigMgr->GetIntDefault("Battleground.RewardWinnerHonorLast", 13500);
-    m_int_configs[CONFIG_BG_REWARD_WINNER_CONQUEST_LAST]  = sConfigMgr->GetIntDefault("Battleground.RewardWinnerConquestLast", 7500);
+    m_int_configs[CONFIG_BG_REWARD_WINNER_CONQUEST_LAST]  = sConfigMgr->GetIntDefault("Battleground.RewardWinnerConquestLast", 5000);
     m_int_configs[CONFIG_BG_REWARD_LOSER_HONOR_FIRST]  = sConfigMgr->GetIntDefault("Battleground.RewardLoserHonorFirst", 4500);
     m_int_configs[CONFIG_BG_REWARD_LOSER_HONOR_LAST]   = sConfigMgr->GetIntDefault("Battleground.RewardLoserHonorLast", 3500);
 
@@ -1317,9 +1319,6 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_PACKET_SPOOF_BANMODE] = BAN_ACCOUNT;
 
     m_int_configs[CONFIG_PACKET_SPOOF_BANDURATION] = sConfigMgr->GetIntDefault("PacketSpoof.BanDuration", 86400);
-
-    //BlackMarket
-    m_int_configs[CONFIG_BLACKMARKET_MAX_AUCTIONS] = sConfigMgr->GetIntDefault("BlackMarket.MaxAuctions", 15);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
@@ -1402,9 +1401,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
 
-    TC_LOG_INFO("server.loading", "Loading TalentSpellInfo store....");
-    sSpellMgr->LoadTalentSpellInfo();
-
     TC_LOG_INFO("server.loading", "Loading SpellInfo corrections...");
     sSpellMgr->LoadSpellInfoCorrections();
 
@@ -1426,6 +1422,10 @@ void World::SetInitialWorldSettings()
     // Must be called before `creature_respawn`/`gameobject_respawn` tables
     TC_LOG_INFO("server.loading", "Loading instances...");
     sInstanceSaveMgr->LoadInstances();
+
+    TC_LOG_INFO("server.loading", "Loading Broadcast texts...");
+    sObjectMgr->LoadBroadcastTexts();
+    sObjectMgr->LoadBroadcastTextLocales();
 
     TC_LOG_INFO("server.loading", "Loading Localization strings...");
     uint32 oldMSTime = getMSTime();
@@ -1474,7 +1474,7 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Spell Proc conditions and data...");
     sSpellMgr->LoadSpellProcs();
 
-    TC_LOG_INFO("server.loading", "Loading Spell Custom Bonus Data...");
+    TC_LOG_INFO("server.loading", "Loading Spell Bonus Data...");
     sSpellMgr->LoadSpellBonusess();
 
     TC_LOG_INFO("server.loading", "Loading Aggro Spells Definitions...");
@@ -1597,9 +1597,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SpellArea Data...");                // must be after quest load
     sSpellMgr->LoadSpellAreas();
 
-    TC_LOG_INFO("server.loading", "Loading Spell Classes Info...");
-    sSpellMgr->LoadSpellClassInfo();
-
     TC_LOG_INFO("server.loading", "Loading AreaTrigger definitions...");
     sObjectMgr->LoadAreaTriggerTeleports();
 
@@ -1701,11 +1698,8 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Auctions...");
     sAuctionMgr->LoadAuctions();
 
-    TC_LOG_INFO("server.loading", "Loading BlackMarket Templates...");
-    sBlackMarketMgr->LoadTemplates();
-
     TC_LOG_INFO("server.loading", "Loading BlackMarket Auctions...");
-    sBlackMarketMgr->LoadAuctions();
+    sBlackMarketMgr->LoadFromDB();
 
     TC_LOG_INFO("server.loading", "Loading Guild XP for level...");
     sGuildMgr->LoadGuildXpForLevel();
@@ -1717,6 +1711,9 @@ void World::SetInitialWorldSettings()
     sGuildMgr->LoadGuilds();
 
     sGuildFinderMgr->LoadFromDB();
+
+    TC_LOG_INFO("server.loading", "Loading ArenaTeams...");
+    sArenaTeamMgr->LoadArenaTeams();
 
     TC_LOG_INFO("server.loading", "Loading Groups...");
     sGroupMgr->LoadGroups();
@@ -1784,9 +1781,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading GM surveys...");
     sTicketMgr->LoadSurveys();
 
-    TC_LOG_INFO("server.loading", "Loarding Rated Stas...");
-    sRatedMgr->LoadRatedInfo();
-
     TC_LOG_INFO("server.loading", "Loading client addons...");
     AddonMgr::LoadFromDB();
 
@@ -1827,15 +1821,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
 
-    TC_LOG_INFO("server.loading", "Loading Research Digsite info...");
-    sObjectMgr->LoadResearchDigsiteInfo();
-
-    TC_LOG_INFO("server.loading", "Loading Archaeology Find info...");
-    sObjectMgr->LoadArchaeologyFindInfo();
-
-    TC_LOG_INFO("server.loading", "Loading Research Project requirements...");
-    sObjectMgr->LoadResearchProjectRequirements();
-
     TC_LOG_INFO("server.loading", "Loading Battle Pet breed data...");
     sObjectMgr->LoadBattlePetBreedData();
 
@@ -1852,7 +1837,6 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
-    m_timers[WUPDATE_BLACKMARKET].SetInterval(MINUTE*IN_MILLISECONDS);
     m_timers[WUPDATE_UPTIME].SetInterval(m_int_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILLISECONDS);
                                                             //Update "uptime" table based on configuration entry in minutes.
     m_timers[WUPDATE_CORPSES].SetInterval(20 * MINUTE * IN_MILLISECONDS);
@@ -1865,6 +1849,8 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_PINGDB].SetInterval(getIntConfig(CONFIG_DB_PING_INTERVAL)*MINUTE*IN_MILLISECONDS);    // Mysql ping time in minutes
 
     m_timers[WUPDATE_GUILDSAVE].SetInterval(getIntConfig(CONFIG_GUILD_SAVE_INTERVAL) * MINUTE * IN_MILLISECONDS);
+
+    m_timers[WUPDATE_BLACK_MARKET].SetInterval(MINUTE*IN_MILLISECONDS);
 
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
@@ -2094,13 +2080,6 @@ void World::Update(uint32 diff)
         sAuctionMgr->Update();
     }
 
-    // Update BlackMarket
-    if (m_timers[WUPDATE_BLACKMARKET].Passed())
-    {
-        m_timers[WUPDATE_BLACKMARKET].Reset();
-        sBlackMarketMgr->Update();
-    }
-
     /// <li> Handle session updates when the timer has passed
     RecordTimeDiff(NULL);
     UpdateSessions(diff);
@@ -2215,6 +2194,13 @@ void World::Update(uint32 diff)
     {
         m_timers[WUPDATE_GUILDSAVE].Reset();
         sGuildMgr->SaveGuilds();
+    }
+
+    // Update BlackMarket
+    if (m_timers[WUPDATE_BLACK_MARKET].Passed())
+    {
+        m_timers[WUPDATE_BLACK_MARKET].Reset();
+        sBlackMarketMgr->Update();
     }
 
     // update the instance reset times

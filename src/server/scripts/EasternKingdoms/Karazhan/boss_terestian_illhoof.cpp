@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +17,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+SDName: Boss_Terestian_Illhoof
+SD%Complete: 95
+SDComment: Complete! Needs adjustments to use spell though.
+SDCategory: Karazhan
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -61,7 +71,7 @@ class npc_kilrek : public CreatureScript
 public:
     npc_kilrek() : CreatureScript("npc_kilrek") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_kilrekAI(creature);
     }
@@ -79,13 +89,13 @@ public:
 
         uint32 AmplifyTimer;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             TerestianGUID = 0;
             AmplifyTimer = 2000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (!instance)
             {
@@ -94,7 +104,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
             {
@@ -108,7 +118,7 @@ public:
             } else ERROR_INST_DATA(me);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -132,7 +142,7 @@ class npc_demon_chain : public CreatureScript
 public:
     npc_demon_chain() : CreatureScript("npc_demon_chain") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_demon_chainAI(creature);
     }
@@ -143,17 +153,17 @@ public:
 
         uint64 SacrificeGUID;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             SacrificeGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
-        void AttackStart(Unit* /*who*/) override { }
-        void MoveInLineOfSight(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
+        void AttackStart(Unit* /*who*/) OVERRIDE { }
+        void MoveInLineOfSight(Unit* /*who*/) OVERRIDE { }
 
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (SacrificeGUID)
             {
@@ -170,7 +180,7 @@ class npc_fiendish_portal : public CreatureScript
 public:
     npc_fiendish_portal() : CreatureScript("npc_fiendish_portal") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_fiendish_portalAI(creature);
     }
@@ -181,12 +191,12 @@ public:
 
         SummonList summons;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             DespawnAllImp();
         }
 
-        void JustSummoned(Creature* summon) override
+        void JustSummoned(Creature* summon) OVERRIDE
         {
             summons.Summon(summon);
             DoZoneInCombat(summon);
@@ -204,7 +214,7 @@ class npc_fiendish_imp : public CreatureScript
 public:
     npc_fiendish_imp() : CreatureScript("npc_fiendish_imp") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_fiendish_impAI(creature);
     }
@@ -215,16 +225,16 @@ public:
 
         uint32 FireboltTimer;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             FireboltTimer = 2000;
 
             me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -246,7 +256,7 @@ class boss_terestian_illhoof : public CreatureScript
 public:
     boss_terestian_illhoof() : CreatureScript("boss_terestian_illhoof") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_terestianAI(creature);
     }
@@ -273,7 +283,7 @@ public:
         bool SummonedPortals;
         bool Berserk;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             for (uint8 i = 0; i < 2; ++i)
             {
@@ -314,12 +324,12 @@ public:
             else DoCast(me, SPELL_SUMMON_IMP, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             Talk(SAY_AGGRO);
         }
 
-        void JustSummoned(Creature* summoned) override
+        void JustSummoned(Creature* summoned) OVERRIDE
         {
             if (summoned->GetEntry() == NPC_PORTAL)
             {
@@ -334,12 +344,12 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/) override
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             for (uint8 i = 0; i < 2; ++i)
             {
@@ -358,7 +368,7 @@ public:
                 instance->SetData(TYPE_TERESTIAN, DONE);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;

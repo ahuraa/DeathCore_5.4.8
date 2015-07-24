@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,7 +33,7 @@ class boss_general_angerforge : public CreatureScript
 public:
     boss_general_angerforge() : CreatureScript("boss_general_angerforge") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_general_angerforgeAI(creature);
     }
@@ -45,7 +48,7 @@ public:
         uint32 Adds_Timer;
         bool Medics;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             MightyBlow_Timer = 8000;
             HamString_Timer = 12000;
@@ -54,7 +57,7 @@ public:
             Medics = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) OVERRIDE { }
 
         void SummonAdds(Unit* victim)
         {
@@ -68,7 +71,7 @@ public:
                 SummonedMedic->AI()->AttackStart(victim);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())

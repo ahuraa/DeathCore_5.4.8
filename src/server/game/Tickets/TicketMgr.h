@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,16 +26,6 @@
 #include "ObjectMgr.h"
 
 class ChatHandler;
-
-enum ComplainType
-{
-    COMPLAIN_SPAM           = 0,
-    COMPLAIN_CHEATER        = 1,
-    COMPLAIN_PLAYER_NAME    = 3,
-    COMPLAIN_GUILD_NAME     = 6,
-    COMPLAIN_ARENA_NAME     = 9,
-    COMPLAIN_BAD_LANG       = 10,
-};
 
 // from blizzard lua
 enum GMTicketSystemStatus

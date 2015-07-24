@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 #ifndef _UPDATEFIELDS_H
 #define _UPDATEFIELDS_H
 
-// Auto generated for version 5.4.8.18414
+// Auto generated for version 5.4.7 18019
 
 enum EObjectFields
 {
@@ -51,6 +51,12 @@ enum EItemFields
     ITEM_FIELD_CREATE_PLAYED_TIME                            = OBJECT_END + 0x3B, // Size: 1, Flags: UF_FLAG_PUBLIC
     ITEM_FIELD_MODIFIERS_MASK                                = OBJECT_END + 0x3C, // Size: 1, Flags: UF_FLAG_OWNER
     ITEM_END                                                 = OBJECT_END + 0x3D,
+};
+
+enum ItemDynamicFields
+{
+    ITEM_DYNAMIC_MODIFIERS = 0x0,
+    ITEM_DYNAMIC_END = 0x1
 };
 
 enum EContainerFields
@@ -159,7 +165,7 @@ enum EPlayerFields
     PLAYER_FIELD_GUILD_TIME_STAMP                            = UNIT_END + 0x00A, // Size: 1, Flags: UF_FLAG_PUBLIC
     PLAYER_FIELD_QUEST_LOG                                   = UNIT_END + 0x00B, // Size: 750, Flags: UF_FLAG_PARTY
     PLAYER_FIELD_VISIBLE_ITEMS                               = UNIT_END + 0x2F9, // Size: 19, Flags: UF_FLAG_PUBLIC
-    PLAYER_FIELD_VISIBLE_ITEM_NCHANTMENTS                    = UNIT_END + 0x2FA, // Size: 19, Flags: UF_FLAG_PARTY
+    PLAYER_FIELD_VISIBLE_ITEM_NCHANTMENTS                    = UNIT_END + 0x30D, // Size: 19, Flags: UF_FLAG_PARTY
     PLAYER_FIELD_PLAYER_TITLE                                = UNIT_END + 0x31F, // Size: 1, Flags: UF_FLAG_PUBLIC
     PLAYER_FIELD_FAKE_INEBRIATION                            = UNIT_END + 0x320, // Size: 1, Flags: UF_FLAG_PUBLIC
     PLAYER_FIELD_VIRTUAL_PLAYER_REALM                        = UNIT_END + 0x321, // Size: 1, Flags: UF_FLAG_PUBLIC
@@ -183,7 +189,7 @@ enum EPlayerFields
     PLAYER_FIELD_SKILL_STARTING_RANKS                        = UNIT_END + 0x04A1, // Size: 64, Flags: UF_FLAG_PRIVATE
     PLAYER_FIELD_SKILL_MAX_RANKS                             = UNIT_END + 0x04E1, // Size: 64, Flags: UF_FLAG_PRIVATE
     PLAYER_FIELD_SKILL_MODIFIERS                             = UNIT_END + 0x0521, // Size: 64, Flags: UF_FLAG_PRIVATE
-    PLAYER_FIELD_SKILL_TALENTS                               = UNIT_END + 0x0561, // Size: 64, Flags: UF_FLAG_PRIVATE
+    PLAYER_FIELD_SKILL_TALENTS                               = UNIT_END + 0x056F, // Size: 64, Flags: UF_FLAG_PRIVATE
     PLAYER_FIELD_CHARACTER_POINTS                            = UNIT_END + 0x5A1, // Size: 1, Flags: UF_FLAG_PRIVATE
     PLAYER_FIELD_MAX_TALENT_TIERS                            = UNIT_END + 0x5A2, // Size: 1, Flags: UF_FLAG_PRIVATE
     PLAYER_FIELD_TRACK_CREATURE_MASK                         = UNIT_END + 0x5A3, // Size: 1, Flags: UF_FLAG_PRIVATE
@@ -260,8 +266,8 @@ enum EGameObjectFields
     GAMEOBJECT_FIELD_PARENT_ROTATION                         = OBJECT_END + 0x4, // Size: 4, Flags: UF_FLAG_PUBLIC
     GAMEOBJECT_FIELD_FACTION_TEMPLATE                        = OBJECT_END + 0x8, // Size: 1, Flags: UF_FLAG_PUBLIC
     GAMEOBJECT_FIELD_LEVEL                                   = OBJECT_END + 0x9, // Size: 1, Flags: UF_FLAG_PUBLIC
-    GAMEOBJECT_FIELD_BYTES                                   = OBJECT_END + 0xA, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
-    GAMEOBJECT_FIELD_VISUAL_BYTES                            = OBJECT_END + 0xB, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    GAMEOBJECT_FIELD_PERCENT_HEALTH                          = OBJECT_END + 0xA, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
+    GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID                   = OBJECT_END + 0xB, // Size: 1, Flags: UF_FLAG_PUBLIC, UF_FLAG_URGENT
     GAMEOBJECT_END                                           = OBJECT_END + 0xC
 };
 
@@ -305,32 +311,6 @@ enum ESceneObjectFields
     SCENEOBJECT_FIELD_CREATED_BY                             = OBJECT_END + 0x2, // Size: 2, Flags: UF_FLAG_PUBLIC
     SCENEOBJECT_FIELD_SCENE_TYPE                             = OBJECT_END + 0x4, // Size: 1, Flags: UF_FLAG_PUBLIC
     SCENEOBJECT_FIELD_END                                    = OBJECT_END + 0x5
-};
-
-enum EObjectDynamicFields
-{
-    OBJECT_DYNAMIC_END                                       = 0x0,
-};
-
-enum EUnitDynamicFields
-{
-    UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS                        = OBJECT_DYNAMIC_END + 0x0, // Size: 0x1
-    UNIT_DYNAMIC_FIELD_WORLD_EFFECTS                         = OBJECT_DYNAMIC_END + 0x1, // Size: 0x1
-    UNIT_DYNAMIC_END                                         = OBJECT_DYNAMIC_END + 0x2,
-};
-
-enum EPlayerDynamicFields
-{
-    PLAYER_DYNAMIC_FIELD_RESERACH_SITE                       = UNIT_DYNAMIC_END + 0x0, // Size: 0x1
-    PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS              = UNIT_DYNAMIC_END + 0x1, // Size: 0x1
-    PLAYER_DYNAMIC_FIELD_DAILY_QUESTS                        = UNIT_DYNAMIC_END + 0x2, // Size: 0x1
-    PLAYER_DYNAMIC_END                                       = UNIT_DYNAMIC_END + 0x3
-};
-
-enum EItemDynamicFields
-{
-    ITEM_DYNAMIC_FIELD_MODIFIERS                             = OBJECT_DYNAMIC_END + 0x0, // Size: 0x1
-    ITEM_DYNAMIC_END                                         = OBJECT_DYNAMIC_END + 0x1
 };
 
 #endif // _UPDATEFIELDS_H

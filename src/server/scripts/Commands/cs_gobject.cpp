@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +16,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+Name: gobject_commandscript
+%Complete: 100
+Comment: All gobject related commands
+Category: commandscripts
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "GameEventMgr.h"
@@ -231,7 +240,7 @@ public:
                 WorldDatabase.EscapeString(name);
                 result = WorldDatabase.PQuery(
                     "SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - %f, 2) + POW(position_y - %f, 2) + POW(position_z - %f, 2)) AS order_ "
-                    "FROM gameobject, gameobject_template WHERE gameobject_template.entry = gameobject.id AND map = %i AND name " _LIKE_ " " _CONCAT3_("'%%'", "'%s'", "'%%'")" ORDER BY order_ ASC LIMIT 1",
+                    "FROM gameobject, gameobject_template WHERE gameobject_template.entry = gameobject.id AND map = %i AND name "_LIKE_" "_CONCAT3_("'%%'", "'%s'", "'%%'")" ORDER BY order_ ASC LIMIT 1",
                     player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), name.c_str());
             }
         }
@@ -654,24 +663,12 @@ public:
         int32 objectState = atoi(state);
 
         if (objectType < 4)
-        {
-            object->SetByteValue(GAMEOBJECT_FIELD_VISUAL_BYTES, objectType, objectState);
-        }
+            object->SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, objectType, objectState);
         else if (objectType == 4)
         {
-            ObjectGuid GUID = object->GetGUID();
-
-            WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8 + 4 + 2);
-            data.WriteGuidMask(GUID, 4, 7, 1, 0, 5, 3, 2);
-            data.WriteBit(((uint32)(objectState) > 0 ? 1 : 0));
-            data.WriteBit(GUID[6]);
-            data.WriteBit(1);
-
-            if ((uint32)(objectState) > 0)
-                data << uint32((uint32)(objectState));
-
-            data.WriteGuidBytes(GUID, 5, 6, 7, 3, 4, 0, 2, 1);
-
+            WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
+            data << object->GetGUID();
+            data << (uint32)(objectState);
             object->SendMessageToSet(&data, true);
         }
         handler->PSendSysMessage("Set gobject type %d state %d", objectType, objectState);

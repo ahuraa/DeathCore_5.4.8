@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -74,10 +74,9 @@ enum ItemModType
     ITEM_MOD_SHADOW_RESISTANCE        = 54,
     ITEM_MOD_NATURE_RESISTANCE        = 55,
     ITEM_MOD_ARCANE_RESISTANCE        = 56,
-    ITEM_MOD_PVP_POWER                = 57,
 };
 
-#define MAX_ITEM_MOD                    58
+#define MAX_ITEM_MOD                    57
 
 enum ItemSpelltriggerType
 {
@@ -209,9 +208,11 @@ enum ItemFlagsCustom
 
 enum CurrencyFlags
 {
-    CURRENCY_FLAG_TRADEABLE         = 0x01,
-    CURRENCY_FLAG_HIGH_PRECISION    = 0x08,
-    CURRENCY_FLAG_HAS_SEASON_COUNT  = 0x80, // guessed
+    CURRENCY_FLAG_TRADEABLE          = 0x01,
+    // ...
+    CURRENCY_FLAG_HIGH_PRECISION     = 0x08,
+    // ...
+    CURRENCY_FLAG_COUNT_SEASON_TOTAL = 0x80,
 };
 
 enum CurrencyCategory
@@ -556,16 +557,7 @@ enum ItemSubclassGlyph
 
 enum ItemSubclassBattlePet
 {
-    ITEM_SUBCLASS_BATTLE_PET_AQUATIC            = 1,
-    ITEM_SUBCLASS_BATTLE_PET_BEAST              = 2,
-    ITEM_SUBCLASS_BATTLE_PET_CRITTER            = 3,
-    ITEM_SUBCLASS_BATTLE_PET_DRAGONKIN          = 4,
-    ITEM_SUBCLASS_BATTLE_PET_ELEMENTAL          = 5,
-    ITEM_SUBCLASS_BATTLE_PET_FLYING             = 6,
-    ITEM_SUBCLASS_BATTLE_PET_HUMANOID           = 7,
-    ITEM_SUBCLASS_BATTLE_PET_MAGICAL            = 8,
-    ITEM_SUBCLASS_BATTLE_PET_MECHANICAL         = 9,
-    ITEM_SUBCLASS_BATTLE_PET_UNDEAD             = 10
+    ITEM_SUBCLASS_BATTLE_PET                    = 0
 };
 
 #define MAX_ITEM_SUBCLASS_BATTLE_PET              1
@@ -724,7 +716,6 @@ struct ItemTemplate
     uint32 MinMoneyLoot;
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
-    int8 specId[50];
 
     // helpers
     bool CanChangeEquipStateInCombat() const
@@ -789,12 +780,12 @@ struct ItemTemplate
                SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW;
     }
 
-	bool IsRangedInventoryType() const
-	{
-		return InventoryType == INVTYPE_RANGED ||
-			InventoryType == INVTYPE_THROWN ||
-			InventoryType == INVTYPE_RANGEDRIGHT;
-	}
+    bool IsRangedInventoryType() const
+    {
+        return InventoryType == INVTYPE_RANGED || 
+               InventoryType == INVTYPE_THROWN || 
+               InventoryType == INVTYPE_RANGEDRIGHT;
+    }
 };
 
 // Benchmarked: Faster than std::map (insert/find)

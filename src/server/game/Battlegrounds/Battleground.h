@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +24,6 @@
 #include "SharedDefines.h"
 #include "DBCEnums.h"
 #include "WorldStateBuilder.h"
-#include "RatedInfo.h"
 
 class Creature;
 class GameObject;
@@ -176,43 +175,37 @@ struct BattlegroundObjectInfo
 
 enum ScoreType
 {
-    SCORE_KILLING_BLOWS             = 1,
-    SCORE_DEATHS                    = 2,
-    SCORE_HONORABLE_KILLS           = 3,
-    SCORE_BONUS_HONOR               = 4,
+    SCORE_KILLING_BLOWS         = 1,
+    SCORE_DEATHS                = 2,
+    SCORE_HONORABLE_KILLS       = 3,
+    SCORE_BONUS_HONOR           = 4,
     //EY, but in MSG_PVP_LOG_DATA opcode!
-    SCORE_DAMAGE_DONE               = 5,
-    SCORE_HEALING_DONE              = 6,
+    SCORE_DAMAGE_DONE           = 5,
+    SCORE_HEALING_DONE          = 6,
     //WS
-    SCORE_FLAG_CAPTURES             = 7,
-    SCORE_FLAG_RETURNS              = 8,
+    SCORE_FLAG_CAPTURES         = 7,
+    SCORE_FLAG_RETURNS          = 8,
     //AB and IC
-    SCORE_BASES_ASSAULTED           = 9,
-    SCORE_BASES_DEFENDED            = 10,
+    SCORE_BASES_ASSAULTED       = 9,
+    SCORE_BASES_DEFENDED        = 10,
     //AV
-    SCORE_GRAVEYARDS_ASSAULTED      = 11,
-    SCORE_GRAVEYARDS_DEFENDED       = 12,
-    SCORE_TOWERS_ASSAULTED          = 13,
-    SCORE_TOWERS_DEFENDED           = 14,
-    SCORE_MINES_CAPTURED            = 15,
-    SCORE_LEADERS_KILLED            = 16,
-    SCORE_SECONDARY_OBJECTIVES      = 17,
+    SCORE_GRAVEYARDS_ASSAULTED  = 11,
+    SCORE_GRAVEYARDS_DEFENDED   = 12,
+    SCORE_TOWERS_ASSAULTED      = 13,
+    SCORE_TOWERS_DEFENDED       = 14,
+    SCORE_MINES_CAPTURED        = 15,
+    SCORE_LEADERS_KILLED        = 16,
+    SCORE_SECONDARY_OBJECTIVES  = 17,
     //SOTA
-    SCORE_DESTROYED_DEMOLISHER      = 18,
-    SCORE_DESTROYED_WALL            = 19,
-    //RATED MATCHES
-    SCORE_PRE_MATCH_PERSONAL_RATING = 20,
-    SCORE_PERSONAL_RATING_CHANGE    = 21,
-    SCORE_PRE_MATCH_MMR             = 22,
-    SCORE_MMR_CHANGE                = 23,
-	//KOT
-    SCORE_ORB_HANDLES               = 24,
-    SCORE_ORB_SCORE                 = 25,
-    //DEEPWIND
-    SCORE_CART_CAPTURES             = 26,
-    SCORE_CART_RETURNS              = 27,
-    //SILVERSHARD
-    SCORE_CART_CONTROLLED           = 28,
+    SCORE_DESTROYED_DEMOLISHER  = 18,
+    SCORE_DESTROYED_WALL        = 19
+};
+
+enum ArenaType
+{
+    ARENA_TYPE_2v2          = 2,
+    ARENA_TYPE_3v3          = 3,
+    ARENA_TYPE_5v5          = 5
 };
 
 enum BattlegroundType
@@ -251,8 +244,7 @@ enum BattlegroundStartingEventsIds
 struct BattlegroundScore
 {
     BattlegroundScore() : KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0),
-    DamageDone(0), HealingDone(0), PersonalRatingChange(0), MatchmakerRatingChange(0),
-    PreMatchMatchmakerRating(0), PreMatchPersonalRating(0)
+        DamageDone(0), HealingDone(0)
     { }
 
     virtual ~BattlegroundScore() { }                        //virtual destructor is used when deleting score from scores map
@@ -263,10 +255,6 @@ struct BattlegroundScore
     uint32 BonusHonor;
     uint32 DamageDone;
     uint32 HealingDone;
-    uint16 PreMatchPersonalRating;
-    int16 PersonalRatingChange;
-    uint16 PreMatchMatchmakerRating;
-    int16 MatchmakerRatingChange;
 };
 
 enum BGHonorMode
@@ -332,7 +320,7 @@ class Battleground
         uint32 GetMinPlayersPerTeam() const { return m_MinPlayersPerTeam; }
 
         int32 GetStartDelayTime() const     { return m_StartDelayTime; }
-        RatedType GetRatedType() const      { return m_RatedType; }        
+        uint8 GetArenaType() const          { return m_ArenaType; }
         uint8 GetWinner() const             { return m_Winner; }
         uint32 GetScriptId() const          { return ScriptId; }
         uint32 GetBonusHonorFromKill(uint32 kills) const;
@@ -355,7 +343,7 @@ class Battleground
         void SetMinPlayers(uint32 MinPlayers) { m_MinPlayers = MinPlayers; }
         void SetLevelRange(uint32 min, uint32 max) { m_LevelMin = min; m_LevelMax = max; }
         void SetRated(bool state)           { m_IsRated = state; }
-        void SetRatedType(RatedType ratedType)   { m_RatedType = ratedType; }
+        void SetArenaType(uint8 type)       { m_ArenaType = type; }
         void SetArenaorBGType(bool _isArena) { m_IsArena = _isArena; }
         void SetWinner(uint8 winner)        { m_Winner = winner; }
         void SetScriptId(uint32 scriptId)   { ScriptId = scriptId; }
@@ -377,10 +365,9 @@ class Battleground
         bool HasFreeSlots() const;
         uint32 GetFreeSlotsForTeam(uint32 Team) const;
 
-        bool IsArena() const                { return m_IsArena; }
-        bool IsBattleground() const         { return !m_IsArena; }
-        bool IsRated() const                { return m_IsRated; }
-        bool IsRatedBattleground() const    { return m_IsRated && !m_IsArena; }
+        bool isArena() const        { return m_IsArena; }
+        bool isBattleground() const { return !m_IsArena; }
+        bool isRated() const        { return m_IsRated; }
 
         typedef std::map<uint64, BattlegroundPlayer> BattlegroundPlayerMap;
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
@@ -441,7 +428,7 @@ class Battleground
         void CastSpellOnTeam(uint32 SpellID, uint32 TeamID);
         void RemoveAuraOnTeam(uint32 SpellID, uint32 TeamID);
         void RewardHonorToTeam(uint32 Honor, uint32 TeamID);
-		void RewardReputationToTeam(uint32 a_faction_id, uint32 h_faction_id, uint32 Reputation, uint32 teamId);
+        void RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID);
         void UpdateWorldState(uint32 Field, uint32 Value);
         void UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* player);
         void EndBattleground(uint32 winner);
@@ -471,12 +458,16 @@ class Battleground
                 ++m_PlayersCount[GetTeamIndexByTeamId(Team)];
         }
 
-        // Rated Matches
-        uint32 GetTeamMatchmakerRating(uint32 Team) const { return m_TeamMMR[GetTeamIndexByTeamId(Team)]; }
-        void SetTeamMatchmakerRating(uint32 Team, uint32 MMR){ m_TeamMMR[GetTeamIndexByTeamId(Team)] = MMR; }
-        uint32 GetTeamMatchmakerRatingByIndex(uint32 index) const  { return m_TeamMMR[index]; }        
-
-        // Arenas
+        // used for rated arena battles
+        void SetArenaTeamIdForTeam(uint32 Team, uint32 ArenaTeamId) { m_ArenaTeamIds[GetTeamIndexByTeamId(Team)] = ArenaTeamId; }
+        uint32 GetArenaTeamIdForTeam(uint32 Team) const             { return m_ArenaTeamIds[GetTeamIndexByTeamId(Team)]; }
+        uint32 GetArenaTeamIdByIndex(uint32 index) const { return m_ArenaTeamIds[index]; }
+        void SetArenaTeamRatingChangeForTeam(uint32 Team, int32 RatingChange) { m_ArenaTeamRatingChanges[GetTeamIndexByTeamId(Team)] = RatingChange; }
+        int32 GetArenaTeamRatingChangeForTeam(uint32 Team) const    { return m_ArenaTeamRatingChanges[GetTeamIndexByTeamId(Team)]; }
+        int32 GetArenaTeamRatingChangeByIndex(uint32 index) const   { return m_ArenaTeamRatingChanges[index]; }
+        void SetArenaMatchmakerRating(uint32 Team, uint32 MMR){ m_ArenaTeamMMR[GetTeamIndexByTeamId(Team)] = MMR; }
+        uint32 GetArenaMatchmakerRating(uint32 Team) const          { return m_ArenaTeamMMR[GetTeamIndexByTeamId(Team)]; }
+        uint32 GetArenaMatchmakerRatingByIndex(uint32 index) const  { return m_ArenaTeamMMR[index]; }
         void CheckArenaAfterTimerConditions();
         void CheckArenaWinConditions();
         void UpdateArenaWorldState();
@@ -521,7 +512,6 @@ class Battleground
         BGCreatures BgCreatures;
         void SpawnBGObject(uint32 type, uint32 respawntime);
         bool AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
-        bool AddTransport(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
         Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime = 0);
         bool DelCreature(uint32 type);
         bool DelObject(uint32 type);
@@ -608,7 +598,7 @@ class Battleground
         int32 m_EndTime;                                    // it is set to 120000 when bg is ending and it decreases itself
         uint32 m_LastResurrectTime;
         BattlegroundBracketId m_BracketId;
-        RatedType m_RatedType;                              // (2v2 = 2, 3v3 = 3, 5v5 = 5, 10v10 = 10)
+        uint8  m_ArenaType;                                 // 2=2v2, 3=3v3, 5=5v5
         bool   m_InBGFreeSlotQueue;                         // used to make sure that BG is only once inserted into the BattlegroundMgr.BGFreeSlotQueue[bgTypeId] deque
         bool   m_SetDeleteThis;                             // used for safe deletion of the bg after end / all players leave
         bool   m_IsArena;
@@ -663,11 +653,13 @@ class Battleground
         // Raid Group
         Group* m_BgRaids[BG_TEAMS_COUNT];                   // 0 - alliance, 1 - horde
 
-        uint32 m_TeamMMR[BG_TEAMS_COUNT];
-
         // Players count by team
         uint32 m_PlayersCount[BG_TEAMS_COUNT];
 
+        // Arena team ids by team
+        uint32 m_ArenaTeamIds[BG_TEAMS_COUNT];
+
+        int32 m_ArenaTeamRatingChanges[BG_TEAMS_COUNT];
         uint32 m_ArenaTeamMMR[BG_TEAMS_COUNT];
 
         // Limits

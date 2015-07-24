@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +17,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+SDName: Boss_Eredar_Twins
+SD%Complete: 100
+SDComment:
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -78,7 +87,7 @@ class boss_sacrolash : public CreatureScript
 public:
     boss_sacrolash() : CreatureScript("boss_sacrolash") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_sacrolashAI(creature);
     };
@@ -102,7 +111,7 @@ public:
         uint32 ConflagrationTimer;
         uint32 EnrageTimer;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             Enraged = false;
 
@@ -133,7 +142,7 @@ public:
                 instance->SetData(DATA_EREDAR_TWINS_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* who) OVERRIDE
         {
             DoZoneInCombat();
 
@@ -148,13 +157,13 @@ public:
                 instance->SetData(DATA_EREDAR_TWINS_EVENT, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* /*victim*/) override
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             if (rand()%4 == 0)
                 Talk(YELL_SAC_KILL);
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             // only if ALY death
             if (SisterDeath)
@@ -168,7 +177,7 @@ public:
                 me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
         {
             switch (spell->Id)
             {
@@ -211,7 +220,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!SisterDeath)
             {
@@ -334,7 +343,7 @@ class boss_alythess : public CreatureScript
 public:
     boss_alythess() : CreatureScript("boss_alythess") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_alythessAI(creature);
     };
@@ -364,7 +373,7 @@ public:
         uint32 FlamesearTimer;
         uint32 EnrageTimer;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             Enraged = false;
 
@@ -396,7 +405,7 @@ public:
                 instance->SetData(DATA_EREDAR_TWINS_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* who) OVERRIDE
         {
             DoZoneInCombat();
 
@@ -411,13 +420,13 @@ public:
                 instance->SetData(DATA_EREDAR_TWINS_EVENT, IN_PROGRESS);
         }
 
-        void AttackStart(Unit* who) override
+        void AttackStart(Unit* who) OVERRIDE
         {
             if (!me->IsInCombat())
                 ScriptedAI::AttackStart(who);
         }
 
-        void MoveInLineOfSight(Unit* who) override
+        void MoveInLineOfSight(Unit* who) OVERRIDE
 
         {
             if (!who || me->GetVictim())
@@ -440,7 +449,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/) override
+        void KilledUnit(Unit* /*victim*/) OVERRIDE
         {
             if (rand()%4 == 0)
             {
@@ -448,7 +457,7 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (SisterDeath)
             {
@@ -461,7 +470,7 @@ public:
                 me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
         {
             switch (spell->Id)
             {
@@ -538,7 +547,7 @@ public:
             return 10000;
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (IntroStepCounter < 9)
             {
@@ -662,7 +671,7 @@ class npc_shadow_image : public CreatureScript
 public:
     npc_shadow_image() : CreatureScript("npc_shadow_image") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_shadow_imageAI(creature);
     };
@@ -675,7 +684,7 @@ public:
         uint32 KillTimer;
         uint32 DarkstrikeTimer;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             ShadowfuryTimer = 5000 + (rand()%15000);
@@ -683,9 +692,9 @@ public:
             KillTimer = 15000;
         }
 
-        void EnterCombat(Unit* /*who*/)override { }
+        void EnterCombat(Unit* /*who*/)OVERRIDE { }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, const SpellInfo* spell) OVERRIDE
         {
             switch (spell->Id)
             {
@@ -703,7 +712,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!me->HasAura(SPELL_IMAGE_VISUAL))
                 DoCast(me, SPELL_IMAGE_VISUAL);

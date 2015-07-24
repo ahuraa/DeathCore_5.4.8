@@ -9,10 +9,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 # Set projectname (must be done AFTER setting configurationtypes)
-project(DeathCore)
-
-# Fix compile
-SET(CMAKE_C_FLAGS "-std=gnu99" CACHE STRING "" FORCE)
+project(DeathCore_5.4.8)
 
 # CMake policies (can not be handled elsewhere)
 cmake_minimum_required(VERSION 2.8.9)
@@ -74,17 +71,6 @@ endif()
 
 if(NOT WITHOUT_GIT)
   find_package(Git)
-endif()
-
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-else()
-        message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
 # Find revision ID and hash of the sourcetree

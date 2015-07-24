@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -75,7 +75,7 @@ public:
 
         float fMaxDistance;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 9.0f);
             me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 9.0f);
@@ -94,7 +94,7 @@ public:
         }
 
         //when Hadronox kills any enemy (that includes a party member) she will regain 10% of her HP if the target had Leech Poison on
-        void KilledUnit(Unit* Victim) override
+        void KilledUnit(Unit* Victim) OVERRIDE
         {
             // not sure if this aura check is correct, I think it is though
             if (!Victim || !Victim->HasAura(DUNGEON_MODE(SPELL_LEECH_POISON, H_SPELL_LEECH_POISON)) || !me->IsAlive())
@@ -103,13 +103,13 @@ public:
             me->ModifyHealth(int32(me->CountPctFromMaxHealth(10)));
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* /*killer*/) OVERRIDE
         {
             if (instance)
                 instance->SetBossState(DATA_HADRONOX, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (instance)
                 instance->SetBossState(DATA_HADRONOX, IN_PROGRESS);
@@ -137,7 +137,7 @@ public:
                 EnterEvadeMode();
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -193,7 +193,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_hadronoxAI(creature);
     }

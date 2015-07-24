@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -75,7 +78,7 @@ public:
             go_portcullis_tobossrooms = 0;
         }
 
-        void OnCreatureCreate(Creature* creature) override
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -133,7 +136,7 @@ public:
              }
          }
 
-        void OnGameObjectCreate(GameObject* go) override
+        void OnGameObjectCreate(GameObject* go) OVERRIDE
         {
             switch (go->GetEntry())
             {
@@ -240,7 +243,7 @@ public:
             }
         }
 
-        bool SetBossState(uint32 type, EncounterState state) override
+        bool SetBossState(uint32 type, EncounterState state) OVERRIDE
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -270,7 +273,7 @@ public:
              return true;
         }
 
-        void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId) override
+        void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId) OVERRIDE
         {
             switch (eventId)
             {
@@ -292,7 +295,7 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 data) override
+        void SetData(uint32 type, uint32 data) OVERRIDE
         {
             switch (type)
             {
@@ -307,7 +310,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 type) const override
+        uint64 GetData64(uint32 type) const OVERRIDE
         {
             switch (type)
             {
@@ -414,7 +417,7 @@ public:
             return 0;
         }
 
-        void Update(uint32 diff) override
+        void Update(uint32 diff) OVERRIDE
         {
             Events.Update(diff);
 
@@ -531,7 +534,7 @@ public:
             }
         }
 
-        std::string GetSaveData() override
+        std::string GetSaveData() OVERRIDE
         {
             OUT_SAVE_INST_DATA;
 
@@ -542,7 +545,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* strIn) override
+        void Load(const char* strIn) OVERRIDE
         {
             if (!strIn)
             {
@@ -605,7 +608,7 @@ public:
             uint64 go_portcullis_tobossrooms;
     };
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_blackrock_spireMapScript(map);
     }
@@ -620,7 +623,7 @@ class at_dragonspire_hall : public AreaTriggerScript
 public:
     at_dragonspire_hall() : AreaTriggerScript("at_dragonspire_hall") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) OVERRIDE
     {
         if (player && player->IsAlive())
         {
@@ -644,7 +647,7 @@ class at_blackrock_stadium : public AreaTriggerScript
 public:
     at_blackrock_stadium() : AreaTriggerScript("at_blackrock_stadium") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) OVERRIDE
     {
         if (player && player->IsAlive())
         {

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,7 +38,6 @@ enum MovementStatusElements
     MSEHasGuidByte5,
     MSEHasGuidByte6,
     MSEHasGuidByte7,
-    MSEHasMountDisplayId,
     MSEHasMovementFlags,
     MSEHasMovementFlags2,
     MSEHasTimestamp,
@@ -54,7 +53,6 @@ enum MovementStatusElements
     MSEHasTransportGuidByte7,
     MSEHasTransportTime2,
     MSEHasTransportTime3,
-    MSEHasTransportVehicleId,
     MSEHasPitch,
     MSEHasFallData,
     MSEHasFallDirection,
@@ -62,7 +60,6 @@ enum MovementStatusElements
     MSEHasSpline,
 
     MSEForces,
-    MSECount,
     MSECounter,
     MSEGuidByte0,
     MSEGuidByte1,
@@ -72,8 +69,6 @@ enum MovementStatusElements
     MSEGuidByte5,
     MSEGuidByte6,
     MSEGuidByte7,
-    MSEMountDisplayIdWithCheck,
-    MSEMountDisplayIdWithoutCheck,
     MSEMovementFlags,
     MSEMovementFlags2,
     MSETimestamp,
@@ -97,7 +92,6 @@ enum MovementStatusElements
     MSETransportTime,
     MSETransportTime2,
     MSETransportTime3,
-    MSETransportVehicleId,
     MSEPitch,
     MSEFallTime,
     MSEFallVerticalSpeed,
@@ -115,10 +109,7 @@ enum MovementStatusElements
     MSEExtraElement,    // Used to signalize reading into ExtraMovementStatusElement, element sequence inside it is declared as separate array
                         // Allowed internal elements are: GUID markers (not transport), MSEExtraFloat, MSEExtraInt8
     MSEExtraFloat,
-    MSEExtraFloat2,
     MSEExtraInt8,
-    MSEExtraInt32,
-    MSEExtra2Bits,
 };
 
 namespace Movement
@@ -138,11 +129,8 @@ namespace Movement
         struct
         {
             ObjectGuid guid;
-            int8  byteData;
-            int32 extraInt32Data;
-            uint32 extra2BitsData;
             float floatData;
-            float floatData2;
+            int8  byteData;
         } Data;
 
     protected:

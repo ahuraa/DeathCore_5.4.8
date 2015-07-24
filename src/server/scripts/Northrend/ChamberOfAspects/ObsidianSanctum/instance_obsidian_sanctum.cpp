@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,7 +33,7 @@ class instance_obsidian_sanctum : public InstanceMapScript
 public:
     instance_obsidian_sanctum() : InstanceMapScript("instance_obsidian_sanctum", 615) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
     {
         return new instance_obsidian_sanctum_InstanceMapScript(map);
     }
@@ -52,7 +52,7 @@ public:
         bool m_bShadronKilled;
         bool m_bVesperonKilled;
 
-        void Initialize() override
+        void Initialize() OVERRIDE
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
@@ -66,7 +66,7 @@ public:
             m_bVesperonKilled = false;
         }
 
-        bool IsEncounterInProgress() const override
+        bool IsEncounterInProgress() const OVERRIDE
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
@@ -75,7 +75,7 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* creature) override
+        void OnCreatureCreate(Creature* creature) OVERRIDE
         {
             switch (creature->GetEntry())
             {
@@ -99,7 +99,7 @@ public:
             }
         }
 
-        void SetData(uint32 uiType, uint32 uiData) override
+        void SetData(uint32 uiType, uint32 uiData) OVERRIDE
         {
             if (uiType == TYPE_SARTHARION_EVENT)
                 m_auiEncounter[0] = uiData;
@@ -111,7 +111,7 @@ public:
                 m_bVesperonKilled = true;
         }
 
-        uint32 GetData(uint32 uiType) const override
+        uint32 GetData(uint32 uiType) const OVERRIDE
         {
             if (uiType == TYPE_SARTHARION_EVENT)
                 return m_auiEncounter[0];
@@ -125,7 +125,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiData) const override
+        uint64 GetData64(uint32 uiData) const OVERRIDE
         {
             switch (uiData)
             {

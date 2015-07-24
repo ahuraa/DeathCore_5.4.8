@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +17,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+SDName: boss_timmy_the_cruel
+SD%Complete: 100
+SDComment:
+SDCategory: Stratholme
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -33,7 +43,7 @@ class boss_timmy_the_cruel : public CreatureScript
 public:
     boss_timmy_the_cruel() : CreatureScript("boss_timmy_the_cruel") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_timmy_the_cruelAI(creature);
     }
@@ -45,13 +55,13 @@ public:
         uint32 RavenousClaw_Timer;
         bool HasYelled;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             RavenousClaw_Timer = 10000;
             HasYelled = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
             if (!HasYelled)
             {
@@ -60,7 +70,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             //Return since we have no target
             if (!UpdateVictim())

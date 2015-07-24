@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,9 +27,26 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_GRANT_LEVEL");
 
-    uint64 guid;
-    recvData.readPackGUID(guid);
+    ObjectGuid guid;
 
+    guid[2] = recvData.ReadBit();  // 18
+    guid[1] = recvData.ReadBit();  // 17
+    guid[5] = recvData.ReadBit();  // 21
+    guid[3] = recvData.ReadBit();  // 19
+    guid[7] = recvData.ReadBit();  // 23
+    guid[4] = recvData.ReadBit();  // 20
+    guid[0] = recvData.ReadBit();  // 16
+    guid[6] = recvData.ReadBit();  // 22
+
+    recvData.ReadByteSeq(guid[1]);  // 17
+    recvData.ReadByteSeq(guid[4]);  // 20
+    recvData.ReadByteSeq(guid[2]);  // 18
+    recvData.ReadByteSeq(guid[7]);  // 23
+    recvData.ReadByteSeq(guid[5]);  // 21
+    recvData.ReadByteSeq(guid[3]);  // 19
+    recvData.ReadByteSeq(guid[6]);  // 22
+    recvData.ReadByteSeq(guid[0]);  // 16
+    
     Player* target = ObjectAccessor::GetObjectInWorld(guid, _player);
 
     // check cheating
@@ -61,8 +78,29 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
         return;
     }
 
+    
+    ObjectGuid oGUID = _player->GetGUID();
+
     WorldPacket data2(SMSG_PROPOSE_LEVEL_GRANT, 8);
-    data2.append(_player->GetPackGUID());
+    
+    data2.WriteBit(oGUID[6]);  // 22
+    data2.WriteBit(oGUID[7]);  // 23
+    data2.WriteBit(oGUID[2]);  // 18
+    data2.WriteBit(oGUID[5]);  // 21
+    data2.WriteBit(oGUID[3]);  // 19
+    data2.WriteBit(oGUID[0]);  // 16
+    data2.WriteBit(oGUID[1]);  // 17
+    data2.WriteBit(oGUID[4]);  // 20
+
+    data2.WriteByteSeq(oGUID[2]);  // 18
+    data2.WriteByteSeq(oGUID[5]);  // 21
+    data2.WriteByteSeq(oGUID[6]);  // 22
+    data2.WriteByteSeq(oGUID[7]);  // 23
+    data2.WriteByteSeq(oGUID[1]);  // 17
+    data2.WriteByteSeq(oGUID[4]);  // 20
+    data2.WriteByteSeq(oGUID[3]);  // 19
+    data2.WriteByteSeq(oGUID[0]);  // 16
+    
     target->GetSession()->SendPacket(&data2);
 }
 
@@ -72,11 +110,23 @@ void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)
 
     ObjectGuid guid;
 
-    uint8 bitOrder[8] = { 2, 7, 5, 4, 3, 0, 1, 6 };
-    recvData.ReadBitInOrder(guid, bitOrder);
+    guid[2] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
 
-    uint8 byteOrder[8] = { 5, 3, 2, 7, 4, 1, 0, 6 };
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[6]);
 
     Player* other = ObjectAccessor::GetObjectInWorld(guid, _player);
     if (!(other && other->GetSession()))

@@ -1,9 +1,11 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -14,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 #include "DatabaseEnv.h"
 #include "GridDefines.h"
@@ -47,7 +48,6 @@ void WaypointMgr::Load()
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 waypoints. DB table `waypoint_data` is empty!");
-
         return;
     }
 
@@ -84,39 +84,7 @@ void WaypointMgr::Load()
     }
     while (result->NextRow());
 
-    result = WorldDatabase.Query("SELECT c_entry, path_id, wp_id, position_x, position_y, position_z FROM waypoint_spline_data ORDER BY c_entry, path_id, wp_id");
-
-    if (result)
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-
-            uint32 c_entry = fields[0].GetUInt32();
-            uint8 path_id = fields[1].GetUInt8();
-
-            SplineWaypointPathContainer& c_paths = m_splineWaypointStore[c_entry];
-            SplineWaypointPath& path = c_paths[path_id];
-
-            SplineWaypointData wp;
-
-            wp.wp_id = fields[2].GetUInt8();
-            wp.x = fields[3].GetFloat();
-            wp.y = fields[4].GetFloat();
-            wp.z = fields[5].GetFloat();
-
-            Trinity::NormalizeMapCoord(wp.x);
-            Trinity::NormalizeMapCoord(wp.y);
-
-            path.push_back(wp);
-        }
-        while (result->NextRow());
-    }
-    else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 spline waypoints. DB table `waypoint_spline_data` is empty!");
-
     TC_LOG_INFO("server.loading", ">> Loaded %u waypoints in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
 }
 
 void WaypointMgr::ReloadPath(uint32 id)

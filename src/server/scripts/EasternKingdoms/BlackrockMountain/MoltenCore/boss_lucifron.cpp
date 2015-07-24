@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +17,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+SDName: Boss_Lucifron
+SD%Complete: 100
+SDComment:
+SDCategory: Molten Core
+EndScriptData */
 
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -45,7 +55,7 @@ class boss_lucifron : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim) override
+            void EnterCombat(Unit* victim) OVERRIDE
             {
                 BossAI::EnterCombat(victim);
                 events.ScheduleEvent(EVENT_IMPENDING_DOOM, 10000);
@@ -53,7 +63,7 @@ class boss_lucifron : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADOW_SHOCK, 6000);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 diff) OVERRIDE
             {
                 if (!UpdateVictim())
                     return;
@@ -88,7 +98,7 @@ class boss_lucifron : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
         {
             return new boss_lucifronAI(creature);
         }

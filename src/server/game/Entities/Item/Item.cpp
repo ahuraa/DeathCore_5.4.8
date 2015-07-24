@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -263,13 +263,9 @@ Item::Item()
     m_refundRecipient = 0;
     m_paidMoney = 0;
     m_paidExtendedCost = 0;
-}
 
-void Item::InitializeDynamicUpdateFields()
-{
     m_dynamicTab.resize(ITEM_DYNAMIC_END);
     m_dynamicChange.resize(ITEM_DYNAMIC_END);
-
     for (int i = 0; i < ITEM_DYNAMIC_END; i++)
     {
         m_dynamicTab[i] = new uint32[32];
@@ -277,20 +273,15 @@ void Item::InitializeDynamicUpdateFields()
     }
 }
 
-inline bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
-{
-    return Create(guidlow, itemid, owner ? owner->GetGUID() : 0);
-}
-
-bool Item::Create(uint32 guidlow, uint32 itemid, uint64 owner)
+bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
 {
     Object::_Create(guidlow, 0, HIGHGUID_ITEM);
 
     SetEntry(itemid);
     SetObjectScale(1.0f);
 
-    SetUInt64Value(ITEM_FIELD_OWNER, owner);
-    SetUInt64Value(ITEM_FIELD_CONTAINED_IN, owner);
+    SetUInt64Value(ITEM_FIELD_OWNER, owner ? owner->GetGUID() : 0);
+    SetUInt64Value(ITEM_FIELD_CONTAINED_IN, owner ? owner->GetGUID() : 0);
 
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemid);
     if (!itemProto)
@@ -373,8 +364,8 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setString(++index, ssEnchants.str());
 
             stmt->setInt16 (++index, GetItemRandomPropertyId());
-            stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0)); // reforge Id
-            stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 1)); // Transmogrification Id
+            stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0)); // reforge Id
+            stmt->setUInt32(++index, GetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1)); // Transmogrification Id
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
@@ -481,13 +472,13 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 
     if (uint32 reforgeEntry = fields[8].GetInt32())
     {
-        SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, reforgeEntry);
+        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 0, reforgeEntry);
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, 1);
     }
 
     if (uint32 transmogId = fields[9].GetInt32())
     {
-        SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 1, transmogId);
+        SetDynamicUInt32Value(ITEM_DYNAMIC_MODIFIERS, 1, transmogId);
         SetFlag(ITEM_FIELD_MODIFIERS_MASK, 3);
     }
 
@@ -1032,21 +1023,11 @@ bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) cons
 
 void Item::SendUpdateSockets()
 {
-    WorldPacket data(SMSG_SOCKET_GEMS_RESULT, 8 + 4 + 4 + 4 + 4);
-
+    WorldPacket data(SMSG_SOCKET_GEMS_RESULT, 8+4+4+4+4);
+    data << uint64(GetGUID());
     for (uint32 i = SOCK_ENCHANTMENT_SLOT; i <= BONUS_ENCHANTMENT_SLOT; ++i)
         data << uint32(GetEnchantmentId(EnchantmentSlot(i)));
-	
-    ObjectGuid guid = GetGUID();
 
-    data.WriteGuidMask(guid, 2, 5, 7, 6, 0, 1, 3, 4);
-
-    data.WriteByteSeq(guid[2]);
-	data.WriteBit(0); // Fake Bit
-    data.WriteGuidBytes(guid, 3, 7, 4);
-	data.WriteBit(0); // Fake Bit
-    data.WriteGuidBytes(guid, 5, 0, 1, 6);
-    
     GetOwner()->GetSession()->SendPacket(&data);
 }
 
@@ -1063,20 +1044,29 @@ void Item::SendTimeUpdate(Player* owner)
     ObjectGuid guid = GetGUID();
 
     WorldPacket data(SMSG_ITEM_TIME_UPDATE, (8+4));
-    data.WriteGuidMask(guid, 5, 3, 4, 1, 2, 6, 0, 7);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[7]);
 
-    data.WriteGuidBytes(guid, 2, 6, 7, 4, 0, 3, 5, 1);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[1]);
     data << uint32(duration);
 
     owner->GetSession()->SendPacket(&data);
 }
 
 Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
-{ 
-    return CreateItem(itemEntry, count, player ? player->GetGUID() : 0); 
-}
-
-Item* Item::CreateItem(uint32 itemEntry, uint32 count, uint64 playerGuid)
 {
     if (count < 1)
         return NULL;                                        //don't create item at zero count
@@ -1090,7 +1080,7 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, uint64 playerGuid)
         ASSERT(count != 0 && "pProto->Stackable == 0 but checked at loading already");
 
         Item* item = NewItemOrBag(proto);
-        if (item->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), itemEntry, playerGuid))
+        if (item->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), itemEntry, player))
         {
             item->SetCount(count);
             return item;
@@ -1286,10 +1276,7 @@ bool Item::CanBeTransmogrified() const
         return false;
 
     if (!HasStats())
-        if (!(proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG))
-	    	return true;
-	    else
-	    	return false;
+        return false;
 
     return true;
 }
@@ -1318,10 +1305,7 @@ bool Item::CanTransmogrify() const
         return true;
 
     if (!HasStats())
-        if (proto->Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
-        	return true;
-        else
-        	return false;
+        return false;
 
     return true;
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,14 +46,13 @@ struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
     const Unit* me;
     float m_dist;
     bool m_playerOnly;
-    bool m_checkObscured;
     int32 m_aura;
 
     // unit: the reference unit
     // dist: if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit
     // playerOnly: self explaining
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
-    DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura, bool checkObscuredVision) : me(unit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura), m_checkObscured(checkObscuredVision) { }
+    DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura) : me(unit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) { }
 
     bool operator()(Unit const* target) const
     {
@@ -85,9 +84,6 @@ struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
                     return false;
             }
         }
-
-        if (m_checkObscured && me->HasVisionObscured(target))
-            return false;
 
         return true;
     }
@@ -146,7 +142,7 @@ class UnitAI
         virtual void SetGUID(uint64 /*guid*/, int32 /*id*/ = 0) { }
         virtual uint64 GetGUID(int32 /*id*/ = 0) const { return 0; }
 
-        Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0, bool checkObscuredVision = true);
+        Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit*, bool>
         template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
@@ -195,7 +191,7 @@ class UnitAI
             return NULL;
         }
 
-        void SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0, bool checkObscuredVision = true);
+        void SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
 
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit*, bool>
@@ -245,7 +241,7 @@ class UnitAI
         void AttackStartCaster(Unit* victim, float dist);
 
         void DoAddAuraToAllHostilePlayers(uint32 spellid);
-        void DoCast(uint32 spellId, bool checkObscuredVision = true);
+        void DoCast(uint32 spellId);
         void DoCast(Unit* victim, uint32 spellId, bool triggered = false);
         void DoCastToAllHostilePlayers(uint32 spellid, bool triggered = false);
         void DoCastVictim(uint32 spellId, bool triggered = false);

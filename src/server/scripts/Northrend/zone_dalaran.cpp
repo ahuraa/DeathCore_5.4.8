@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -67,13 +67,13 @@ public:
             creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         }
 
-        void Reset()override { }
+        void Reset()OVERRIDE { }
 
-        void EnterCombat(Unit* /*who*/)override { }
+        void EnterCombat(Unit* /*who*/)OVERRIDE { }
 
-        void AttackStart(Unit* /*who*/)override { }
+        void AttackStart(Unit* /*who*/)OVERRIDE { }
 
-        void MoveInLineOfSight(Unit* who) override
+        void MoveInLineOfSight(Unit* who) OVERRIDE
 
         {
             if (!who || !who->IsInWorld() || who->GetZoneId() != 4395)
@@ -121,10 +121,10 @@ public:
             return;
         }
 
-        void UpdateAI(uint32 /*diff*/)override { }
+        void UpdateAI(uint32 /*diff*/)OVERRIDE { }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new npc_mageguard_dalaranAI(creature);
     }

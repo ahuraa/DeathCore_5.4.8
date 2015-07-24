@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +17,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+SDName: Instance_Deadmines
+SD%Complete: 100
+SDComment:
+SDCategory: Deadmines
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -64,7 +74,7 @@ class instance_deadmines : public InstanceMapScript
             uint32 PiratesDelay_Timer;
             uint64 uiSmiteChestGUID;
 
-            void Initialize() override
+            void Initialize() OVERRIDE
             {
                 FactoryDoorGUID = 0;
                 IronCladDoorGUID = 0;
@@ -78,7 +88,7 @@ class instance_deadmines : public InstanceMapScript
                 uiSmiteChestGUID = 0;
             }
 
-            virtual void Update(uint32 diff) override
+            virtual void Update(uint32 diff) OVERRIDE
             {
                 if (!IronCladDoorGUID || !DefiasCannonGUID || !DoorLeverGUID)
                     return;
@@ -180,7 +190,7 @@ class instance_deadmines : public InstanceMapScript
                     pDoorLever->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 4);
             }
 
-            void OnGameObjectCreate(GameObject* go) override
+            void OnGameObjectCreate(GameObject* go) OVERRIDE
             {
                 switch (go->GetEntry())
                 {
@@ -192,7 +202,7 @@ class instance_deadmines : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 data) OVERRIDE
             {
                 switch (type)
                 {
@@ -208,7 +218,7 @@ class instance_deadmines : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const override
+            uint32 GetData(uint32 type) const OVERRIDE
             {
                 switch (type)
                 {
@@ -219,7 +229,7 @@ class instance_deadmines : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 data) const override
+            uint64 GetData64(uint32 data) const OVERRIDE
             {
                 switch (data)
                 {
@@ -235,14 +245,28 @@ class instance_deadmines : public InstanceMapScript
                 ObjectGuid guid = unit->GetGUID();
 
                 WorldPacket data(SMSG_PLAY_SOUND, 4 + 9);
-                data.WriteGuidMask(guid, 2, 3, 7, 6, 0, 5, 4, 1);
+                data.WriteBit(guid[2]);
+                data.WriteBit(guid[3]);
+                data.WriteBit(guid[7]);
+                data.WriteBit(guid[6]);
+                data.WriteBit(guid[0]);
+                data.WriteBit(guid[5]);
+                data.WriteBit(guid[4]);
+                data.WriteBit(guid[1]);
                 data << uint32(sound);
-                data.WriteGuidBytes(guid, 3, 2, 4, 7, 5, 0, 6, 1);
+                data.WriteByteSeq(guid[3]);
+                data.WriteByteSeq(guid[2]);
+                data.WriteByteSeq(guid[4]);
+                data.WriteByteSeq(guid[7]);
+                data.WriteByteSeq(guid[5]);
+                data.WriteByteSeq(guid[0]);
+                data.WriteByteSeq(guid[6]);
+                data.WriteByteSeq(guid[1]);
                 unit->SendMessageToSet(&data, false);
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const override
+        InstanceScript* GetInstanceScript(InstanceMap* map) const OVERRIDE
         {
             return new instance_deadmines_InstanceMapScript(map);
         }

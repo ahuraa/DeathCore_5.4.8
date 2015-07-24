@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -60,17 +60,11 @@ void Totem::InitStats(uint32 duration)
             && m_Properties->Slot >= SUMMON_SLOT_TOTEM
             && m_Properties->Slot < MAX_TOTEM_SLOT)
     {
-        WorldPacket data(SMSG_TOTEM_CREATED, 1 + 4 + 4);
-
-        ObjectGuid guid;
-
-        data.WriteGuidMask(guid, 6, 1, 2, 5, 3, 4, 7, 0);
+        WorldPacket data(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4);
+        data << uint8(m_Properties->Slot - 1);
+        data << uint64(GetGUID());
         data << uint32(duration);
         data << uint32(GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
-        data.WriteGuidBytes(guid, 3, 4, 5, 6, 0, 2);
-        data << uint8(m_Properties->Slot - 1);
-        data.WriteGuidBytes(guid, 1, 7);
-       
         GetOwner()->ToPlayer()->SendDirectMessage(&data);
 
         // set display id depending on caster's race

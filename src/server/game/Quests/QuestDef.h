@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ class ObjectMgr;
 #define MAX_QUEST_LOG_SIZE 25
 
 #define QUEST_SOURCE_ITEM_IDS_COUNT 4
-#define QUEST_REWARD_CHOICES_COUNT 32
+#define QUEST_REWARD_CHOICES_COUNT 6
 #define QUEST_REWARDS_COUNT 4
 #define QUEST_DEPLINK_COUNT 10
 #define QUEST_REPUTATIONS_COUNT 5
@@ -253,13 +253,6 @@ struct QuestObjective
 
 typedef std::set<QuestObjective*> QuestObjectiveSet;
 
-struct QuestChoiceRewards
-{
-    uint32 rewardItemId;
-    uint32 rewardItemCount;
-    int32  requiredClass;
-};
-
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
 // all base quest information, and any utility functions such as generating the amount of
 // xp to give
@@ -345,7 +338,7 @@ class Quest
         uint32 GetRewardReputationMask() const { return RewardReputationMask; }
         uint32 GetQuestGiverPortrait() const { return QuestGiverPortrait; }
         uint32 GetQuestTurnInPortrait() const { return QuestTurnInPortrait; }
-        uint32 GetRewChoiceItemCount(uint32 itemId, uint8 pClass) const;
+        uint32 GetRewChoiceItemCount(uint32 itemId) const;
         bool   IsDaily() const { return Flags & QUEST_FLAGS_DAILY; }
         bool   IsWeekly() const { return Flags & QUEST_FLAGS_WEEKLY; }
         bool   IsMonthly() const { return SpecialFlags & QUEST_SPECIAL_FLAGS_MONTHLY; }
@@ -354,15 +347,14 @@ class Quest
         bool   IsRaidQuest(Difficulty difficulty) const;
         bool   IsAllowedInRaid(Difficulty difficulty) const;
         bool   IsDFQuest() const { return SpecialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST; }
-        bool   IsRewChoiceItemValid(uint32 itemId, uint8 pClass) const;
+        bool   IsRewChoiceItemValid(uint32 itemId) const;
         uint32 CalculateHonorGain(uint8 level) const;
 
         // multiple values
         uint32 RequiredSourceItemId[QUEST_SOURCE_ITEM_IDS_COUNT];
         uint32 RequiredSourceItemCount[QUEST_SOURCE_ITEM_IDS_COUNT];
-
-        QuestChoiceRewards RewardChoiceItems[QUEST_REWARD_CHOICES_COUNT];
-
+        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT];
+        uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
         uint32 RewardItemId[QUEST_REWARDS_COUNT];
         uint32 RewardItemIdCount[QUEST_REWARDS_COUNT];
         uint32 RewardFactionId[QUEST_REPUTATIONS_COUNT];

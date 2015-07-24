@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -119,6 +119,62 @@ class WorldPacket;
 class ZoneScript;
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
+
+//! Structure to ease conversions from single 64 bit integer guid into individual bytes, for packet sending purposes
+//! Nuke this out when porting ObjectGuid from MaNGOS, but preserve the per-byte storage
+struct ObjectGuid
+{
+    public:
+        ObjectGuid() { _data.u64 = UI64LIT(0); }
+        ObjectGuid(uint64 guid) { _data.u64 = guid; }
+        ObjectGuid(ObjectGuid const& other) { _data.u64 = other._data.u64; }
+
+        uint8& operator[](uint32 index)
+        {
+            ASSERT(index < sizeof(uint64));
+
+#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
+            return _data.byte[index];
+#else
+            return _data.byte[7 - index];
+#endif
+        }
+
+        uint8 const& operator[](uint32 index) const
+        {
+            ASSERT(index < sizeof(uint64));
+
+#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
+            return _data.byte[index];
+#else
+            return _data.byte[7 - index];
+#endif
+        }
+
+        operator uint64()
+        {
+            return _data.u64;
+        }
+
+        ObjectGuid& operator=(uint64 guid)
+        {
+            _data.u64 = guid;
+            return *this;
+        }
+
+        ObjectGuid& operator=(ObjectGuid const& other)
+        {
+            _data.u64 = other._data.u64;
+            return *this;
+        }
+
+    private:
+        union
+        {
+            uint64 u64;
+            uint8 byte[8];
+        } _data;
+};
 
 class Object
 {
@@ -239,7 +295,6 @@ class Object
         Object();
 
         void _InitValues();
-        virtual void InitializeDynamicUpdateFields();
         void _Create(uint32 guidlow, uint32 entry, HighGuid guidhigh);
         std::string _ConcatFields(uint16 startIndex, uint16 size) const;
         void _LoadIntoDataField(std::string const& data, uint32 startOffset, uint32 count);
@@ -432,7 +487,7 @@ struct MovementInfo
             seat = -1;
             time = 0;
             time2 = 0;
-            vehicleId = 0;
+            time3 = 0;
         }
 
         uint64 guid;
@@ -440,7 +495,7 @@ struct MovementInfo
         int8 seat;
         uint32 time;
         uint32 time2;
-        uint32 vehicleId;
+        uint32 time3;
     } transport;
 
     // swimming/flying
@@ -652,7 +707,6 @@ class WorldObject : public Object, public WorldLocation
         bool isInBack(WorldObject const* target, float arc = M_PI) const;
 
         bool IsInBetween(WorldObject const* obj1, WorldObject const* obj2, float size = 0) const;
-		bool IsInAxe(WorldObject const* obj1, WorldObject const* obj2, float size = 0) const;
 
         virtual void CleanupsBeforeDelete(bool finalCleanup = true);  // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
 
@@ -715,7 +769,6 @@ class WorldObject : public Object, public WorldLocation
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = NULL);
 
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
-        Creature*   FindNearestCreaturePet(Player* owner, uint32 entry, float range, bool alive = true) const;
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
 

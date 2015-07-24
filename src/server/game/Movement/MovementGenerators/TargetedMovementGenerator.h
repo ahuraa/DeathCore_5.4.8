@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
- *
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,8 +41,7 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
         TargetedMovementGeneratorMedium(Unit* target, float offset, float angle) :
             TargetedMovementGeneratorBase(target), i_path(NULL),
             i_recheckDistance(0), i_offset(offset), i_angle(angle),
-            i_recalculateTravel(false), i_targetReached(false),
-            evadeTimer(0), failedCounter(0)
+            i_recalculateTravel(false), i_targetReached(false)
         {
         }
         ~TargetedMovementGeneratorMedium() { delete i_path; }
@@ -62,8 +61,6 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
         float i_angle;
         bool i_recalculateTravel : 1;
         bool i_targetReached : 1;
-        uint32 evadeTimer;
-        uint32 failedCounter;
 };
 
 template<class T>

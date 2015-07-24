@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2013-2015 DeathCore <http://www.noffearrdeathproject.net/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +17,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+SDName: Boss_Baroness_Anastari
+SD%Complete: 90
+SDComment: MC disabled
+SDCategory: Stratholme
+EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -32,7 +42,7 @@ class boss_baroness_anastari : public CreatureScript
 public:
     boss_baroness_anastari() : CreatureScript("boss_baroness_anastari") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
     {
         return new boss_baroness_anastariAI(creature);
     }
@@ -51,7 +61,7 @@ public:
         uint32 Silence_Timer;
         //uint32 Possess_Timer;
 
-        void Reset() override
+        void Reset() OVERRIDE
         {
             BansheeWail_Timer = 1000;
             BansheeCurse_Timer = 11000;
@@ -59,17 +69,17 @@ public:
             //Possess_Timer = 35000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) OVERRIDE
         {
         }
 
-         void JustDied(Unit* /*killer*/) override
+         void JustDied(Unit* /*killer*/) OVERRIDE
          {
              if (instance)
                  instance->SetData(TYPE_BARONESS, IN_PROGRESS);
          }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) OVERRIDE
         {
             if (!UpdateVictim())
                 return;
